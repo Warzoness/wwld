@@ -9,6 +9,7 @@ import com.gateway.response.DialogResponse.GetDialogResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class DialogService extends BaseFuntion {
     private DialogBusinessImpl dialogBusinessImpl;
 
 
-    @RequestMapping(value = "/getDialogs", produces = MediaType.APPLICATION_JSON_VALUE,method = RequestMethod.POST)
+    @RequestMapping(value = "/getDialogs", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<GetDialogResponse> getDialog(@RequestBody DialogRequest request) {
         GetDialogResponse response = new GetDialogResponse();
@@ -34,6 +35,27 @@ public class DialogService extends BaseFuntion {
             if (response.getResult().isOk()) {
                 List<CharacterDialogDTO> dialogs = dialogBusinessImpl.findDialog(request);
                 response.setListDialogs(dialogs);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error while getting dialog", e);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @RequestMapping(value = "/getPageDialogs", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<GetDialogResponse> getPageDialogs(@RequestBody DialogRequest request) {
+        GetDialogResponse response = new GetDialogResponse();
+        response.setBaseResponse(getBase(request));
+        try {
+            if (response.getResult().isOk()) {
+                Page<CharacterDialogDTO> listPageDialogs = dialogBusinessImpl.findDialogAndPagination(request);
+                List<CharacterDialogDTO> listDialogs = listPageDialogs.getContent();
+
+                response.setTotalItem(listPageDialogs.getTotalElements());
+                response.setListDialogs(listDialogs);
+                response.setPageNumber(listPageDialogs.getNumber());
+                response.setPageSize(listPageDialogs.getSize());
             }
         } catch (Exception e) {
             LOGGER.error("Error while getting dialog", e);

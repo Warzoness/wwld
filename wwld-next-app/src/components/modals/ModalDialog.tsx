@@ -187,6 +187,7 @@ const DialogModal: React.FC<DialogModalProps> = ({ show, onClose, onSuccess, ini
                 <option value={0}>Hình ảnh</option>
                 <option value={1}>Thoại nhân vật</option>
                 <option value={2}>Thoại nhân vật chính</option>
+                <option value={3}>Chú thích hoặc dẫn truyện</option>
               </select>
             </div>
 
@@ -253,6 +254,8 @@ const DialogModal: React.FC<DialogModalProps> = ({ show, onClose, onSuccess, ini
         </div>
       </div>
     </div>
+
+    
   );
 };
 

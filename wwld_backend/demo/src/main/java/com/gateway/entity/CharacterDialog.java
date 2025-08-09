@@ -22,10 +22,10 @@ public class CharacterDialog {
     @Column(name="storyId")
     private Long storyId;
 
-    @Column(name="content")
+    @Column(name="content",columnDefinition = "MEDIUMTEXT")
     private String content;
 
-    @Column(name="image")
+    @Column(name="image",columnDefinition = "MEDIUMTEXT")
     private String image;
 
     // type = 0 : image (characterId : null), type = 1 : text (characterId : not null), type = 2 : text ( main character)

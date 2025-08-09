@@ -3,6 +3,8 @@ package com.gateway.dao;
 import com.gateway.dto.CharacterDialogDTO;
 import com.gateway.entity.CharacterDialog;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -21,7 +23,18 @@ public interface CharacterDialogDAO extends JpaRepository<CharacterDialog,Long> 
             "WHERE (:dialog_id IS NULL OR d.id = :dialog_id ) " +
             "AND (:story_id IS NULL OR d.storyId = :story_id) " +
             "ORDER BY d.orderIndex")
-    List<CharacterDialogDTO> findDialog(@Param("dialog_id") Long storyId, @Param("story_id") Long characterId);
+    List<CharacterDialogDTO> findDialog(@Param("dialog_id") Long dialogId, @Param("story_id") Long storyId);
+
+    // find Dialog and paginate
+    @Query("SELECT new com.gateway.dto.CharacterDialogDTO(" +
+            "d.id, d.characterId,cha.name, d.storyId, d.content, d.image, d.type, d.orderIndex, d.voice,d.noNameCharacter) " +
+            "FROM CharacterDialog d " +
+            "LEFT JOIN GameCharacter cha ON cha.id = d.characterId " +
+            "WHERE (:dialog_id IS NULL OR d.id = :dialog_id ) " +
+            "AND (:story_id IS NULL OR d.storyId = :story_id) " +
+            "ORDER BY d.orderIndex")
+    Page<CharacterDialogDTO> findDialogAndPagination(Pageable pageable, @Param("dialog_id") Long dialogId, @Param("story_id") Long storyId);
+
 
     // Find Dialog by ID
     @Query("SELECT new com.gateway.dto.CharacterDialogDTO(" +

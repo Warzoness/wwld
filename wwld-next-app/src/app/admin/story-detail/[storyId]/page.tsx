@@ -1,7 +1,7 @@
 'use client';
 
 import DialogModal from "@/components/modals/ModalDialog";
-import { deleteDialog, fetchDialogsByStoryId, updateDialogOrder } from "@/lib/services/dialogService";
+import { deleteDialog, fetchDialogPagesByStoryId, fetchDialogsByStoryId, updateDialogOrder } from "@/lib/services/dialogService";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -48,26 +48,48 @@ export default function StoryDetailPage() {
     const [passInput, setPassInput] = useState("");
     const [passError, setPassError] = useState("");
 
+    // Trạng thái phân trang
+    const [pageNumber, setPageNumber] = useState(0);
+    const [pageSize] = useState(10);
+    const [totalItems, setTotalItems] = useState(0);
+
     useEffect(() => {
         const storyData = sessionStorage.getItem("storyData");
         if (storyData) {
             setStoryData(JSON.parse(storyData));
         }
 
-        const load = async () => {
+        const load = async (page = 0) => {
+            setLoading(true);
             try {
-                const data = await fetchDialogsByStoryId(Number(params.storyId));
-                setDialogDetail(data);
-                console.log("Dialog Detail:", data);
-            }
-            catch {
+                const data = await fetchDialogPagesByStoryId(Number(params.storyId), page, pageSize);
+                setDialogDetail(data.dialogs);
+                setTotalItems(data.totalItems);
+                setPageNumber(data.pageNumber);
+                console.log("Dialog Detail:", data.dialogs);
+            } catch {
                 setDialogDetail([]);
             }
-
             setLoading(false);
+        };
+
+        load(0);
+    }, [params.storyId, pageSize]);
+
+    const totalPages = Math.ceil(totalItems / pageSize);
+
+    const handlePageChange = (newPage: number) => {
+        if (newPage >= 0 && newPage < totalPages) {
+            setPageNumber(newPage);
+            fetchDialogPagesByStoryId(Number(params.storyId), newPage, pageSize).then(data => {
+                setDialogDetail(data.dialogs);
+                setTotalItems(data.totalItems);
+                setPageNumber(data.pageNumber);
+            });
         }
-        load();
-    }, [])
+    };
+
+
 
     const handleOpenAdd = () => {
         setEditDialog(undefined);
@@ -133,7 +155,7 @@ export default function StoryDetailPage() {
     };
 
     // const backendUrl = "http://localhost:8080";
-  const backendUrl = "https://wwld-production.up.railway.app";
+    const backendUrl = "https://wwld-production.up.railway.app";
     const getImageUrl = (image: string) => {
         if (!image) return "";
         if (image.startsWith("http")) return image;
@@ -227,6 +249,11 @@ export default function StoryDetailPage() {
                                     {dialog.content}
                                 </div>
                             )}
+                            {dialog.type === 3 && (
+                                <div className="col-md-10 text-danger fw-bold d-flex align-items-center gap-2">
+                                    {dialog.content}
+                                </div>
+                            )}
 
                             {/* Nút hành động */}
                             <div className="col-md-2 d-flex flex-wrap gap-2 justify-content-center">
@@ -253,6 +280,49 @@ export default function StoryDetailPage() {
                     ))}
                 </div>
             </div>
+
+            <nav aria-label="Dialog pagination">
+                <ul className="pagination justify-content-center">
+                    <li className={`page-item ${pageNumber === 0 ? "disabled" : ""}`}>
+                        <button
+                            className="page-link"
+                            onClick={() => handlePageChange(pageNumber - 1)}
+                            disabled={pageNumber === 0}
+                        >
+                            Trước
+                        </button>
+                    </li>
+
+                    {[...Array(totalPages)].map((_, index) => (
+                        <li key={index} className={`page-item ${pageNumber === index ? "active" : ""}`}>
+                            <button className="page-link" onClick={() => handlePageChange(index)}>
+                                {index + 1}
+                            </button>
+                        </li>
+                    ))}
+
+                    <li className={`page-item ${pageNumber >= totalPages - 1 ? "disabled" : ""}`}>
+                        <button
+                            className="page-link"
+                            onClick={() => handlePageChange(pageNumber + 1)}
+                            disabled={pageNumber >= totalPages - 1}
+                        >
+                            Sau
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+
+
+            {/* Nút lên đầu trang fixed góc dưới bên trái */}
+            <button
+                className="btn btn-secondary fixed-scroll-top"
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                title="Lên đầu trang"
+                aria-label="Lên đầu trang"
+            >
+                <i className="bi bi-arrow-up-circle"></i>
+            </button>
 
             {/* Modal thêm/sửa hội thoại */}
             <DialogModal

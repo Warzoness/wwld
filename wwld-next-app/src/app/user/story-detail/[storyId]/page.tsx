@@ -56,7 +56,7 @@ export default function StoryDetailPage() {
     }, [])
 
     // const backendUrl = "http://localhost:8080";
-  const backendUrl = "https://wwld-production.up.railway.app";
+    const backendUrl = "https://wwld-production.up.railway.app";
     const getImageUrl = (image: string) => {
         if (!image) return "";
         if (image.startsWith("http")) return image;
@@ -138,6 +138,12 @@ export default function StoryDetailPage() {
                             {dialog.type === 2 && (
                                 <div className="col-md-10 text-danger fw-bold d-flex align-items-start gap-2">
                                     <i className="bi bi-arrow-right-square"></i>
+                                    {dialog.content}
+                                </div>
+                            )}
+
+                            {dialog.type === 3 && (
+                                <div className="col-md-10 text-danger fw-bold d-flex align-items-center gap-2">
                                     {dialog.content}
                                 </div>
                             )}

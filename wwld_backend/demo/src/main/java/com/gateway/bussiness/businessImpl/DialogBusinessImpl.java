@@ -6,6 +6,8 @@ import com.gateway.dto.CharacterDialogDTO;
 import com.gateway.entity.CharacterDialog;
 import com.gateway.request.DialogRequest.DialogRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +23,15 @@ public class DialogBusinessImpl implements CharacterDialogBusiness {
     @Override
     public List<CharacterDialogDTO> findDialog(DialogRequest request) {
         return characterDialogDAO.findDialog(request.getId(), request.getStoryId());
+    }
+
+    @Override
+    public Page<CharacterDialogDTO> findDialogAndPagination(DialogRequest request) {
+        return characterDialogDAO.findDialogAndPagination(
+                PageRequest.of(request.getPageIndex(),request.getPageSize()),
+                request.getId(),
+                request.getStoryId()
+        );
     }
 
     // order index = oldest index + 1

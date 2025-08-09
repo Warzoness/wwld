@@ -6,7 +6,7 @@ export interface DialogPayload {
     storyId: number;
     content: string;
     image: string;
-    // type = 0 : image (characterId : null), type = 1 : text (characterId : not null), type = 2 : text ( main character)
+    // type = 0 : image (characterId : null), type = 1 : text (characterId : not null), type = 2 : text ( main character), type = 3 : text (description or nana)
     type: number;
     orderIndex: number;
     voice?: string;
@@ -58,6 +58,26 @@ export const fetchDialogsByStoryId = async (storyId: number) => {
         };
         const response = await apiClient.post("/api/dialog/getDialogs", request);
         return response.data.listDialogs;
+    } catch (error) {
+        console.error("Error fetching dialogs by story id:", error);
+        throw error;
+    }
+};
+
+// Lấy danh sách theo storyId và phân trang
+export const fetchDialogPagesByStoryId = async (storyId: number,pageNumber = 0,pageSize = 10) => {
+    try {
+        const request = {
+            storyId,
+            clientTime: new Date().toISOString()
+        };
+        const response = await apiClient.post("/api/dialog/getPageDialogs", request);
+        return {
+            dialogs : response.data.listDialogs,
+            totalItems : response.data.totalItems,
+            pageNumber : response.data.pageNumber,
+            pageSize : response.data.pageSize
+        };
     } catch (error) {
         console.error("Error fetching dialogs by story id:", error);
         throw error;
