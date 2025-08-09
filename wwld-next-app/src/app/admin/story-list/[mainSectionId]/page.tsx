@@ -129,7 +129,7 @@ export default function StoryListPage() {
 
 
     // Xem chi tiết story
-    const handleViewDetail = (story: any) => {
+    const handleViewDetail = (story: unknown) => {
         router.push(`/admin/story-detail/${story.id}`);
         sessionStorage.setItem(
             "storyData",

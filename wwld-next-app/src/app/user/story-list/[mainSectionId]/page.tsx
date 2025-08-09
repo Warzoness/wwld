@@ -16,6 +16,7 @@ interface Story {
     type: 0 | 1; // 0: chapter, 1: screen
     mainSectionId: number;
     parentId: number;
+    parentTitle:string;
 }
 
 
@@ -80,7 +81,7 @@ export default function StoryListPage() {
 
 
     // Xem chi tiết story
-    const handleViewDetail = (story: any) => {
+    const handleViewDetail = (story: Story) => {
         router.push(`/user/story-detail/${story.id}`);
         sessionStorage.setItem(
             "storyData",
