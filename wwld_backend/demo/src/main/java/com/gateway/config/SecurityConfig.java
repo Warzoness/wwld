@@ -21,7 +21,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/admin/**").hasRole("ADMIN")  // hoặc .hasRole("ADMIN")
                         .anyRequest().permitAll()
-                        .anyRequest().authenticated()
                 )
                 .httpBasic(AbstractHttpConfigurer::disable);
 
