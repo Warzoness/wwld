@@ -16,7 +16,7 @@ interface Story {
     type: 0 | 1; // 0: chapter, 1: screen
     mainSectionId: number;
     parentId: number;
-    parentTitle:string;
+    parentTitle: string;
 }
 
 
@@ -105,7 +105,12 @@ export default function StoryListPage() {
                 <select
                     className="form-select w-auto"
                     value={filterType}
-                    onChange={e => setFilterType(e.target.value as any)}
+                    onChange={e => {
+                        const value = e.target.value;
+                        if (value === "all" || value === "chapter" || value === "screen") {
+                            setFilterType(value);
+                        }
+                    }}
                 >
                     <option value="all">Tất cả</option>
                     <option value="chapter">Chương</option>
