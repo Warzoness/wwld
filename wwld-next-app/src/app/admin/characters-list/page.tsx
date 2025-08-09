@@ -3,7 +3,7 @@
 import CharacterModal from "@/components/modals/ModalCharacter";
 import { deleteCharacter, fetchCharacters } from "@/lib/services/characterService";
 import Link from "next/link";
-import React, { use, useEffect, useState } from "react";
+import React, {  useEffect, useState } from "react";
 
 interface Character {
     id: number;

@@ -1,10 +1,9 @@
 "use client";
 
-import { use, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import { fetchStoriesByMainSectionId, deleteStory } from "@/lib/services/storyService";
+import { fetchStoriesByMainSectionId } from "@/lib/services/storyService";
 import Link from "next/link";
-import StoryModal from "@/components/modals/ModalStory";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 
@@ -35,7 +34,7 @@ export default function StoryListPage() {
     const [filterType, setFilterType] = useState<"all" | "chapter" | "screen">("all");
 
     const [selectedChapterId, setSelectedChapterId] = useState<number | null>(null);
- 
+
 
 
 

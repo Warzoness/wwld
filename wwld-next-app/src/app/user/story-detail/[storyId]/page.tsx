@@ -1,9 +1,7 @@
 'use client';
 
-import DialogModal from "@/components/modals/ModalDialog";
-import { deleteDialog, fetchDialogsByStoryId, updateDialogOrder } from "@/lib/services/dialogService";
-import { log } from "console";
-import { useParams, useSearchParams } from "next/navigation";
+import { fetchDialogsByStoryId } from "@/lib/services/dialogService";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface Dialog {
