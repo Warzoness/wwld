@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 
 
 export const metadata = {
-  title: "Trang web của bạn",
+  title: "Wuthering Waves Lore Data",
   description: "Mô tả",
 };
 
