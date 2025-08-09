@@ -12,7 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // Cho tất cả endpoint
-                .allowedOrigins("http://localhost:3000") // Cho phép gọi từ Next.js
+                .allowedOrigins("http://localhost:3000","https://wwld-production.up.railway.app") // Cho phép gọi từ Next.js
                 .allowedMethods("*")
                 .allowedHeaders("*");
     }
