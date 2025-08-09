@@ -21,7 +21,11 @@ export default function MainSectionManage() {
   const [mainSection, setMainSections] = React.useState<MainSection[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [showPassModal, setShowPassModal] = useState(false);
-  const [pendingAction, setPendingAction] = useState<null | { type: "edit" | "delete", data: any }>(null);
+  type PendingAction =
+  | { type: "edit"; data: MainSection }
+  | { type: "delete"; data: number };
+
+const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
   const [passInput, setPassInput] = useState("");
   const [passError, setPassError] = useState("");
 

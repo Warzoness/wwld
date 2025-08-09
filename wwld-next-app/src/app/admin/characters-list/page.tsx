@@ -3,7 +3,7 @@
 import CharacterModal from "@/components/modals/ModalCharacter";
 import { deleteCharacter, fetchCharacters } from "@/lib/services/characterService";
 import Link from "next/link";
-import React, {  useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 interface Character {
     id: number;
@@ -35,8 +35,11 @@ export default function CharacterProfileGrid() {
     const [passInput, setPassInput] = useState("");
     const [passError, setPassError] = useState("");
     const [showPassModal, setShowPassModal] = useState(false);
-    const [pendingAction, setPendingAction] = useState<null | { type: "edit" | "delete", data: any }>(null);
+    type PendingAction =
+  | { type: "edit"; data: Character }
+  | { type: "delete"; data: number };
 
+const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
     const loadCharacters = async () => {
         setLoading(true);
         const charactersList = await fetchCharacters();
@@ -152,7 +155,7 @@ export default function CharacterProfileGrid() {
                     )
                     .map(character => (
                         <div className="col" key={character.id}>
-                            <div className="card border-0 shadow-sm h-100 text-center profile-card">    
+                            <div className="card border-0 shadow-sm h-100 text-center profile-card">
                                 <div className="profile-img-wrapper">
                                     <img
                                         src={getImageUrl(character.avatar) || "/images/banner.png"} // fallback ảnh

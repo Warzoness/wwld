@@ -17,6 +17,7 @@ interface Story {
     type: 0 | 1; // 0: chapter, 1: screen
     mainSectionId: number;
     parentId: number;
+    parentTitle:string;
 }
 
 const PASSCODE = "123456";
@@ -39,7 +40,11 @@ export default function StoryListPage() {
     const [editStory, setEditStory] = useState<Story | undefined>(undefined);
 
     const [showPassModal, setShowPassModal] = useState(false);
-    const [pendingAction, setPendingAction] = useState<null | { type: "edit" | "delete", data: any }>(null);
+    type PendingAction =
+  | { type: "edit"; data: Story }
+  | { type: "delete"; data: number };
+
+const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
     const [selectedChapterId, setSelectedChapterId] = useState<number | null>(null);
     const [passInput, setPassInput] = useState("");
     const [passError, setPassError] = useState("");
@@ -129,7 +134,7 @@ export default function StoryListPage() {
 
 
     // Xem chi tiết story
-    const handleViewDetail = (story: unknown) => {
+    const handleViewDetail = (story: Story) => {
         router.push(`/admin/story-detail/${story.id}`);
         sessionStorage.setItem(
             "storyData",

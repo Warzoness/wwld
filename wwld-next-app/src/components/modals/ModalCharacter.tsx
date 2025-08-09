@@ -35,6 +35,7 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
 
 
 
+
   // Khi sửa, fill dữ liệu
   useEffect(() => {
     if (initialData) {
@@ -61,7 +62,7 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev: any) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async () => {

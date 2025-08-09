@@ -40,8 +40,11 @@ export default function StoryDetailPage() {
     const [editDialog, setEditDialog] = useState<Dialog | undefined>(undefined);
 
     const [showPassModal, setShowPassModal] = useState(false);
-    const [pendingAction, setPendingAction] = useState<null | { type: "edit" | "delete", data: any }>(null);
-    const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(null);
+    type PendingAction =
+        | { type: "edit"; data: Dialog }
+        | { type: "delete"; data: number };
+
+    const [pendingAction, setPendingAction] = useState<PendingAction | null>(null); const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(null);
     const [passInput, setPassInput] = useState("");
     const [passError, setPassError] = useState("");
 
@@ -82,27 +85,27 @@ export default function StoryDetailPage() {
     };
 
     const handleOrderChange = (dialogId: number, direction: "up" | "down") => {
-    const currentIndex = dialogDetail.findIndex(dialog => dialog.id === dialogId);
-    if (currentIndex === -1) return;
+        const currentIndex = dialogDetail.findIndex(dialog => dialog.id === dialogId);
+        if (currentIndex === -1) return;
 
-    const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
-    if (newIndex < 0 || newIndex >= dialogDetail.length) return;
+        const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+        if (newIndex < 0 || newIndex >= dialogDetail.length) return;
 
-    // Hoán đổi vị trí trong mảng hiển thị
-    const updatedDialogs = [...dialogDetail];
-    [updatedDialogs[currentIndex], updatedDialogs[newIndex]] =
-        [updatedDialogs[newIndex], updatedDialogs[currentIndex]];
+        // Hoán đổi vị trí trong mảng hiển thị
+        const updatedDialogs = [...dialogDetail];
+        [updatedDialogs[currentIndex], updatedDialogs[newIndex]] =
+            [updatedDialogs[newIndex], updatedDialogs[currentIndex]];
 
-    setDialogDetail(updatedDialogs);
+        setDialogDetail(updatedDialogs);
 
-    // Gọi API cập nhật orderIndex cho phần tử được di chuyển
-    updateDialogOrder(dialogId, newIndex).catch(error => {
-        console.error("Error updating dialog order:", error);
-        alert("Cập nhật thứ tự hội thoại thất bại!");
-    });
+        // Gọi API cập nhật orderIndex cho phần tử được di chuyển
+        updateDialogOrder(dialogId, newIndex).catch(error => {
+            console.error("Error updating dialog order:", error);
+            alert("Cập nhật thứ tự hội thoại thất bại!");
+        });
 
-    console.log("Updating order for dialogId:", dialogId, "to new index:", newIndex);
-};
+        console.log("Updating order for dialogId:", dialogId, "to new index:", newIndex);
+    };
 
 
     const handlePassSubmit = async () => {
