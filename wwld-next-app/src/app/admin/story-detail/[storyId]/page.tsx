@@ -85,6 +85,7 @@ export default function StoryDetailPage() {
     const handlePageChange = (newPage: number) => {
         if (newPage >= 0 && newPage < totalPages) {
             setPageNumber(newPage);
+            window.scrollTo({ top: 0, behavior: "smooth" }); // Cuộn lên đầu trang
         }
     };
 
