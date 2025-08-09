@@ -51,7 +51,6 @@ public class DialogService extends BaseFuntion {
             if (response.getResult().isOk()) {
                 Page<CharacterDialogDTO> listPageDialogs = dialogBusinessImpl.findDialogAndPagination(request);
                 List<CharacterDialogDTO> listDialogs = listPageDialogs.getContent();
-
                 response.setTotalItem(listPageDialogs.getTotalElements());
                 response.setListDialogs(listDialogs);
                 response.setPageNumber(listPageDialogs.getNumber());

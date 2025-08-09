@@ -27,7 +27,6 @@ const apiClient = axios.create({
 export const addDialog = async (payload: DialogPayload) => {
     try {
         const response = await apiClient.post("/api/dialog/insert", payload);
-        console.log("addDialog response:", payload);
         return response.data;
     } catch (error) {
         console.error("Error adding dialog :", error);
@@ -65,16 +64,19 @@ export const fetchDialogsByStoryId = async (storyId: number) => {
 };
 
 // Lấy danh sách theo storyId và phân trang
-export const fetchDialogPagesByStoryId = async (storyId: number,pageNumber = 0,pageSize = 10) => {
+export const fetchDialogPagesByStoryId = async (storyId: number,pageIndex = 0,pageSize = 30) => {
     try {
         const request = {
             storyId,
+            pageIndex,
+            pageSize,
             clientTime: new Date().toISOString()
         };
         const response = await apiClient.post("/api/dialog/getPageDialogs", request);
+        
         return {
             dialogs : response.data.listDialogs,
-            totalItems : response.data.totalItems,
+            totalItem : response.data.totalItem,
             pageNumber : response.data.pageNumber,
             pageSize : response.data.pageSize
         };
@@ -87,7 +89,6 @@ export const fetchDialogPagesByStoryId = async (storyId: number,pageNumber = 0,p
 // Sửa 
 export const updateDialog = async (payload: DialogPayload) => {
   try {
-    console.log("payload", payload);
     const response = await apiClient.post("/api/dialog/update", payload);
     return response.data;
   } catch (error) {

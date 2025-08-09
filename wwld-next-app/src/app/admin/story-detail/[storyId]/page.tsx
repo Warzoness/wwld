@@ -1,7 +1,7 @@
 'use client';
 
 import DialogModal from "@/components/modals/ModalDialog";
-import { deleteDialog, fetchDialogPagesByStoryId, fetchDialogsByStoryId, updateDialogOrder } from "@/lib/services/dialogService";
+import { deleteDialog, fetchDialogPagesByStoryId, updateDialogOrder } from "@/lib/services/dialogService";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -30,6 +30,7 @@ const PASSCODE = "1";
 
 export default function StoryDetailPage() {
 
+
     const params = useParams();
     const [storyData, setStoryData] = useState<StoryData | null>(null);
     const [loading, setLoading] = useState(true);
@@ -48,10 +49,9 @@ export default function StoryDetailPage() {
     const [passInput, setPassInput] = useState("");
     const [passError, setPassError] = useState("");
 
-    // Trạng thái phân trang
     const [pageNumber, setPageNumber] = useState(0);
-    const [pageSize] = useState(10);
-    const [totalItems, setTotalItems] = useState(0);
+    const [pageSize] = useState(30);
+    const [totalItem, setTotalItem] = useState(0);
 
     useEffect(() => {
         const storyData = sessionStorage.getItem("storyData");
@@ -59,33 +59,32 @@ export default function StoryDetailPage() {
             setStoryData(JSON.parse(storyData));
         }
 
-        const load = async (page = 0) => {
+
+        if (!params.storyId) return;
+
+        const load = async () => {
             setLoading(true);
             try {
-                const data = await fetchDialogPagesByStoryId(Number(params.storyId), page, pageSize);
+                const data = await fetchDialogPagesByStoryId(Number(params.storyId), pageNumber, pageSize);
                 setDialogDetail(data.dialogs);
-                setTotalItems(data.totalItems);
-                setPageNumber(data.pageNumber);
-                console.log("Dialog Detail:", data.dialogs);
-            } catch {
+                setTotalItem(data.totalItem);
+            } catch (error) {
                 setDialogDetail([]);
+                setTotalItem(0);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         };
-
-        load(0);
-    }, [params.storyId, pageSize]);
-
-    const totalPages = Math.ceil(totalItems / pageSize);
+        load();
+    }, [params.storyId, pageNumber, pageSize]);
+    const safeTotalItems = Number(totalItem) || 0;
+    const safePageSize = Number(pageSize) || 1; // tránh chia cho 0
+    const totalPages = Math.ceil(safeTotalItems / safePageSize);
+    const pageNumbers = totalPages > 0 ? Array.from({ length: totalPages }, (_, i) => i) : [];
 
     const handlePageChange = (newPage: number) => {
         if (newPage >= 0 && newPage < totalPages) {
             setPageNumber(newPage);
-            fetchDialogPagesByStoryId(Number(params.storyId), newPage, pageSize).then(data => {
-                setDialogDetail(data.dialogs);
-                setTotalItems(data.totalItems);
-                setPageNumber(data.pageNumber);
-            });
         }
     };
 
@@ -125,9 +124,9 @@ export default function StoryDetailPage() {
             console.error("Error updating dialog order:", error);
             alert("Cập nhật thứ tự hội thoại thất bại!");
         });
-
-        console.log("Updating order for dialogId:", dialogId, "to new index:", newIndex);
     };
+
+
 
 
     const handlePassSubmit = async () => {
@@ -280,7 +279,6 @@ export default function StoryDetailPage() {
                     ))}
                 </div>
             </div>
-
             <nav aria-label="Dialog pagination">
                 <ul className="pagination justify-content-center">
                     <li className={`page-item ${pageNumber === 0 ? "disabled" : ""}`}>
@@ -293,9 +291,12 @@ export default function StoryDetailPage() {
                         </button>
                     </li>
 
-                    {[...Array(totalPages)].map((_, index) => (
+                    {pageNumbers.map(index => (
                         <li key={index} className={`page-item ${pageNumber === index ? "active" : ""}`}>
-                            <button className="page-link" onClick={() => handlePageChange(index)}>
+                            <button
+                                className="page-link"
+                                onClick={() => handlePageChange(index)}
+                            >
                                 {index + 1}
                             </button>
                         </li>
@@ -331,7 +332,10 @@ export default function StoryDetailPage() {
                 onSuccess={() => {
                     setShowModal(false);
                     setEditDialog(undefined);
-                    fetchDialogsByStoryId(Number(params.storyId)).then(setDialogDetail);
+                    fetchDialogPagesByStoryId(Number(params.storyId), pageNumber, pageSize).then(data => {
+                        setDialogDetail(data.dialogs);
+                        setTotalItem(data.totalItem);
+                    });
                 }}
                 initialData={
                     editDialog
