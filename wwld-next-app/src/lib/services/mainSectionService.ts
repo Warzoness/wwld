@@ -1,5 +1,14 @@
 import axios from "axios";
 
+const backendBaseURL = "https://wwld-production.up.railway.app";
+
+const apiClient = axios.create({
+  baseURL: backendBaseURL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
 // Interface payload
 export interface MainSectionPayload {
   id?: number; // cần khi sửa hoặc xóa
@@ -11,7 +20,7 @@ export interface MainSectionPayload {
 // Tạo mới
 export const addMainSection = async (payload: MainSectionPayload) => {
   try {
-    const response = await axios.post("/api/mainSections/insert", payload);
+    const response = await apiClient.post("/api/mainSections/insert", payload);
     return response.data;
   } catch (error) {
     console.error("Error adding main section:", error);
@@ -25,7 +34,7 @@ export const fetchMainSection = async () => {
     const request = {
       clientTime: new Date().toISOString()
     };
-    const response = await axios.post("/api/mainSections/getMainSections", request);
+    const response = await apiClient.post("/api/mainSections/getMainSections", request);
     return response.data.mainSections;
   } catch (error) {
     console.error("Error fetching main sections:", error);
@@ -36,7 +45,7 @@ export const fetchMainSection = async () => {
 // Sửa
 export const updateMainSection = async (payload: MainSectionPayload) => {
   try {
-    const response = await axios.post("/api/mainSections/update", payload);
+    const response = await apiClient.post("/api/mainSections/update", payload);
     return response.data;
   } catch (error) {
     console.error("Error updating main section:", error);
@@ -47,7 +56,7 @@ export const updateMainSection = async (payload: MainSectionPayload) => {
 // Xóa
 export const deleteMainSection = async (id: number) => {
   try {
-    const response = await axios.post("/api/mainSections/delete", { id });
+    const response = await apiClient.post("/api/mainSections/delete", { id });
     return response.data;
   } catch (error) {
     console.error("Error deleting main section:", error);

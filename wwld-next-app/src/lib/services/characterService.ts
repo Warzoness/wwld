@@ -16,16 +16,29 @@ export interface CharacterPayload {
     type: string; // 
 }
 
+const backendBaseURL = "https://wwld-production.up.railway.app";
+
+const apiClient = axios.create({
+  baseURL: backendBaseURL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+
+
+
 // tạo mới
 export const addCharacter = async (payload: CharacterPayload) => {
-    try {
-        const response = await axios.post("/api/characters/insert", payload);
-        return response.data;
-    } catch (error) {
-        console.error("Error adding character:", error);
-        throw error;
-    }
+  try {
+    const response = await apiClient.post("/api/characters/insert", payload);
+    return response.data;
+  } catch (error) {
+    console.error("Error adding character:", error);
+    throw error;
+  }
 };
+
 
 // lấy danh sách
 export const fetchCharacters = async () => {
@@ -33,7 +46,7 @@ export const fetchCharacters = async () => {
         const request = {
             clientTime: new Date().toISOString()
         };
-        const response = await axios.post("/api/characters/getCharacters", request);
+        const response = await apiClient.post("/api/characters/getCharacters", request);
         console.log("response.data.listCharacters", response.data.listCharacters);
 
         return response.data.listCharacters;
@@ -46,7 +59,7 @@ export const fetchCharacters = async () => {
 // Update 
 export const updateCharacter = async (payload: CharacterPayload) => {
     try {
-        const response = await axios.post("/api/characters/update", payload);
+        const response = await apiClient.post("/api/characters/update", payload);
         return response.data;
     } catch (error) {
         console.error("Error updating character:", error);
@@ -57,7 +70,7 @@ export const updateCharacter = async (payload: CharacterPayload) => {
 // Xóa
 export const deleteCharacter = async (id: number) => {
   try {
-    const response = await axios.post("/api/characters/delete", { id });
+    const response = await apiClient.post("/api/characters/delete", { id });
     return response.data;
   } catch (error) {
     console.error("Error deleting characters:", error);

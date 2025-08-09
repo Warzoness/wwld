@@ -1,5 +1,14 @@
 import axios from "axios";
 
+
+const backendBaseURL = "https://wwld-production.up.railway.app";
+
+const apiClient = axios.create({
+  baseURL: backendBaseURL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 // Interface payload
 export interface StoryPayload {
   id?: number;
@@ -15,7 +24,7 @@ export interface StoryPayload {
 // Tạo mới
 export const addStory = async (payload: StoryPayload) => {
   try {
-    const response = await axios.post("/api/stories/insert", payload);
+    const response = await apiClient.post("/api/stories/insert", payload);
     return response.data;
   } catch (error) {
     console.error("Error adding main section:", error);
@@ -29,7 +38,7 @@ export const fetchStories = async () => {
     const request = {
       clientTime: new Date().toISOString()
     };
-    const response = await axios.post("/api/stories/getStories", request);
+    const response = await apiClient.post("/api/stories/getStories", request);
     return response.data.stories;
   } catch (error) {
     console.error("Error fetching main sections:", error);
@@ -41,7 +50,7 @@ export const fetchChapters = async (): Promise<StoryPayload[]> => {
   const request ={
     type : 0
   }
-  const response = await axios.post("/api/stories/getStories", request);
+  const response = await apiClient.post("/api/stories/getStories", request);
   return response.data.stories;
 };
 
@@ -55,7 +64,7 @@ export const fetchStoriesByMainSectionId = async (mainSectionId: number) => {
       clientTime: new Date().toISOString()
     };
  
-    const response = await axios.post("/api/stories/getStories", request);
+    const response = await apiClient.post("/api/stories/getStories", request);
     return response.data.stories;
   } catch (error) {
     console.error("Error fetching stories by main section id:", error);
@@ -67,7 +76,7 @@ export const fetchStoriesByMainSectionId = async (mainSectionId: number) => {
 export const updateStory = async (payload: StoryPayload) => {
   try {
     console.log("payload", payload);
-    const response = await axios.post("/api/stories/update", payload);
+    const response = await apiClient.post("/api/stories/update", payload);
     return response.data;
   } catch (error) {
     console.error("Error updating main section:", error);
@@ -78,7 +87,7 @@ export const updateStory = async (payload: StoryPayload) => {
 // Xóa
 export const deleteStory = async (id: number) => {
   try {
-    const response = await axios.post("/api/stories/delete", { id });
+    const response = await apiClient.post("/api/stories/delete", { id });
     return response.data;
   } catch (error) {
     console.error("Error deleting main section:", error);

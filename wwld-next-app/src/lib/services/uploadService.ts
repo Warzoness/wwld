@@ -3,7 +3,7 @@ export const handleImageUpload = async (file: File): Promise<string | null> => {
   formData.append("file", file);
 
   try {
-    const res = await fetch("http://localhost:8080/api/upload", {
+    const res = await fetch("https://wwld-production.up.railway.app/api/upload", {
       method: "POST",
       body: formData,
     });

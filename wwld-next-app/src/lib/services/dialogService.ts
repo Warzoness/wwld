@@ -13,10 +13,20 @@ export interface DialogPayload {
     noNameCharacter?: string; // dùng khi không chọn nhân vật nào
 }
 
+const backendBaseURL = "https://wwld-production.up.railway.app";
+
+const apiClient = axios.create({
+  baseURL: backendBaseURL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+
 // Tạo mới 
 export const addDialog = async (payload: DialogPayload) => {
     try {
-        const response = await axios.post("/api/dialog/insert", payload);
+        const response = await apiClient.post("/api/dialog/insert", payload);
         console.log("addDialog response:", payload);
         return response.data;
     } catch (error) {
@@ -31,7 +41,7 @@ export const fetchDialogs = async () => {
         const request = {
             clientTime: new Date().toISOString()
         };
-        const response = await axios.post("/api/dialog/getDialogs", request);
+        const response = await apiClient.post("/api/dialog/getDialogs", request);
         return response.data.listDialogs;
     } catch (error) {
         console.error("Error fetching main sections:", error);
@@ -46,7 +56,7 @@ export const fetchDialogsByStoryId = async (storyId: number) => {
             storyId,
             clientTime: new Date().toISOString()
         };
-        const response = await axios.post("/api/dialog/getDialogs", request);
+        const response = await apiClient.post("/api/dialog/getDialogs", request);
         return response.data.listDialogs;
     } catch (error) {
         console.error("Error fetching dialogs by story id:", error);
@@ -58,7 +68,7 @@ export const fetchDialogsByStoryId = async (storyId: number) => {
 export const updateDialog = async (payload: DialogPayload) => {
   try {
     console.log("payload", payload);
-    const response = await axios.post("/api/dialog/update", payload);
+    const response = await apiClient.post("/api/dialog/update", payload);
     return response.data;
   } catch (error) {
     console.error("Error updating dialog:", error);
@@ -69,7 +79,7 @@ export const updateDialog = async (payload: DialogPayload) => {
 // Xóa
 export const deleteDialog = async (id: number) => {
     try {
-        const response = await axios.post("/api/dialog/delete", { id });
+        const response = await apiClient.post("/api/dialog/delete", { id });
         return response.data;
     } catch (error) {
         console.error("Error deleting dialog:", error);
@@ -81,7 +91,7 @@ export const deleteDialog = async (id: number) => {
 // API call
 export const updateDialogOrder = async (dialogId: number, orderIndex: number) => {
     try {
-        const response = await axios.post("/api/dialog/updateOrderIndex", {
+        const response = await apiClient.post("/api/dialog/updateOrderIndex", {
             id: dialogId,
             orderIndex: orderIndex
         });
