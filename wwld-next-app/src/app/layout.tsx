@@ -1,8 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-import Header from "@/components/Header";
-import Banner from "@/components/Banner";
 import "@/style/global.css"; // CSS toàn cục
 import Footer from "@/components/Footer";
 

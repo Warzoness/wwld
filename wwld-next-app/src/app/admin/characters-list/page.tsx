@@ -97,7 +97,8 @@ const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
         }
     };
 
-    const backendUrl = "http://localhost:8080";
+    
+  const backendUrl = "https://wwld-production.up.railway.app";
     const getImageUrl = (image: string) => {
         if (!image) return "";
         if (image.startsWith("http")) return image;

@@ -112,7 +112,8 @@ const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
         <div className="row g-4">
           {mainSection.map(mainSection => {
             // Xử lý ảnh
-            const backendUrl = "http://localhost:8080";
+            // const backendUrl = "http://localhost:8080";
+  const backendUrl = "https://wwld-production.up.railway.app";
             let imageUrl = "";
             if (mainSection.image) {
               if (mainSection.image.startsWith("http")) {

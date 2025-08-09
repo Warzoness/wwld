@@ -39,7 +39,8 @@ const DialogModal: React.FC<DialogModalProps> = ({ show, onClose, onSuccess, ini
       setType(initialData.type ?? 1);
       setNoNameCharacter(initialData.noNameCharacter || "");
 
-      const backendUrl = "http://localhost:8080";
+      // const backendUrl = "http://localhost:8080";
+  const backendUrl = "https://wwld-production.up.railway.app";
       let img = "";
 
       if (initialData.image) {

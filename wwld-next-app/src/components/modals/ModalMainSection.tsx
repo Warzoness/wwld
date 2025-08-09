@@ -24,7 +24,8 @@ const MainSectionModal: React.FC<MainSectionModalProps> = ({ show, onClose, onSu
       setName(initialData.name);
       setDescription(initialData.description || "");
       let img = "";
-      const backendUrl = "http://localhost:8080"; // Đổi thành domain backend của bạn
+      // const backendUrl = "http://localhost:8080";
+  const backendUrl = "https://wwld-production.up.railway.app"; // Đổi thành domain backend của bạn
       if (initialData.image) {
         if (initialData.image.startsWith("http")) {
           img = initialData.image;

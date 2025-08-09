@@ -34,14 +34,15 @@ export default function HomePage() {
     load();
   }, []);
 
-  const backendUrl = "http://localhost:8080";
+  // // const backendUrl = "http://localhost:8080";
+  const backendUrl = "https://wwld-production.up.railway.app";
 
   return (
-  
+
     <div className="container mt-4">
       <Header />
       <Banner />
-     
+
 
       {loading ? (
         <div className="text-center py-5">
@@ -52,7 +53,8 @@ export default function HomePage() {
         <div className="row g-4">
           {mainSections.map(mainSection => {
             // Xử lý ảnh
-            const backendUrl = "http://localhost:8080";
+            // const backendUrl = "http://localhost:8080";
+            const backendUrl = "https://wwld-production.up.railway.app";
             let imageUrl = "";
             if (mainSection.image) {
               if (mainSection.image.startsWith("http")) {
@@ -111,7 +113,7 @@ export default function HomePage() {
         </div>
       )}
 
-      
+
     </div>
   );
 }
