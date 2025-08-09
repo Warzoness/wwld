@@ -1,6 +1,6 @@
 'use client';
 
-import { fetchDialogsByStoryId } from "@/lib/services/dialogService";
+import { fetchDialogPagesByStoryId, fetchDialogsByStoryId, updateDialogOrder } from "@/lib/services/dialogService";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -32,7 +32,13 @@ export default function StoryDetailPage() {
     const params = useParams();
     const [storyData, setStoryData] = useState<StoryData | null>(null);
     const [loading, setLoading] = useState(true);
+
     const [dialogDetail, setDialogDetail] = useState<Dialog[]>([]);
+
+
+    const [pageNumber, setPageNumber] = useState(0);
+    const [pageSize] = useState(30);
+    const [totalItem, setTotalItem] = useState(0);
 
     useEffect(() => {
         const storyData = sessionStorage.getItem("storyData");
@@ -40,21 +46,36 @@ export default function StoryDetailPage() {
             setStoryData(JSON.parse(storyData));
         }
 
+
+        if (!params.storyId) return;
+
         const load = async () => {
+            setLoading(true);
             try {
-                const data = await fetchDialogsByStoryId(Number(params.storyId));
-                setDialogDetail(data);
-                console.log("Dialog Detail:", data);
-            }
-            catch {
+                const data = await fetchDialogPagesByStoryId(Number(params.storyId), pageNumber, pageSize);
+                setDialogDetail(data.dialogs);
+                setTotalItem(data.totalItem);
+            } catch (error) {
                 setDialogDetail([]);
+                setTotalItem(0);
+            } finally {
+                setLoading(false);
             }
-
-            setLoading(false);
-        }
+        };
         load();
-    }, [])
+    }, [params.storyId, pageNumber, pageSize]);
+    const safeTotalItems = Number(totalItem) || 0;
+    const safePageSize = Number(pageSize) || 1; // tránh chia cho 0
+    const totalPages = Math.ceil(safeTotalItems / safePageSize);
+    const pageNumbers = totalPages > 0 ? Array.from({ length: totalPages }, (_, i) => i) : [];
 
+    const handlePageChange = (newPage: number) => {
+        if (newPage >= 0 && newPage < totalPages) {
+            setPageNumber(newPage);
+            window.scrollTo({ top: 0, behavior: "smooth" }); // Cuộn lên đầu trang
+        }
+    };
+   
     // const backendUrl = "http://localhost:8080";
     const backendUrl = "https://wwld-production.up.railway.app";
     const getImageUrl = (image: string) => {
@@ -150,6 +171,42 @@ export default function StoryDetailPage() {
                         </div>
                     ))}
                 </div>
+
+                 <nav aria-label="Dialog pagination">
+                <ul className="pagination justify-content-center">
+                    <li className={`page-item ${pageNumber === 0 ? "disabled" : ""}`}>
+                        <button
+                            className="page-link"
+                            onClick={() => handlePageChange(pageNumber - 1)}
+                            disabled={pageNumber === 0}
+                        >
+                            Trước
+                        </button>
+                    </li>
+
+                    {pageNumbers.map(index => (
+                        <li key={index} className={`page-item ${pageNumber === index ? "active" : ""}`}>
+                            <button
+                                className="page-link"
+                                onClick={() => handlePageChange(index)}
+                            >
+                                {index + 1}
+                            </button>
+                        </li>
+                    ))}
+
+                    <li className={`page-item ${pageNumber >= totalPages - 1 ? "disabled" : ""}`}>
+                        <button
+                            className="page-link"
+                            onClick={() => handlePageChange(pageNumber + 1)}
+                            disabled={pageNumber >= totalPages - 1}
+                        >
+                            Sau
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+
             </div>
 
         </div>
