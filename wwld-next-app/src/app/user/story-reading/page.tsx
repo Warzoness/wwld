@@ -63,7 +63,7 @@ export default function StoryReadingPage() {
                             <h4 className="m-0 p-0 text-primary">Chixia : </h4>
                         </div>
                         <div className="dialog-content col-md-10" style={{ padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '8px', fontSize: '1.2rem' }}>
-                            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</p>
+                            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
                         </div>
                     </div>
                     <div className="diaglog-mc d-flex gap-2 justify-content-center mt-4" style={{ padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '8px', fontSize: '1.2rem', color: 'blue' }}>

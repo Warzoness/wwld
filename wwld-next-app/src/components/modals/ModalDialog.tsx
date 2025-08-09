@@ -205,6 +205,7 @@ const DialogModal: React.FC<DialogModalProps> = ({ show, onClose, onSuccess, ini
                   e.preventDefault();
                   e.stopPropagation();
                   const file = e.dataTransfer.files?.[0];
+                  // if (file) await handleFileChange({ target: { files: [file] } } as any);
                   // Thay đổi hàm gốc
                   const handleFileChange = (files: FileList) => {
                     // xử lý ở đây

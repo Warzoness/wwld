@@ -209,7 +209,16 @@ const StoryModal: React.FC<StoryModalProps> = ({ show, onClose, onSuccess, initi
                 e.preventDefault();
                 e.stopPropagation();
                 const file = e.dataTransfer.files?.[0];
-                if (file) await handleFileChange({ target: { files: [file] } } as any);
+                // if (file) await handleFileChange({ target: { files: [file] } } as any);
+                // Thay đổi hàm gốc
+                const handleFileChange = (files: FileList) => {
+                  // xử lý ở đây
+                };
+
+                // Gọi
+                if (file) {
+                  await handleFileChange([file] as unknown as FileList);
+                }
               }}
             >
               <input
