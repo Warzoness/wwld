@@ -2,10 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { MainSectionPayload } from "@/lib/services/mainSectionService";
-import { handleImageUpload } from "@/lib/services/uploadService";
+// ⬇️ Đổi import để dùng Cloudinary direct upload (Phương án A)
 import { addStory, fetchChapters, StoryPayload, updateStory } from "@/lib/services/storyService";
 import { fetchMainSection } from "@/lib/services/mainSectionService";
-
+import { handleImageUpload } from "@/lib/services/uploadService";
 
 interface StoryModalProps {
   show: boolean;
@@ -28,28 +28,21 @@ const StoryModal: React.FC<StoryModalProps> = ({ show, onClose, onSuccess, initi
   const [chapters, setChapters] = useState<StoryPayload[]>([]);
   const [parentId, setParentId] = useState<number | undefined>(undefined);
 
-
-
-
   useEffect(() => {
     if (!show) return;
 
     setError("");
-
     fetchMainSection().then(setMainSections);
-
     fetchChapters().then(setChapters); // 👉 Lấy chương để gán vào dropdown nếu là màn
 
     if (initialData) {
       setTitle(initialData.title);
       setDescription(initialData.description || "");
-      setDescription(initialData.description || "");
       setMainSectionId(initialData.mainSectionId || 0);
       setType(initialData.type ?? 0);
       setParentId(initialData.parentId || 0);
 
-      // const backendUrl = "http://localhost:8080";
-  const backendUrl = "https://wwld-production.up.railway.app";
+      const backendUrl = "https://wwld-production.up.railway.app";
       let img = "";
 
       if (initialData.image) {
@@ -69,9 +62,11 @@ const StoryModal: React.FC<StoryModalProps> = ({ show, onClose, onSuccess, initi
       setDescription("");
       setImagePreview("");
       setImageUrl("");
+      setMainSectionId(0);
+      setParentId(undefined);
+      setType(0);
     }
   }, [initialData, show]);
-
 
   const handleSubmit = async () => {
     if (!title.trim()) {
@@ -85,8 +80,8 @@ const StoryModal: React.FC<StoryModalProps> = ({ show, onClose, onSuccess, initi
         description,
         image: imageUrl,
         mainSectionId: mainSectionId,
-        type: type, // Mặc định là chapter, nếu cần có thể thêm logic để chọn loại
-        parentId: parentId || 0 // Nếu không có parentId thì mặc định là 0
+        type: type,
+        parentId: parentId || 0,
       };
 
       if (initialData?.id) {
@@ -105,24 +100,26 @@ const StoryModal: React.FC<StoryModalProps> = ({ show, onClose, onSuccess, initi
     }
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Preview ảnh
+  // ⬇️ Dùng chung cho onChange và onDrop
+  const uploadImage = async (file: File) => {
+    // Preview
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string);
-    };
+    reader.onloadend = () => setImagePreview(reader.result as string);
     reader.readAsDataURL(file);
 
-    // Upload ảnh
+    // Upload Cloudinary (ký từ Spring)
     const uploadedUrl = await handleImageUpload(file);
     if (uploadedUrl) {
       setImageUrl(uploadedUrl); // Dùng để lưu vào DB
     } else {
       setError("Tải ảnh thất bại");
     }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await uploadImage(file);
   };
 
   if (!show) return null;
@@ -137,6 +134,7 @@ const StoryModal: React.FC<StoryModalProps> = ({ show, onClose, onSuccess, initi
           </div>
           <div className="modal-body">
             {error && <div className="alert alert-danger">{error}</div>}
+
             <input
               type="text"
               className="form-control mb-3"
@@ -144,12 +142,14 @@ const StoryModal: React.FC<StoryModalProps> = ({ show, onClose, onSuccess, initi
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
+
             <textarea
               className="form-control mb-3"
               placeholder="Mô tả"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-            ></textarea>
+            />
+
             <div className="form-group mt-3">
               <label> Chọn phần cốt truyện </label>
               <select
@@ -157,8 +157,8 @@ const StoryModal: React.FC<StoryModalProps> = ({ show, onClose, onSuccess, initi
                 value={mainSectionId}
                 onChange={(e) => setMainSectionId(Number(e.target.value))}
               >
-                <option value={parentId}>-- Chọn Main Section --</option>
-                {mainSections.map(section => (
+                <option value={0}>-- Chọn Main Section --</option>
+                {mainSections.map((section) => (
                   <option key={section.id} value={section.id}>
                     {section.name}
                   </option>
@@ -166,7 +166,6 @@ const StoryModal: React.FC<StoryModalProps> = ({ show, onClose, onSuccess, initi
               </select>
             </div>
 
-            {/* // chọn type ( chapter, act) */}
             <div className="form-group mt-3">
               <label>Loại nội dung</label>
               <select
@@ -179,19 +178,18 @@ const StoryModal: React.FC<StoryModalProps> = ({ show, onClose, onSuccess, initi
               </select>
             </div>
 
-            {/* Nếu là màn thì hiện option chọn chương  */}
             <div className="form-group mt-3">
               <label>Chọn chương (nếu là màn)</label>
               <select
                 className="form-select"
-                value={parentId ?? ''}
+                value={parentId ?? ""}
                 onChange={(e) => {
                   const value = e.target.value;
                   setParentId(value ? Number(value) : undefined);
                 }}
               >
                 <option value="">-- Không chọn chương (nếu là chương chính) --</option>
-                {chapters.map(chapter => (
+                {chapters.map((chapter) => (
                   <option key={chapter.id} value={chapter.id}>
                     {chapter.title}
                   </option>
@@ -199,27 +197,19 @@ const StoryModal: React.FC<StoryModalProps> = ({ show, onClose, onSuccess, initi
               </select>
             </div>
 
-
-
             <div
               className="form-control mt-3 d-flex align-items-center justify-content-center"
               style={{ minHeight: 120, border: "2px dashed #ccc", cursor: "pointer", position: "relative" }}
               onClick={() => document.getElementById("main-section-image-input")?.click()}
-              onDragOver={e => { e.preventDefault(); e.stopPropagation(); }}
-              onDrop={async e => {
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onDrop={async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 const file = e.dataTransfer.files?.[0];
-                // if (file) await handleFileChange({ target: { files: [file] } } as any);
-                // Thay đổi hàm gốc
-                const handleFileChange = (files: FileList) => {
-                  // xử lý ở đây
-                };
-
-                // Gọi
-                if (file) {
-                  await handleFileChange([file] as unknown as FileList);
-                }
+                if (file) await uploadImage(file);
               }}
             >
               <input
@@ -236,8 +226,11 @@ const StoryModal: React.FC<StoryModalProps> = ({ show, onClose, onSuccess, initi
               )}
             </div>
           </div>
+
           <div className="modal-footer">
-            <button className="btn btn-secondary" onClick={onClose}>Hủy</button>
+            <button className="btn btn-secondary" onClick={onClose}>
+              Hủy
+            </button>
             <button className="btn btn-primary" onClick={handleSubmit}>
               {initialData ? "Cập nhật" : "Thêm mới"}
             </button>
