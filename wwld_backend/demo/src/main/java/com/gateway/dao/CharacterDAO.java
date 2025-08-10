@@ -2,9 +2,7 @@ package com.gateway.dao;
 
 import com.gateway.dto.CharacterDTO;
 import com.gateway.entity.GameCharacter;
-import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -16,7 +14,8 @@ public interface CharacterDAO extends JpaRepository<GameCharacter, Long> {
     // Find character
     @Query("SELECT new com.gateway.dto.CharacterDTO(" +
             "c.id, c.name, c.avatar, c.imgFull, c.birthday," +
-            "c.sex, c.information, c.mainQuestId, c.sideQuestId, c.eventQuestId," +
+            "c.sex, c.overview,c.history,c.organization,c.age,c.nation,c.otherInformation,c.height,c.combatStyle" +
+            ", c.mainQuestId, c.sideQuestId, c.eventQuestId," +
             "c.areaId, c.memeId, c.type" +
             ") FROM GameCharacter c " +
             "WHERE ( c.id = :id OR :id IS NULL ) " +
@@ -29,9 +28,10 @@ public interface CharacterDAO extends JpaRepository<GameCharacter, Long> {
 
     @Query("SELECT new com.gateway.dto.CharacterDTO(" +
             "c.id, c.name, c.avatar, c.imgFull, c.birthday," +
-            "c.sex, c.information, c.mainQuestId, c.sideQuestId, c.eventQuestId," +
+            "c.sex, c.overview,c.history,c.organization,c.age,c.nation,c.otherInformation,c.height,c.combatStyle" +
+            ", c.mainQuestId, c.sideQuestId, c.eventQuestId," +
             "c.areaId, c.memeId, c.type" +
-            ") FROM GameCharacter c " +
+            ") FROM GameCharacter c "  +
             "WHERE ( c.id = :id OR :id IS NULL ) " +
                 " ")
     CharacterDTO findOneById(

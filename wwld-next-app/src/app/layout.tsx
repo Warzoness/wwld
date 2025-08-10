@@ -3,6 +3,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 
 import "@/style/global.css"; // CSS toàn cục
 import Footer from "@/components/Footer";
+import Header from "@/components/Header";
 
 
 export const metadata = {
@@ -14,7 +15,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <main className=" container-all-content mb-4 mt-4">{children}</main>
+        <Header />
+
+        <main className=" container-all-content">{children}</main>
         <Footer />
       </body>
     </html>

@@ -2,13 +2,11 @@
 
 
 
-import HeroOption1 from "@/components/Hero-Option-1";
 import { useEffect, useState } from "react";
 import { fetchMainSection } from "@/lib/services/mainSectionService";
 import '@/style/global.css';
 import Banner from "@/components/Banner";
 import Link from "next/link";
-import Header from "@/components/Header";
 
 interface MainSection {
   id: number;
@@ -39,11 +37,8 @@ export default function HomePage() {
 
   return (
 
-    <div className="container mt-4">
-      <Header />
+    <div className="container body-content">
       <Banner />
-
-
       {loading ? (
         <div className="text-center py-5">
           <div className="spinner-border text-primary" role="status" />
@@ -67,44 +62,48 @@ export default function HomePage() {
             }
 
             return (
+
               <div className="col-md-4 col-sm-6" key={mainSection.id}>
-                <div className="card shadow-sm h-100 border-0 rounded-3 overflow-hidden bg-light">
+                <div className="iris-card">
                   {imageUrl && (
-                    <img
-                      src={imageUrl}
-                      alt={mainSection.name}
-                      className="card-img-top"
-                      style={{
-                        objectFit: "cover",
-                        height: 200
-                      }}
-                    />
+                    <div className="iris-card__media">
+                      <img
+                        src={imageUrl}
+                        alt={mainSection.name}
+                        className="iris-card__img"
+                      />
+                    </div>
                   )}
-                  <div className="card-body d-flex flex-column">
-                    <h5 className="card-title fw-semibold">{mainSection.name}</h5>
-                    <p className="card-text text-muted" style={{ flexGrow: 1 }}>
+
+                  <div className="iris-card__body">
+                    <div className="iris-card__title">
+                      <span className="iris-glyph">
+                        <i className="bi bi-activity"></i>
+                      </span>
+                      <h5 className="iris-card__heading">{mainSection.name}</h5>
+                    </div>
+
+                    <p className="iris-card__text">
                       {mainSection.description}
                     </p>
 
-                    <div className="d-flex justify-content-between align-items-center mt-3">
-                      <Link
-                        className="btn btn-sm btn-outline-info"
-                        href={{
-                          pathname:
-                            mainSection.name === "Hồ sơ nhân vật"
-                              ? "/admin/characters-list"
-                              : mainSection.name === "Khái niệm Thế giới"
-                                ? "/admin/world-building"
-                                : `/user/story-list/${mainSection.id}`,
-                          query:
-                            mainSection.name === "Hồ sơ nhân vật" || mainSection.name === "Khái niệm Thế giới"
-                              ? undefined
-                              : { mainSectionName: mainSection.name }
-                        }}
-                      >
-                        Xem chi tiết
-                      </Link>
-                    </div>
+                    <Link
+                      className="iris-cta"
+                      href={{
+                        pathname:
+                          mainSection.name === "Hồ sơ nhân vật"
+                            ? "/admin/characters-list"
+                            : mainSection.name === "Khái niệm Thế giới"
+                              ? "/admin/concept-list"
+                              : `/user/story-list/${mainSection.id}`,
+                        query:
+                          mainSection.name === "Hồ sơ nhân vật" || mainSection.name === "Khái niệm Thế giới"
+                            ? undefined
+                            : { mainSectionName: mainSection.name },
+                      }}
+                    >
+                      Chi tiết <i className="bi bi-arrow-right-short"></i>
+                    </Link>
                   </div>
                 </div>
               </div>

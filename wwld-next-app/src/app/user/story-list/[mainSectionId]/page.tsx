@@ -72,7 +72,7 @@ export default function StoryListPage() {
 
 
     // const backendUrl = "http://localhost:8080";
-  const backendUrl = "https://wwld-production.up.railway.app";
+    const backendUrl = "https://wwld-production.up.railway.app";
     const getImageUrl = (image: string) => {
         if (!image) return "";
         if (image.startsWith("http")) return image;
@@ -96,9 +96,6 @@ export default function StoryListPage() {
 
     return (
         <div className="container mt-4">
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <Link href="/" className="btn btn-secondary">Quay lại Danh sách Loại Nội dung</Link>
-            </div>
 
             <h2><span className="text-primary">{mainSectionName}</span></h2>
 
@@ -150,74 +147,62 @@ export default function StoryListPage() {
                 <p>Đang tải...</p>
             ) : viewMode === "card" ? (
                 <div className="row g-4">
-                    {filteredStories.map(story => (
-                        <div className="col-md-4" key={story.id}
-                        >
-                            <div className="card h-100 shadow-sm border-0 rounded-3 overflow-hidden">
-                                {story.image && (
-                                    <div style={{ height: 180, overflow: "hidden" }}>
-                                        <img
-                                            src={getImageUrl(story.image) || "/images/banner.png"}
-                                            alt={story.title}
-                                            className="card-img-top"
-                                            style={{
-                                                objectFit: "cover",
-                                                width: "100%",
-                                                height: "100%",
-                                                transition: "transform 0.3s ease",
-                                            }}
-                                            onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-                                            onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
-                                        />
-                                    </div>
-                                )}
+                    {filteredStories.map((story) => {
+                        const accent = story.type === 0 ? "#ef4444" : "#22d3ee"; // chapter vs màn (tuỳ bạn đổi)
+                        const img = story.image ? getImageUrl(story.image) : "/images/banner.png";
 
-                                <div className="card-body d-flex flex-column justify-content-between">
-                                    <div>
-                                        <h5 className="card-title fw-bold text-truncate" title={story.title}>
-                                            {story.title}
-                                        </h5>
-                                        <p
-                                            className="card-text text-muted"
-                                            style={{
-                                                fontSize: "0.9rem",
-                                                lineHeight: "1.4rem",
-                                                maxHeight: "4.2rem",
-                                                overflow: "hidden",
-                                            }}
-                                        >
+                        return (
+                            <div className="col-md-4" key={story.id}>
+                                <div
+                                    className="iris-card h-100"
+                                    style={{ ["--iris-accent" as any]: accent }}
+                                >
+                                    <div className="iris-card__media" style={{ height: 180 }}>
+                                        <img src={img} alt={story.title} className="iris-card__img" />
+                                    </div>
+
+                                    <div className="iris-card__body">
+                                        <div className="iris-card__title">
+                                            <span className="iris-glyph">
+                                                <i className="bi bi-journal-text"></i>
+                                            </span>
+                                            <h5 className="iris-card__heading" title={story.title}>
+                                                {story.title}
+                                            </h5>
+                                        </div>
+
+                                        <p className="iris-card__text line-clamp-3">
                                             {story.description}
                                         </p>
-                                    </div>
 
-                                    <div className="row align-items-center mt-3 g-2">
-                                        <div className="col text-end">
+                                        <div className="d-flex align-items-center justify-content-between mt-2">
+
                                             {story.type === 0 ? (
                                                 <button
-                                                    className="btn btn-sm btn-info px-3"
+                                                    className="iris-cta  iris-cta--solid" style={{backgroundColor: "transparent"}}
                                                     onClick={() => {
                                                         setSelectedChapterId(story.id);
                                                         setFilterType("screen");
                                                     }}
                                                 >
-                                                    🎬 Xem màn
+                                                    Xem danh sách màn <i className="bi bi-arrow-right-short"></i>
                                                 </button>
                                             ) : (
                                                 <button
-                                                    className="btn btn-sm btn-primary px-3"
+                                                    className="iris-cta" style={{backgroundColor: "transparent"}}
                                                     onClick={() => handleViewDetail(story)}
                                                 >
-                                                    📖 Xem chi tiết
+                                                    Đọc cốt truyện <i className="bi bi-arrow-right-short"></i>
                                                 </button>
                                             )}
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
+
             ) : (
                 <table className="table table-bordered">
                     <thead>
@@ -243,6 +228,7 @@ export default function StoryListPage() {
                                 <td>{story.title}</td>
                                 <td>{story.description}</td>
                                 <td>{story.type === 0 ? "Chương" : "Màn"}</td>
+
                             </tr>
                         ))}
                     </tbody>

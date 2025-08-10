@@ -15,25 +15,46 @@ public class GameCharacter {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     @Column(name="id")
-    private Long id;
+    private Long id; // id nhân vật
 
     @Column(name="name")
-    private String name;
+    private String name; // Tên nhân vật
 
     @Column(name="avatar")
-    private String avatar;
+    private String avatar; // avatar nhân vật
 
     @Column(name="imgFull")
-    private String imgFull;
+    private String imgFull; // ảnh hồ sơ đầy đủ
 
     @Column(name="birthday")
-    private Date birthday;
+    private Date birthday; // Ngày sinh
 
     @Column(name="sex")
-    private String sex;
+    private String sex; // Giới tính
 
-    @Column(name="information")
-    private String information;
+    @Column(name="overview")
+    private String overview; // Tổng quan
+
+    @Column(name="history",columnDefinition = "MEDIUMTEXT")  // Tiểu sử
+    private String history;
+
+    @Column(name="organization")
+    private String organization; // Tổ chức hoạt động
+
+    @Column(name="age")
+    private Integer age; // Tuổi
+
+    @Column(name="nation")
+    private String nation;
+
+    @Column(name="other_infomation")
+    private String otherInformation;
+
+    @Column(name="height")
+    private Float height;
+
+    @Column(name="combat_style")
+    private String combatStyle;
 
     @Column(name="mainQuestId")
     private Long mainQuestId;

@@ -24,7 +24,6 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-  filter: brightness(0.85);
   background-color: #f5f5f5;
   color: #333333;
 }
@@ -39,21 +38,119 @@ body {
   font-family: 'CustomFont';
 }
 
-/* Header  */
-
-.header .row {
-  width: 100%;
-  align-items: center;
-}
-
-.header .row .col {
-  justify-items: center;
-}
-
 .container-all-content {
-  /* background-image: url("/images/image.png");
-  background-size: 100%; */
+  background-image: url("/images/darkmode.png");
+  background-size: cover;
+  padding: 1rem;
 }
+
+
+/* Header dark */
+.iris-header {
+  background: linear-gradient(180deg, var(--iris-card) 0%, var(--iris-card-2) 100%);
+  border-bottom: 1px solid var(--iris-border);
+  box-shadow: var(--iris-shadow);
+  color: var(--iris-text);
+}
+
+/* Logo */
+.iris-logo {
+  font-weight: 800;
+  letter-spacing: .5px;
+  color: var(--iris-text);
+}
+
+.iris-logo:hover {
+  color: var(--iris-accent);
+}
+
+/* Search pill */
+.iris-search {
+  display: flex;
+  align-items: center;
+  background: rgba(2, 6, 23, .55);
+  border: 1px solid var(--iris-border);
+  border-radius: 999px;
+  padding: 8px 12px;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.iris-search:focus-within {
+  border-color: color-mix(in srgb, var(--iris-accent) 45%, var(--iris-border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--iris-accent) 20%, transparent);
+}
+
+.iris-input {
+  background: transparent !important;
+  border: 0 !important;
+  color: var(--iris-text) !important;
+  box-shadow: none !important;
+}
+
+.iris-input::placeholder {
+  color: var(--iris-muted);
+}
+
+/* Small round icon button (filter) */
+.iris-chip {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid var(--iris-border);
+  background: rgba(148, 163, 184, .12);
+  color: var(--iris-text);
+  transition: border-color .2s ease, transform .2s ease, color .2s ease;
+}
+
+.iris-chip:hover {
+  transform: translateY(-1px);
+  color: var(--iris-accent);
+  border-color: color-mix(in srgb, var(--iris-accent) 45%, var(--iris-border));
+}
+
+/* Buttons (đang dùng sẵn) */
+.iris-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--iris-border);
+  background: transparent;
+  color: var(--iris-text);
+}
+
+.iris-btn--primary {
+  border-color: color-mix(in srgb, var(--iris-accent) 45%, var(--iris-border));
+  color: var(--iris-accent);
+}
+
+/* Dropdown dark */
+.iris-dropdown {
+  background: var(--iris-card-2);
+  border: 1px solid var(--iris-border);
+  box-shadow: var(--iris-shadow);
+}
+
+.iris-dropdown .dropdown-item {
+  color: var(--iris-text);
+}
+
+.iris-dropdown .dropdown-item:hover,
+.iris-dropdown .dropdown-item.active {
+  color: var(--iris-accent);
+  background: color-mix(in srgb, var(--iris-accent) 12%, transparent);
+}
+
+/* Responsive: search full width on mobile */
+@media (max-width: 767.98px) {
+  .iris-search {
+    padding: 8px 10px;
+  }
+}
+
 
 
 .icon-circle {
@@ -171,7 +268,567 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  background-color: #626262;
+  color: #f5f5f5;
 }
+
+/* ===== Iris Dark Card ===== */
+:root {
+  --iris-bg: #0f172a;
+  /* nền trang (slate-900) */
+  --iris-card: #111827;
+  /* nền card (gray-900) */
+  --iris-card-2: #0b1224;
+  /* blend nhẹ */
+  --iris-border: #1f2937;
+  /* viền tinh tế */
+  --iris-text: #e5e7eb;
+  /* chữ chính */
+  --iris-muted: #9ca3af;
+  /* chữ mờ */
+  --iris-accent: #ef4444;
+  /* đỏ nhấn (có thể đổi) */
+  --iris-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  --iris-radius: 18px;
+}
+
+body.iris-theme {
+  background: var(--iris-bg);
+  color: var(--iris-text);
+}
+
+.iris-card {
+  background: linear-gradient(180deg, var(--iris-card) 0%, var(--iris-card-2) 100%);
+  border: 1px solid var(--iris-border);
+  border-radius: var(--iris-radius);
+  box-shadow: var(--iris-shadow);
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+
+.iris-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .45);
+  border-color: color-mix(in srgb, var(--iris-accent) 35%, var(--iris-border));
+}
+
+/* Media */
+.iris-card__media {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.iris-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Body */
+.iris-card__body {
+  padding: 18px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--iris-text);
+}
+
+/* Title row with glyph */
+.iris-card__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.iris-glyph {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(120% 120% at 10% 10%, rgba(255, 255, 255, .08) 0%, transparent 60%),
+    rgba(239, 68, 68, .12);
+  color: var(--iris-accent);
+  border: 1px solid color-mix(in srgb, var(--iris-accent) 40%, transparent);
+}
+
+.iris-card__heading {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+/* Text */
+.iris-card__text {
+  margin: 2px 0 6px;
+  color: var(--iris-muted);
+  min-height: 3.2em;
+  /* giữ chiều cao ổn nếu mô tả ngắn */
+}
+
+/* CTA */
+.iris-cta {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 500;
+  color: var(--iris-text);
+  border: 1px solid transparent;
+  transition: color .2s ease, border-color .2s ease, transform .2s ease;
+}
+
+.iris-cta i {
+  transition: transform .2s ease;
+}
+
+.iris-cta:hover {
+  color: var(--iris-accent);
+  border-color: color-mix(in srgb, var(--iris-accent) 45%, transparent);
+}
+
+.iris-cta:hover i {
+  transform: translateX(2px);
+}
+
+/* ===== Dialog items ===== */
+.iris-dialog {
+  background: linear-gradient(180deg, var(--iris-card) 0%, var(--iris-card-2) 100%);
+  border: 1px solid var(--iris-border);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: var(--iris-shadow);
+  margin-bottom: 16px;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+.iris-dialog:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, .45);
+  border-color: color-mix(in srgb, var(--iris-accent) 35%, var(--iris-border));
+}
+
+/* layout */
+.dlg-grid {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: 14px;
+}
+
+/* Hiển thị full ảnh, không upscale, không crop */
+.dlg-media {
+  position: relative;
+  border-radius: 12px;
+  border: 1px solid var(--iris-border);
+  background: rgba(2, 6, 23, .35);
+  padding: 6px;
+  display: flex;
+  justify-content: center;
+  /* canh giữa ngang */
+  align-items: flex-start;
+  /* ảnh bám trên cùng, không cần giữa dọc */
+  overflow: hidden;
+  /* giữ bo góc */
+}
+
+/* Container ảnh */
+.dlg-media {
+  position: relative;
+  border-radius: 12px;
+  border: 1px solid var(--iris-border);
+  background: rgba(2, 6, 23, .25);
+  padding: 6px;
+  overflow: hidden;
+  /* chỉ để bo góc, KHÔNG set height ở đây */
+}
+
+/* Ảnh: không crop, không upscale, để tự cao theo tỉ lệ */
+.dlg-media img {
+  display: block;
+  width: auto;
+  /* không ép full width => không upscale ảnh nhỏ */
+  max-width: 100%;
+  /* không vượt quá bề rộng dialog */
+  height: auto;
+  max-height: none !important;
+  /* xoá mọi giới hạn cũ */
+  object-fit: contain;
+  /* đảm bảo không cắt ảnh */
+}
+
+/* Toolbar overlay (nếu dùng) */
+.dlg-media-toolbar {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, .35);
+  backdrop-filter: blur(4px);
+  border: 1px solid var(--iris-border);
+}
+
+
+
+@media (max-width: 768px) {
+  .dlg-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* media-only type (type 0) */
+.dlg-media {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--iris-border);
+}
+
+.dlg-media img {
+  width: 100%;
+  height: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  display: block;
+}
+
+/* name chip */
+.dlg-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--iris-border);
+  color: var(--iris-text);
+  background:
+    radial-gradient(120% 120% at 15% 10%, rgba(255, 255, 255, .08) 0%, transparent 60%),
+    rgba(148, 163, 184, .10);
+  font-weight: 600;
+}
+
+.dlg-chip--char {
+  border-color: color-mix(in srgb, var(--iris-accent) 40%, var(--iris-border));
+}
+
+.dlg-chip--anon {
+  color: var(--iris-muted);
+}
+
+/* message bubble */
+.dlg-bubble {
+  position: relative;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--iris-border);
+  color: var(--iris-text);
+  line-height: 1.6;
+  background: rgba(2, 6, 23, .35);
+}
+
+.dlg-bubble::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--iris-accent);
+  opacity: .8;
+}
+
+.dlg-bubble--line {}
+
+.dlg-bubble--narr {
+  font-weight: 600;
+  color: color-mix(in srgb, var(--iris-accent) 75%, var(--iris-text));
+}
+
+.dlg-bubble--sys {
+  border-style: dashed;
+  color: #c4b5fd;
+  /* tím nhạt */
+}
+
+/* toolbar */
+.dlg-toolbar {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* reuse iris-btn from trước; thêm size nhỏ */
+.iris-btn {
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--iris-border);
+  background: transparent;
+  color: var(--iris-text);
+}
+
+.iris-btn--warn:hover {
+  color: #f59e0b;
+  border-color: color-mix(in srgb, #f59e0b 55%, transparent);
+}
+
+.iris-btn--danger:hover {
+  color: #ef4444;
+  border-color: color-mix(in srgb, #ef4444 55%, transparent);
+}
+
+/* ===== Page dark wrapper ===== */
+.iris-page {
+  color: var(--iris-text);
+}
+
+.iris-muted {
+  color: var(--iris-muted);
+}
+
+/* Ghost back button */
+.iris-ghost {
+  border: 1px solid var(--iris-border);
+  background: transparent;
+  color: var(--iris-text);
+  padding: 8px 12px;
+  border-radius: 12px;
+  transition: .2s;
+}
+
+.iris-ghost:hover {
+  border-color: color-mix(in srgb, var(--iris-accent) 35%, var(--iris-border));
+}
+
+/* Hero */
+.iris-hero {
+  background: linear-gradient(180deg, var(--iris-card) 0%, var(--iris-card-2) 100%);
+  border: 1px solid var(--iris-border);
+  border-radius: 18px;
+  padding: 18px 22px;
+  max-width: 600px;
+  box-shadow: var(--iris-shadow);
+}
+
+/* Panel */
+.iris-panel {
+  background: linear-gradient(180deg, var(--iris-card) 0%, var(--iris-card-2) 100%);
+  border: 1px solid var(--iris-border);
+  border-radius: 16px;
+  box-shadow: var(--iris-shadow);
+}
+
+.iris-section-title {
+  color: var(--iris-text);
+}
+
+.iris-sep {
+  height: 1px;
+  background: var(--iris-border);
+  opacity: .8;
+  margin: 14px 0;
+}
+
+/* Buttons (reuse) */
+.iris-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--iris-border);
+  background: transparent;
+  color: var(--iris-text);
+  transition: transform .2s ease, border-color .2s ease, color .2s ease;
+}
+
+.iris-btn:hover {
+  transform: translateY(-1px);
+}
+
+.iris-btn--primary {
+  border-color: color-mix(in srgb, var(--iris-accent) 45%, var(--iris-border));
+  color: var(--iris-accent);
+}
+
+.iris-btn--warn:hover {
+  color: #f59e0b;
+  border-color: color-mix(in srgb, #f59e0b 55%, transparent);
+}
+
+.iris-btn--danger:hover {
+  color: #ef4444;
+  border-color: color-mix(in srgb, #ef4444 55%, transparent);
+}
+
+/* Dialog items (đã gửi trước) — để lại nguyên */
+/* ... (khối .iris-dialog, .dlg-grid, .dlg-media, .dlg-chip, .dlg-bubble, .dlg-toolbar, .iris-btn...) ... */
+
+/* Pagination dark */
+.iris-pagination .page-link {
+  background: rgba(2, 6, 23, .6);
+  border: 1px solid var(--iris-border);
+  color: var(--iris-text);
+}
+
+.iris-pagination .page-item.active .page-link {
+  color: var(--iris-accent);
+  border-color: color-mix(in srgb, var(--iris-accent) 50%, var(--iris-border));
+  background: rgba(2, 6, 23, .9);
+}
+
+.iris-pagination .page-item.disabled .page-link {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+/* Floating Action Button */
+.iris-fab {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 50;
+  border: 1px solid var(--iris-border);
+  background: rgba(2, 6, 23, .7);
+  color: var(--iris-text);
+  padding: 10px 12px;
+  border-radius: 999px;
+  box-shadow: var(--iris-shadow);
+}
+
+.iris-fab:hover {
+  border-color: color-mix(in srgb, var(--iris-accent) 40%, var(--iris-border));
+}
+
+/* Modal dark */
+.modal-content {
+  background: linear-gradient(180deg, var(--iris-card) 0%, var(--iris-card-2) 100%);
+  color: var(--iris-text);
+}
+
+.modal-header,
+.modal-footer {
+  border-color: var(--iris-border);
+}
+
+.form-control {
+  background: #0b1224;
+  color: var(--iris-text);
+  border-color: var(--iris-border);
+}
+
+.form-control::placeholder {
+  color: #64748b;
+}
+
+/* Dark style (bạn đang có) */
+.iris-pagination .page-link {
+  background: rgba(2, 6, 23, .6);
+  border: 1px solid var(--iris-border);
+  color: var(--iris-text);
+  border-radius: 10px;
+}
+
+.iris-pagination .page-item.active .page-link {
+  color: var(--iris-accent);
+  border-color: color-mix(in srgb, var(--iris-accent) 50%, var(--iris-border));
+  background: rgba(2, 6, 23, .9);
+}
+
+/* Desktop: cho phép wrap đẹp */
+.iris-pagination {
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Mobile: thu gọn, cuộn ngang, không vỡ hàng */
+@media (max-width: 576px) {
+  .iris-pagination {
+    flex-wrap: nowrap;
+    /* không xuống dòng */
+    overflow-x: auto;
+    /* cuộn ngang */
+    white-space: nowrap;
+    padding: 6px 2px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* ẩn scrollbar trên Firefox */
+  }
+
+  .iris-pagination::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ẩn scrollbar trên WebKit */
+
+  .iris-pagination .page-item {
+    flex: 0 0 auto;
+  }
+
+  /* giữ kích thước nút ổn định */
+  .iris-pagination .page-link {
+    padding: 6px 10px;
+    /* nút nhỏ gọn */
+    font-size: .9rem;
+    min-width: 40px;
+    /* dễ bấm */
+    text-align: center;
+  }
+}
+
+
+
+
+
+/* clamp mô tả */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* nút ghost tối giản, hợp tông IRIS */
+.iris-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: .85rem;
+  border: 1px solid var(--iris-border);
+  background: transparent;
+  color: var(--iris-text);
+  transition: color .2s ease, border-color .2s ease, transform .2s ease;
+}
+
+.iris-btn:hover {
+  transform: translateY(-1px);
+}
+
+.iris-btn--warn:hover {
+  color: #f59e0b;
+  border-color: color-mix(in srgb, #f59e0b 55%, transparent);
+}
+
+.iris-btn--danger:hover {
+  color: #ef4444;
+  border-color: color-mix(in srgb, #ef4444 55%, transparent);
+}
+
 
 .card-quest-contain .card-title {
   font-size: 1.5rem;
@@ -180,32 +837,99 @@ body {
 }
 
 
-/* Footer  */
+/* ===== Footer dark ===== */
+.iris-footer {
+  background: linear-gradient(180deg, var(--iris-card) 0%, var(--iris-bg) 100%);
+  border-top: 1px solid var(--iris-border);
+  color: var(--iris-text);
+}
 
-.footer {
-  width: 100%;
-  height: 300px;
-  position: relative;
-  margin: 1rem 0;
+.iris-footer__title {
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+/* Social icons */
+.iris-social {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  gap: 12px;
   justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
-.social-media {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-  font-size: 1.5rem;
+.iris-social__link {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--iris-border);
+  color: var(--iris-text);
+  background: rgba(148, 163, 184, .10);
+  transition: transform .2s ease, color .2s ease, border-color .2s ease, background .2s ease;
 }
 
-.footer a {
-  color: #f50808;
-  text-decoration: none;
-  font-weight: bold;
-  margin-top: 1rem;
+.iris-social__link:hover {
+  transform: translateY(-2px);
 }
+
+/* Brand hovers (có thể đổi theo palette của bạn) */
+.iris-social--fb:hover {
+  color: #1877F2;
+  border-color: #1877F2;
+  background: color-mix(in srgb, #1877F2 12%, transparent);
+}
+
+.iris-social--tw:hover {
+  color: #1DA1F2;
+  border-color: #1DA1F2;
+  background: color-mix(in srgb, #1DA1F2 12%, transparent);
+}
+
+.iris-social--tt:hover {
+  color: #ff0050;
+  border-color: #ff0050;
+  background: color-mix(in srgb, #ff0050 12%, transparent);
+}
+
+.iris-social--dc:hover {
+  color: #5865F2;
+  border-color: #5865F2;
+  background: color-mix(in srgb, #5865F2 12%, transparent);
+}
+
+.iris-copy {
+  color: var(--iris-muted);
+  font-size: .9rem;
+}
+
+/* Buttons (re-use + pill) */
+.iris-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--iris-border);
+  background: transparent;
+  color: var(--iris-text);
+  transition: transform .2s ease, border-color .2s ease, color .2s ease;
+}
+
+.iris-btn:hover {
+  transform: translateY(-1px);
+}
+
+.iris-btn--primary {
+  border-color: color-mix(in srgb, var(--iris-accent) 45%, var(--iris-border));
+  color: var(--iris-accent);
+}
+
+.iris-btn--pill {
+  border-radius: 999px;
+}
+
 
 /* dialog detail page  */
 .dialog-detail-page {
@@ -240,3 +964,89 @@ body {
   justify-content: center;
 }
 
+/* Character profile  */
+/* Toggle group (filter) */
+.iris-toggle-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.iris-toggle {
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--iris-border);
+  background: transparent;
+  color: var(--iris-text);
+  transition: .2s;
+}
+
+.iris-toggle:hover {
+  transform: translateY(-1px);
+}
+
+.iris-toggle.is-active {
+  color: var(--iris-accent);
+  border-color: color-mix(in srgb, var(--iris-accent) 50%, var(--iris-border));
+  background: color-mix(in srgb, var(--iris-accent) 12%, transparent);
+}
+
+/* Profile card + avatar ring */
+.iris-profile-card {
+  padding-top: 8px;
+}
+
+.iris-card__footer {
+  padding: 0 16px 16px;
+}
+
+.iris-avatar {
+  width: 112px;
+  height: 112px;
+  margin: 14px auto 6px;
+  border-radius: 999px;
+  padding: 3px;
+  background:
+    radial-gradient(120% 120% at 10% 10%, rgba(255, 255, 255, .12) 0%, transparent 60%),
+    var(--iris-accent);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .35);
+}
+
+.iris-avatar img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 999px;
+  object-fit: cover;
+  background: #0b1224;
+  transition: transform .35s ease;
+}
+
+.iris-profile-card:hover .iris-avatar img {
+  transform: scale(1.05);
+}
+
+/* Reuse from earlier */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* CTA styles override to avoid white text */
+.iris-cta.iris-cta--accent {
+  color: var(--iris-accent);
+  border: 1px solid color-mix(in srgb, var(--iris-accent) 55%, transparent);
+  background: color-mix(in srgb, var(--iris-accent) 10%, transparent);
+  padding: 8px 10px;
+  border-radius: 12px;
+  text-decoration: none;
+}
+
+.iris-cta.iris-cta--accent:hover {
+  background: color-mix(in srgb, var(--iris-accent) 18%, transparent);
+  transform: translateX(2px);
+}
+
+/* Chi tiết nhân vật  */

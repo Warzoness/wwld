@@ -62,6 +62,7 @@ public class CharacterService extends BaseFuntion{
     public ResponseEntity<CharacterResponse> insert(@RequestBody GetCharacterRequest request) {
         CharacterResponse response = new CharacterResponse();
         response.setBaseResponse(getBase(request));
+        System.out.println(request.toString());
         try {
             if (response.getResult().isOk()) {
                 characterBusiness.createCharacter(request);
@@ -82,6 +83,8 @@ public class CharacterService extends BaseFuntion{
     public ResponseEntity<CharacterResponse> update(@RequestBody GetCharacterRequest request) {
         CharacterResponse response = new CharacterResponse();
         response.setBaseResponse(getBase(request));
+        System.out.println(request.toString());
+
         try {
             if (response.getResult().isOk()) {
                 characterBusiness.updateCharacter(request);

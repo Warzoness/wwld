@@ -1,6 +1,7 @@
 // File: app/admin/story-manager/page.tsx
 "use client";
 
+import BackButton from "@/components/buttons/back-button/page";
 import StoryModal from "@/components/modals/ModalMainSection";
 import { deleteMainSection, fetchMainSection } from "@/lib/services/mainSectionService";
 import Link from "next/link";
@@ -22,10 +23,10 @@ export default function MainSectionManage() {
   const [loading, setLoading] = React.useState(true);
   const [showPassModal, setShowPassModal] = useState(false);
   type PendingAction =
-  | { type: "edit"; data: MainSection }
-  | { type: "delete"; data: number };
+    | { type: "edit"; data: MainSection }
+    | { type: "delete"; data: number };
 
-const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
   const [passInput, setPassInput] = useState("");
   const [passError, setPassError] = useState("");
 
@@ -89,14 +90,12 @@ const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
     <div className="container">
       {/* Quay lại */}
       <div className="mb-3">
-        <Link href="/admin/dashboard" className="btn btn-outline-secondary">
-          ← Quay lại Dashboard
-        </Link>
+          <BackButton label="Quay Lại" />
       </div>
 
       {/* Tiêu đề + nút thêm */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 className="h3 mb-0 fw-bold">Danh sách loại nội dung chính</h1>
+        <h1 className="h3 mb-0 fw-bold text-light">Danh sách loại nội dung chính</h1>
         <button className="btn btn-primary" onClick={handleOpenAdd}>
           + Thêm mới mục
         </button>
@@ -113,7 +112,7 @@ const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
           {mainSection.map(mainSection => {
             // Xử lý ảnh
             // const backendUrl = "http://localhost:8080";
-  const backendUrl = "https://wwld-production.up.railway.app";
+            const backendUrl = "https://wwld-production.up.railway.app";
             let imageUrl = "";
             if (mainSection.image) {
               if (mainSection.image.startsWith("http")) {
@@ -127,61 +126,69 @@ const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
 
             return (
               <div className="col-md-4 col-sm-6" key={mainSection.id}>
-                <div className="card shadow-sm h-100 border-0 rounded-3 overflow-hidden">
-                  {imageUrl && (
-                    <img
-                      src={imageUrl}
-                      alt={mainSection.name}
-                      className="card-img-top"
-                      style={{
-                        objectFit: "cover",
-                        height: 200
-                      }}
-                    />
-                  )}
-                  <div className="card-body d-flex flex-column">
-                    <h5 className="card-title fw-semibold">{mainSection.name}</h5>
-                    <p className="card-text text-muted" style={{ flexGrow: 1 }}>
-                      {mainSection.description}
-                    </p>
+                {(() => {
+                  // Đổi màu nhấn theo từng section (tuỳ bạn tinh chỉnh)
+                  const accent =
+                    mainSection.name === "Hồ sơ nhân vật" ? "#22d3ee" :
+                      mainSection.name === "Khái niệm Thế giới" ? "#f43f5e" :
+                        "#a78bfa";
 
-                    <div className="d-flex justify-content-between align-items-center mt-3">
-                      <Link
-                        className="btn btn-sm btn-outline-info"
-                        href={{
-                          pathname:
-                            mainSection.name === "Hồ sơ nhân vật"
-                              ? "/admin/characters-list"
-                              : mainSection.name === "Khái niệm Thế giới"
-                                ? "/admin/world-building"
-                                : `/admin/story-list/${mainSection.id}`,
-                          query:
-                            mainSection.name === "Hồ sơ nhân vật" || mainSection.name === "Khái niệm Thế giới"
-                              ? undefined
-                              : { mainSectionName: mainSection.name }
-                        }}
-                      >
-                        Xem chi tiết
-                      </Link>
+                  const img = imageUrl || "/images/banner.png";
 
-                      <div className="d-flex gap-2">
-                        <button
-                          className="btn btn-sm btn-outline-warning"
-                          onClick={() => handleOpenEdit(mainSection)}
-                        >
-                          Sửa
-                        </button>
-                        <button
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => handleDelete(mainSection.id)}
-                        >
-                          Xóa
-                        </button>
+                  return (
+                    <div className="iris-card h-100" style={{ ["--iris-accent" as any]: accent }}>
+                      {img && (
+                        <div className="iris-card__media" style={{ height: 200 }}>
+                          <img src={img} alt={mainSection.name} className="iris-card__img" />
+                        </div>
+                      )}
+
+                      <div className="iris-card__body">
+                        <div className="iris-card__title">
+                          <span className="iris-glyph">
+                            <i className="bi bi-grid-1x2"></i>
+                          </span>
+                          <h5 className="iris-card__heading">{mainSection.name}</h5>
+                        </div>
+
+                        <p className="iris-card__text">
+                          {mainSection.description}
+                        </p>
+
+                        <div className="d-flex justify-content-between align-items-center mt-1">
+                          <Link
+                            className="iris-cta"
+                            href={{
+                              pathname:
+                                mainSection.name === "Hồ sơ nhân vật"
+                                  ? "/admin/characters-list"
+                                  : mainSection.name === "Khái niệm Thế giới"
+                                    ? "/admin/concept-list"
+                                    : `/admin/story-list/${mainSection.id}`,
+                              query:
+                                mainSection.name === "Hồ sơ nhân vật" || mainSection.name === "Khái niệm Thế giới"
+                                  ? undefined
+                                  : { mainSectionName: mainSection.name }
+                            }}
+                          >
+                            Xem chi tiết <i className="bi bi-arrow-right-short"></i>
+                          </Link>
+
+                          <div className="d-flex gap-2">
+                            <button className="iris-btn iris-btn--warn" onClick={() => handleOpenEdit(mainSection)}>
+                              Sửa
+                            </button>
+                            <button className="iris-btn iris-btn--danger" onClick={() => handleDelete(mainSection.id)}>
+                              Xóa
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
+                  );
+                })()}
               </div>
+
             );
           })}
         </div>

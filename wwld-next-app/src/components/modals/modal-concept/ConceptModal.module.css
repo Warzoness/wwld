@@ -1,0 +1,69 @@
+:root{
+  --iris-card:#111827; --iris-card-2:#0b1224; --iris-border:#1f2937;
+  --iris-text:#e5e7eb; --iris-shadow:0 10px 30px rgba(0,0,0,.35);
+}
+
+/* Backdrop */
+.modalBackdrop{
+  position:fixed; inset:0; z-index:1050;
+  background: rgba(0,0,0,.7);
+  display:flex; align-items:center; justify-content:center;
+  padding:16px;
+}
+
+/* Card */
+.modalCard{
+  width:min(720px, 96vw);
+  color:var(--iris-text);
+  border:1px solid var(--iris-border);
+  border-radius:16px;
+  background: linear-gradient(180deg, var(--iris-card) 0%, var(--iris-card-2) 100%);
+  box-shadow: var(--iris-shadow);
+}
+
+/* Header */
+.modalHeader{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 14px; border-bottom:1px solid var(--iris-border);
+}
+.iconBtn{
+  width:34px; height:34px; display:grid; place-items:center;
+  border-radius:10px; border:1px solid var(--iris-border);
+  background: rgba(0,0,0,.35); color:#e5e7eb; backdrop-filter: blur(6px);
+}
+
+/* Body */
+.modalBody{ padding:14px; }
+.label{ display:block; margin:10px 0 6px; opacity:.85; }
+.inputBox, .textarea{
+  width:100%; border:1px solid var(--iris-border); border-radius:12px;
+  background:#0b1224; color:#e5e7eb; padding:10px;
+}
+.textarea{ resize: vertical; }
+
+/* Preview */
+.preview{ margin-top:8px; border:1px solid var(--iris-border); border-radius:10px; overflow:hidden; }
+.preview img{ width:100%; height:200px; object-fit:cover; display:block; }
+
+/* Footer & buttons */
+.modalFooter{ display:flex; justify-content:flex-end; gap:10px; margin-top:14px; }
+.btn{
+  padding:8px 12px; border-radius:12px; border:1px solid var(--iris-border);
+  background: transparent; color: #e5e7eb;
+}
+.btnPrimary{
+  color:#22d3ee;
+  border-color: color-mix(in srgb,#22d3ee 55%, var(--iris-border));
+  background: rgba(34,211,238,.1);
+}
+.btnDanger{
+  color:#ef4444;
+  border-color: color-mix(in srgb,#ef4444 55%, var(--iris-border));
+  background: rgba(239,68,68,.08);
+}
+
+/* Error */
+.error{
+  margin-bottom:8px; color:#ef4444; font-size:.95rem;
+  border:1px solid rgba(239,68,68,.4); padding:8px 10px; border-radius:10px;
+}

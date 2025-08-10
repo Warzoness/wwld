@@ -62,7 +62,14 @@ public class CharacterBusinessImpl implements CharacterBusiness {
         character.setImgFull(request.getImgFull());
         character.setBirthday(request.getBirthday());
         character.setSex(request.getSex());
-        character.setInformation(request.getInformation());
+        character.setOverview(request.getOverview());
+        character.setHistory(request.getHistory());
+        character.setOrganization(request.getOrganization());
+        character.setAge(request.getAge());
+        character.setNation(request.getNation());
+        character.setOtherInformation(request.getOtherInformation());
+        character.setHeight(request.getHeight());
+        character.setCombatStyle(request.getCombatStyle());
         character.setMainQuestId(request.getMainQuestId());
         character.setSideQuestId(request.getSideQuestId());
         character.setEventQuestId(request.getEventQuestId());

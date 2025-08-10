@@ -75,7 +75,7 @@ export default function StoryDetailPage() {
             window.scrollTo({ top: 0, behavior: "smooth" }); // Cuộn lên đầu trang
         }
     };
-   
+
     // const backendUrl = "http://localhost:8080";
     const backendUrl = "https://wwld-production.up.railway.app";
     const getImageUrl = (image: string) => {
@@ -87,11 +87,11 @@ export default function StoryDetailPage() {
 
 
     return (
-        <div className="container dialog-detail-page py-4">
+        <div className="container dialog-detail-page py-4 iris-page">
             {/* Nút quay lại */}
             <div className="mb-4">
                 <button
-                    className="btn btn-outline-secondary d-flex align-items-center gap-2"
+                    className="iris-ghost d-flex align-items-center gap-2"
                     onClick={() => window.history.back()}
                 >
                     <i className="bi bi-arrow-left"></i> Quay lại
@@ -100,96 +100,98 @@ export default function StoryDetailPage() {
 
             {/* Tiêu đề */}
             <div className="text-center mb-4">
-                <div
-                    className="p-3 rounded shadow-sm"
-                    style={{ backgroundColor: "#f0f0f0", maxWidth: "600px", margin: "auto" }}
-                >
+                <div className="iris-hero mx-auto">
                     <h1 className="fw-bold mb-1">{storyData?.chapterName || "Chưa có tên"}</h1>
-                    <h4 className="text-muted">{storyData?.actName || "Chưa có tên"}</h4>
+                    <h4 className="iris-muted">{storyData?.actName || "Chưa có tên"}</h4>
                 </div>
             </div>
 
             {/* Nội dung & mô tả */}
-            <div className="p-4 border rounded shadow-sm bg-white">
+            <div className="iris-panel p-4">
                 {/* Mô tả nhiệm vụ */}
                 <div className="mb-3">
-                    <div className="d-flex align-items-center gap-2 mb-2">
+                    <div className="d-flex align-items-center gap-2 mb-2 iris-section-title">
                         <i className="bi bi-list-task fs-5"></i>
                         <h4 className="mb-0">Mô tả nhiệm vụ</h4>
                     </div>
-                    <p className="mb-0 text-secondary">
+                    <p className="mb-0 iris-muted">
                         {storyData?.description || "Chưa có mô tả nhiệm vụ"}
                     </p>
                 </div>
-                <hr />
+
+                <div className="iris-sep" />
+
+
                 {/* Danh sách hội thoại */}
                 <div className="content-dialog">
-                    {dialogDetail.map((dialog) => (
-                        <div
-                            key={dialog.id}
-                            className="p-3 mb-3 border rounded shadow-sm bg-light row align-items-center"
-                        >
-                            {dialog.type === 0 && (
-                                <div className="col-12 text-center">
-                                    <img
-                                        src={getImageUrl(dialog.image) || "/default-image.png"}
-                                        alt="Dialog Image"
-                                        className="img-fluid rounded"
-                                        style={{ maxHeight: "300px" }}
-                                    />
-                                </div>
-                            )}
+                    {dialogDetail.map((dialog) => {
+                        const isImage = dialog.type === 0;
+                        const isLine = dialog.type === 1;
+                        const isNarr = dialog.type === 2;
+                        const isSys = dialog.type === 3;
 
-                            {dialog.type === 1 && (
-                                <>
-                                    <div className="col-md-2 fw-bold">
-                                        {dialog.characterId ? (
-                                            <span className="text-primary">{dialog.characterName}</span>
-                                        ) : (
-                                            <span className="text-secondary fst-italic">
-                                                {dialog.noNameCharacter || "????"}
-                                            </span>
-                                        )}
-                                        :
+                        const displayName = dialog.characterId
+                            ? dialog.characterName
+                            : (dialog.noNameCharacter || "????");
+
+                        const accent =
+                            isLine ? "#22d3ee" : isNarr ? "#ef4444" : isSys ? "#a78bfa" : "#38bdf8";
+
+                        return (
+                            <div key={dialog.id} className="iris-dialog" style={{ ["--iris-accent" as any]: accent }}>
+                                {isImage ? (
+                                    <div className="dlg-media">
+                                        <img src={getImageUrl(dialog.image) || "/default-image.png"} alt="Dialog Image" />
+
                                     </div>
-                                    <div className="col-md-10">{dialog.content}</div>
-                                </>
-                            )}
 
-                            {dialog.type === 2 && (
-                                <div className="col-md-10 text-danger fw-bold d-flex align-items-start gap-2">
-                                    <i className="bi bi-arrow-right-square"></i>
-                                    {dialog.content}
-                                </div>
-                            )}
+                                ) : (
+                                    <div className="dlg-grid">
+                                        <div className="dlg-side">
+                                            <span className={`dlg-chip ${dialog.characterId ? "dlg-chip--char" : "dlg-chip--anon"}`}>
+                                                <i className="bi bi-person"></i>
+                                                <span className="text-truncate">{displayName}</span>
+                                            </span>
+                                        </div>
 
-                            {dialog.type === 3 && (
-                                <div className="col-md-10 text-danger fw-bold d-flex align-items-center gap-2">
-                                    {dialog.content}
-                                </div>
-                            )}
-                        </div>
-                    ))}
+                                        <div className="dlg-main">
+                                            <div
+                                                className={
+                                                    "dlg-bubble " +
+                                                    (isNarr ? "dlg-bubble--narr" : isSys ? "dlg-bubble--sys" : "dlg-bubble--line")
+                                                }
+                                                title={isLine ? displayName : undefined}
+                                            >
+                                                {isNarr && <i className="bi bi-arrow-right-square me-2"></i>}
+                                                {dialog.content}
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
+            </div>
 
-                 <nav aria-label="Dialog pagination">
-                <ul className="pagination justify-content-center">
+            {/* Pagination */}
+            <nav aria-label="Dialog pagination" className="mt-4">
+                <ul className="pagination justify-content-center iris-pagination">
                     <li className={`page-item ${pageNumber === 0 ? "disabled" : ""}`}>
                         <button
                             className="page-link"
                             onClick={() => handlePageChange(pageNumber - 1)}
                             disabled={pageNumber === 0}
                         >
-                            Trước
+                            <i className="bi bi-chevron-left d-inline d-sm-none"></i>
+                            <span className="d-none d-sm-inline">Trước</span>
                         </button>
                     </li>
 
-                    {pageNumbers.map(index => (
+                    {pageNumbers.map((index) => (
                         <li key={index} className={`page-item ${pageNumber === index ? "active" : ""}`}>
-                            <button
-                                className="page-link"
-                                onClick={() => handlePageChange(index)}
-                            >
+                            <button className="page-link" onClick={() => handlePageChange(index)}>
                                 {index + 1}
                             </button>
                         </li>
@@ -201,13 +203,26 @@ export default function StoryDetailPage() {
                             onClick={() => handlePageChange(pageNumber + 1)}
                             disabled={pageNumber >= totalPages - 1}
                         >
-                            Sau
+                            <span className="d-none d-sm-inline">Sau</span>
+                            <i className="bi bi-chevron-right d-inline d-sm-none"></i>
                         </button>
                     </li>
                 </ul>
             </nav>
 
-            </div>
+
+            {/* Nút lên đầu trang */}
+            <button
+                className="fixed-scroll-top iris-fab"
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                title="Lên đầu trang"
+                aria-label="Lên đầu trang"
+            >
+                <i className="bi bi-arrow-up-circle"></i>
+            </button>
+
+            {/* Modal thêm/sửa hội thoại */}
+
 
         </div>
     );

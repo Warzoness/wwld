@@ -18,7 +18,14 @@ public class GetCharacterRequest extends BaseRequest {
     private String imgFull;
     private Date birthday;
     private String sex;
-    private String information;
+    private String overview;
+    private String history;
+    private String organization;
+    private Integer age;
+    private String nation;
+    private String otherInformation;
+    private Float height;
+    private String combatStyle;
     private Long mainQuestId;
     private Long sideQuestId;
     private Long eventQuestId;
