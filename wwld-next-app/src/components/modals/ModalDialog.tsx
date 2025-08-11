@@ -149,7 +149,7 @@ const DialogModal: React.FC<DialogModalProps> = ({ show, onClose, onSuccess, ini
                     c => c.name.toLowerCase() === inputName.toLowerCase()
                   );
                   if (found) {
-                    setCharacterId(found.id);
+                    setCharacterId(found?.id ?? null);
                     setNoNameCharacter("");
                   } else {
                     setCharacterId(null);
