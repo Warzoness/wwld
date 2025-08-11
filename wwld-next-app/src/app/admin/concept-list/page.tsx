@@ -194,7 +194,7 @@ export default function ConceptListPage() {
             )}
           </div>
 
-          {/* Pagination */}
+          {/* Phân trang */}
           <nav aria-label="Concept pagination" className="mt-4">
             <ul className={`pagination justify-content-center ${styles.pagination}`}>
               <li className={`page-item ${page === 0 ? "disabled" : ""}`}>
