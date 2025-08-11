@@ -39,7 +39,7 @@ export default function ConceptDetailPage() {
   const [open, setOpen] = useState(false);
   const [idx, setIdx] = useState(0);
   const [zoom, setZoom] = useState(1);
-  const [drag, setDrag] = useState<{x: number; y: number; dx: number; dy: number; active: boolean}>({
+  const [drag, setDrag] = useState<{ x: number; y: number; dx: number; dy: number; active: boolean }>({
     x: 0, y: 0, dx: 0, dy: 0, active: false
   });
 
@@ -70,102 +70,104 @@ export default function ConceptDetailPage() {
   }, [open]);
 
   return (
-    <div className={styles.page}>
-      <div className="container py-4">
+    <div className={styles.wapper}>
+      <div className={styles.page}>
+        <div className="container py-4">
 
-        {/* Hàng trên: ảnh chính + mô tả */}
-        <div className="row g-4 align-items-start">
-          {/* Ảnh chính (trái) */}
-          <div className="col-12 col-md-4">
-            <div className={styles.mainBox}>
+          {/* Hàng trên: ảnh chính + mô tả */}
+          <div className="row g-4 align-items-start">
+            {/* Ảnh chính (trái) */}
+            <div className="col-12 col-md-4">
+              <div className={styles.mainBox}>
+                <img
+                  src={selected}
+                  alt="Ảnh chính"
+                  className={styles.mainImg}
+                  onClick={() => openLightbox(0)}
+                  title="Click để phóng to"
+                />
+              </div>
+            </div>
+
+            {/* Mô tả (phải) */}
+            <div className="col-12 col-md-8">
+              <div className={styles.infoBox}>
+                <h1 className={styles.title}>{concept.title}</h1>
+                <p className={styles.summary}>{concept.summary}</p>
+
+                <div className={styles.rule} />
+
+                <ul className={styles.detailList}>
+                  {concept.details.map((line, i) => (
+                    <li key={i}>{line}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Hàng ảnh phụ */}
+          <div className="row mt-4">
+            <div className="col">
+              <div className={styles.thumbRow}>
+                {concept.gallery.map((src, i) => (
+                  <button
+                    key={i}
+                    className={styles.thumb}
+                    onClick={() => openLightbox(i + 1)} // +1 vì 0 là ảnh chính
+                    onMouseEnter={() => setSelected(src)}
+                  >
+                    <img src={src} alt={`Ảnh phụ ${i + 1}`} />
+                    <span className={styles.zoomBadge}><i className="bi bi-zoom-in" /></span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Lightbox */}
+        {open && (
+          <div className={styles.lightbox} onClick={closeLightbox}>
+            <button className={`${styles.lbBtn} ${styles.lbClose}`} onClick={closeLightbox} aria-label="Đóng">
+              <i className="bi bi-x-lg" />
+            </button>
+            <button className={`${styles.lbBtn} ${styles.lbPrev}`} onClick={(e) => { e.stopPropagation(); prev(); }} aria-label="Trước">
+              <i className="bi bi-chevron-left" />
+            </button>
+            <button className={`${styles.lbBtn} ${styles.lbNext}`} onClick={(e) => { e.stopPropagation(); next(); }} aria-label="Sau">
+              <i className="bi bi-chevron-right" />
+            </button>
+
+            <div
+              className={styles.lbStage}
+              onClick={(e) => e.stopPropagation()}
+              onWheel={(e) => setZoom(z => Math.max(1, Math.min(3, z + (e.deltaY < 0 ? 0.1 : -0.1))))}
+              onMouseDown={(e) => setDrag(s => ({ ...s, active: true, dx: e.clientX, dy: e.clientY }))}
+              onMouseMove={(e) => {
+                if (!drag.active || zoom === 1) return;
+                setDrag(s => ({ ...s, x: s.x + (e.clientX - s.dx), y: s.y + (e.clientY - s.dy), dx: e.clientX, dy: e.clientY }));
+              }}
+              onMouseUp={() => setDrag(s => ({ ...s, active: false }))}
+              onMouseLeave={() => setDrag(s => ({ ...s, active: false }))}
+            >
               <img
-                src={selected}
-                alt="Ảnh chính"
-                className={styles.mainImg}
-                onClick={() => openLightbox(0)}
-                title="Click để phóng to"
+                src={images[idx]}
+                alt=""
+                className={styles.lbImg}
+                style={{ transform: `translate(${drag.x}px, ${drag.y}px) scale(${zoom})` }}
+                draggable={false}
               />
             </div>
-          </div>
 
-          {/* Mô tả (phải) */}
-          <div className="col-12 col-md-8">
-            <div className={styles.infoBox}>
-              <h1 className={styles.title}>{concept.title}</h1>
-              <p className={styles.summary}>{concept.summary}</p>
-
-              <div className={styles.rule} />
-
-              <ul className={styles.detailList}>
-                {concept.details.map((line, i) => (
-                  <li key={i}>{line}</li>
-                ))}
-              </ul>
+            <div className={styles.lbControls}>
+              <button onClick={(e) => { e.stopPropagation(); setZoom(z => Math.max(1, z - 0.25)); }}><i className="bi bi-zoom-out" /></button>
+              <span>{Math.round(zoom * 100)}%</span>
+              <button onClick={(e) => { e.stopPropagation(); setZoom(z => Math.min(3, z + 0.25)); }}><i className="bi bi-zoom-in" /></button>
             </div>
           </div>
-        </div>
-
-        {/* Hàng ảnh phụ */}
-        <div className="row mt-4">
-          <div className="col">
-            <div className={styles.thumbRow}>
-              {concept.gallery.map((src, i) => (
-                <button
-                  key={i}
-                  className={styles.thumb}
-                  onClick={() => openLightbox(i + 1)} // +1 vì 0 là ảnh chính
-                  onMouseEnter={() => setSelected(src)}
-                >
-                  <img src={src} alt={`Ảnh phụ ${i + 1}`} />
-                  <span className={styles.zoomBadge}><i className="bi bi-zoom-in" /></span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+        )}
       </div>
-
-      {/* Lightbox */}
-      {open && (
-        <div className={styles.lightbox} onClick={closeLightbox}>
-          <button className={`${styles.lbBtn} ${styles.lbClose}`} onClick={closeLightbox} aria-label="Đóng">
-            <i className="bi bi-x-lg" />
-          </button>
-          <button className={`${styles.lbBtn} ${styles.lbPrev}`} onClick={(e)=>{e.stopPropagation(); prev();}} aria-label="Trước">
-            <i className="bi bi-chevron-left" />
-          </button>
-          <button className={`${styles.lbBtn} ${styles.lbNext}`} onClick={(e)=>{e.stopPropagation(); next();}} aria-label="Sau">
-            <i className="bi bi-chevron-right" />
-          </button>
-
-          <div
-            className={styles.lbStage}
-            onClick={(e)=>e.stopPropagation()}
-            onWheel={(e)=> setZoom(z => Math.max(1, Math.min(3, z + (e.deltaY<0 ? 0.1 : -0.1))))}
-            onMouseDown={(e)=> setDrag(s => ({...s, active:true, dx:e.clientX, dy:e.clientY}))}
-            onMouseMove={(e)=>{
-              if(!drag.active || zoom===1) return;
-              setDrag(s => ({...s, x: s.x + (e.clientX - s.dx), y: s.y + (e.clientY - s.dy), dx:e.clientX, dy:e.clientY}));
-            }}
-            onMouseUp={()=> setDrag(s=>({...s, active:false}))}
-            onMouseLeave={()=> setDrag(s=>({...s, active:false}))}
-          >
-            <img
-              src={images[idx]}
-              alt=""
-              className={styles.lbImg}
-              style={{ transform: `translate(${drag.x}px, ${drag.y}px) scale(${zoom})` }}
-              draggable={false}
-            />
-          </div>
-
-          <div className={styles.lbControls}>
-            <button onClick={(e)=>{e.stopPropagation(); setZoom(z=>Math.max(1, z-0.25));}}><i className="bi bi-zoom-out"/></button>
-            <span>{Math.round(zoom*100)}%</span>
-            <button onClick={(e)=>{e.stopPropagation(); setZoom(z=>Math.min(3, z+0.25));}}><i className="bi bi-zoom-in"/></button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

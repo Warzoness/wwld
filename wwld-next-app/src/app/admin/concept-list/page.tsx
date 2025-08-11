@@ -110,142 +110,144 @@ export default function ConceptListPage() {
   };
 
   return (
-    <div className={styles.page}>
-      <div className="container py-4">
-        <BackButton label="Quay lại" />
-        {/* Top bar */}
-        <div className={styles.topBar}>
-          <h1 className={styles.title}>Concepts</h1>
+    <div className={styles.wapper}>
+      <div className={styles.page}>
+        <div className="container py-4">
+          <BackButton label="Quay lại" />
+          {/* Top bar */}
+          <div className={styles.topBar}>
+            <h1 className={styles.title}>Concepts</h1>
 
-          <div className="d-flex align-items-center gap-2">
-            <div className={styles.searchWrap}>
-              <i className="bi bi-search" aria-hidden />
-              <input
-                className={styles.input}
-                placeholder="Tìm concept..."
-                value={query}
-                onChange={e => setQuery(e.target.value)}
-              />
+            <div className="d-flex align-items-center gap-2">
+              <div className={styles.searchWrap}>
+                <i className="bi bi-search" aria-hidden />
+                <input
+                  className={styles.input}
+                  placeholder="Tìm concept..."
+                  value={query}
+                  onChange={e => setQuery(e.target.value)}
+                />
+              </div>
+              <button className={styles.addBtn} onClick={openAdd}>
+                <i className="bi bi-plus-lg me-1" /> Thêm concept
+              </button>
             </div>
-            <button className={styles.addBtn} onClick={openAdd}>
-              <i className="bi bi-plus-lg me-1" /> Thêm concept
-            </button>
           </div>
-        </div>
 
-        {/* Tag filters */}
-        <div className={styles.tags}>
-          {allTags.map(tag => (
-            <button
-              key={tag}
-              className={`${styles.tag} ${activeTag === tag ? styles.tagActive : ""}`}
-              onClick={() => { setActiveTag(tag); setPage(0); }}
-              style={{ ["--accent" as any]: pickAccent(tag) }}
-            >
-              {tag}
-            </button>
-          ))}
-        </div>
+          {/* Tag filters */}
+          <div className={styles.tags}>
+            {allTags.map(tag => (
+              <button
+                key={tag}
+                className={`${styles.tag} ${activeTag === tag ? styles.tagActive : ""}`}
+                onClick={() => { setActiveTag(tag); setPage(0); }}
+                style={{ ["--accent" as any]: pickAccent(tag) }}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
 
-        {/* Grid cards */}
-        <div className="row g-4">
-          {pageData.map((c) => (
-            <div key={c.id} className="col-12 col-sm-6 col-lg-4 col-xxl-3">
-              <div className={styles.card} style={{ ["--accent" as any]: pickAccent(c.tags[0]) }}>
-                {/* Card action icons */}
-                <div className={styles.cardActions}>
-                  <button className={`${styles.iconBtn} ${styles.warn}`} onClick={() => openEdit(c)} title="Sửa">
-                    <i className="bi bi-pencil" />
-                  </button>
-                  <button className={`${styles.iconBtn} ${styles.danger}`} onClick={() => openDelete(c.id)} title="Xóa">
-                    <i className="bi bi-trash" />
-                  </button>
-                </div>
-
-                <div className={styles.media}>
-                  <img src={c.cover} alt={c.title} />
-                  <span className={styles.badge}><i className="bi bi-images me-1" />{c.shots}</span>
-                </div>
-
-                <div className={styles.body}>
-                  <h3 className={styles.cardTitle}>{c.title}</h3>
-                  <p className={styles.excerpt}>{c.excerpt}</p>
-                  <div className={styles.tagRow}>
-                    {c.tags.slice(0, 3).map(t => (
-                      <span key={t} className={styles.miniTag}>{t}</span>
-                    ))}
+          {/* Grid cards */}
+          <div className="row g-4">
+            {pageData.map((c) => (
+              <div key={c.id} className="col-12 col-sm-6 col-lg-4 col-xxl-3">
+                <div className={styles.card} style={{ ["--accent" as any]: pickAccent(c.tags[0]) }}>
+                  {/* Card action icons */}
+                  <div className={styles.cardActions}>
+                    <button className={`${styles.iconBtn} ${styles.warn}`} onClick={() => openEdit(c)} title="Sửa">
+                      <i className="bi bi-pencil" />
+                    </button>
+                    <button className={`${styles.iconBtn} ${styles.danger}`} onClick={() => openDelete(c.id)} title="Xóa">
+                      <i className="bi bi-trash" />
+                    </button>
                   </div>
 
-                  <div className={styles.actions}>
-                    <Link href={`/concepts/${c.id}`} className={styles.cta}>
-                      Xem chi tiết <i className="bi bi-arrow-right-short" />
-                    </Link>
+                  <div className={styles.media}>
+                    <img src={c.cover} alt={c.title} />
+                    <span className={styles.badge}><i className="bi bi-images me-1" />{c.shots}</span>
+                  </div>
+
+                  <div className={styles.body}>
+                    <h3 className={styles.cardTitle}>{c.title}</h3>
+                    <p className={styles.excerpt}>{c.excerpt}</p>
+                    <div className={styles.tagRow}>
+                      {c.tags.slice(0, 3).map(t => (
+                        <span key={t} className={styles.miniTag}>{t}</span>
+                      ))}
+                    </div>
+
+                    <div className={styles.actions}>
+                      <Link href={`/concepts/${c.id}`} className={styles.cta}>
+                        Xem chi tiết <i className="bi bi-arrow-right-short" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-
-          {pageData.length === 0 && (
-            <div className="col">
-              <div className={styles.empty}>Không tìm thấy concept nào.</div>
-            </div>
-          )}
-        </div>
-
-        {/* Pagination */}
-        <nav aria-label="Concept pagination" className="mt-4">
-          <ul className={`pagination justify-content-center ${styles.pagination}`}>
-            <li className={`page-item ${page === 0 ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPage(Math.max(0, page - 1))}>
-                <i className="bi bi-chevron-left d-inline d-sm-none" />
-                <span className="d-none d-sm-inline">Trước</span>
-              </button>
-            </li>
-
-            {Array.from({ length: totalPages }, (_, i) => (
-              <li key={i} className={`page-item ${i === page ? "active" : ""}`}>
-                <button className="page-link" onClick={() => setPage(i)}>{i + 1}</button>
-              </li>
             ))}
 
-            <li className={`page-item ${page >= totalPages - 1 ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPage(Math.min(totalPages - 1, page + 1))}>
-                <span className="d-none d-sm-inline">Sau</span>
-                <i className="bi bi-chevron-right d-inline d-sm-none" />
-              </button>
-            </li>
-          </ul>
-        </nav>
-      </div>
+            {pageData.length === 0 && (
+              <div className="col">
+                <div className={styles.empty}>Không tìm thấy concept nào.</div>
+              </div>
+            )}
+          </div>
+
+          {/* Pagination */}
+          <nav aria-label="Concept pagination" className="mt-4">
+            <ul className={`pagination justify-content-center ${styles.pagination}`}>
+              <li className={`page-item ${page === 0 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={() => setPage(Math.max(0, page - 1))}>
+                  <i className="bi bi-chevron-left d-inline d-sm-none" />
+                  <span className="d-none d-sm-inline">Trước</span>
+                </button>
+              </li>
+
+              {Array.from({ length: totalPages }, (_, i) => (
+                <li key={i} className={`page-item ${i === page ? "active" : ""}`}>
+                  <button className="page-link" onClick={() => setPage(i)}>{i + 1}</button>
+                </li>
+              ))}
+
+              <li className={`page-item ${page >= totalPages - 1 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={() => setPage(Math.min(totalPages - 1, page + 1))}>
+                  <span className="d-none d-sm-inline">Sau</span>
+                  <i className="bi bi-chevron-right d-inline d-sm-none" />
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
 
       // ...
-      {showForm && (
-        <Suspense fallback={null}>
-          <ConceptFormModal
-            initial={editing ? {
-              id: editing.id,
-              title: editing.title,
-              excerpt: editing.excerpt,
-              cover: editing.cover,
-              tags: editing.tags,
-              shots: editing.shots,
-            } : undefined}
-            onClose={() => setShowForm(false)}
-            onSave={handleSave}
-          />
-        </Suspense>
-      )}
+        {showForm && (
+          <Suspense fallback={null}>
+            <ConceptFormModal
+              initial={editing ? {
+                id: editing.id,
+                title: editing.title,
+                excerpt: editing.excerpt,
+                cover: editing.cover,
+                tags: editing.tags,
+                shots: editing.shots,
+              } : undefined}
+              onClose={() => setShowForm(false)}
+              onSave={handleSave}
+            />
+          </Suspense>
+        )}
 
-      {deletingId !== null && (
-        <Suspense fallback={null}>
-          <ConfirmModal
-            message="Bạn có chắc muốn xóa concept này?"
-            onCancel={() => setDeletingId(null)}
-            onConfirm={handleConfirmDelete}
-          />
-        </Suspense>
-      )}
+        {deletingId !== null && (
+          <Suspense fallback={null}>
+            <ConfirmModal
+              message="Bạn có chắc muốn xóa concept này?"
+              onCancel={() => setDeletingId(null)}
+              onConfirm={handleConfirmDelete}
+            />
+          </Suspense>
+        )}
+      </div>
     </div>
   );
 }

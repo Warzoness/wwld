@@ -1,4 +1,4 @@
-:global(:root){
+.wapper{
   --iris-bg:#0f172a; --iris-card:#111827; --iris-card-2:#0b1224;
   --iris-border:#1f2937; --iris-text:#e5e7eb; --iris-muted:#94a3b8;
   --iris-accent:#ef4444; --iris-shadow:0 10px 30px rgba(0,0,0,.35);

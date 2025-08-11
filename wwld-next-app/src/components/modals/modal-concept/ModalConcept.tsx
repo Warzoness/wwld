@@ -89,125 +89,127 @@ export function ConceptFormModal({
   const clearImage = () => setValues(v => ({ ...v, cover: "" }));
 
   return (
-    <div className={styles.modalBackdrop} onClick={onClose}>
-      <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.modalHeader}>
-          <h3 className="m-0">{initial ? "Sửa concept" : "Thêm concept"}</h3>
-          <button className={styles.iconBtn} onClick={onClose} aria-label="Đóng">
-            <i className="bi bi-x-lg" />
-          </button>
-        </div>
+    <div className={styles.wapper}>
+      <div className={styles.modalBackdrop} onClick={onClose}>
+        <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.modalHeader}>
+            <h3 className="m-0">{initial ? "Sửa concept" : "Thêm concept"}</h3>
+            <button className={styles.iconBtn} onClick={onClose} aria-label="Đóng">
+              <i className="bi bi-x-lg" />
+            </button>
+          </div>
 
-        <form onSubmit={submit} className={styles.modalBody}>
-          {error && <div className={styles.error}>{error}</div>}
+          <form onSubmit={submit} className={styles.modalBody}>
+            {error && <div className={styles.error}>{error}</div>}
 
-          <label className={styles.label}>Tiêu đề</label>
-          <input
-            className={styles.inputBox}
-            value={values.title}
-            onChange={(e) => setValues(v => ({ ...v, title: e.target.value }))}
-            placeholder="Nhập tiêu đề"
-          />
+            <label className={styles.label}>Tiêu đề</label>
+            <input
+              className={styles.inputBox}
+              value={values.title}
+              onChange={(e) => setValues(v => ({ ...v, title: e.target.value }))}
+              placeholder="Nhập tiêu đề"
+            />
 
-          <label className={styles.label}>Mô tả ngắn</label>
-          <textarea
-            className={styles.textarea}
-            rows={3}
-            value={values.excerpt}
-            onChange={(e) => setValues(v => ({ ...v, excerpt: e.target.value }))}
-            placeholder="Mô tả ngắn…"
-          />
+            <label className={styles.label}>Mô tả ngắn</label>
+            <textarea
+              className={styles.textarea}
+              rows={3}
+              value={values.excerpt}
+              onChange={(e) => setValues(v => ({ ...v, excerpt: e.target.value }))}
+              placeholder="Mô tả ngắn…"
+            />
 
-          {/* === ẢNH BÌA: preview + upload/drag-drop/paste === */}
-          <label className={styles.label}>Ảnh bìa</label>
-          <div
-            className={`${styles.imgPicker} ${!values.cover ? styles.imgPickerEmpty : ""}`}
-            onClick={pickFile}
-            onDragOver={(e) => { e.preventDefault(); }}
-            onDrop={onDrop}
-            onPaste={onPaste}
-            title="Click / Kéo-thả / Dán (Ctrl+V) để chọn ảnh"
-          >
-            {values.cover ? (
-              <img src={values.cover} alt="cover" className={styles.imgPickerImg} />
-            ) : (
-              <div className={styles.imgPickerHint}>
-                <i className="bi bi-image me-2" />
-                Chọn hoặc kéo-thả ảnh vào đây
+            {/* === ẢNH BÌA: preview + upload/drag-drop/paste === */}
+            <label className={styles.label}>Ảnh bìa</label>
+            <div
+              className={`${styles.imgPicker} ${!values.cover ? styles.imgPickerEmpty : ""}`}
+              onClick={pickFile}
+              onDragOver={(e) => { e.preventDefault(); }}
+              onDrop={onDrop}
+              onPaste={onPaste}
+              title="Click / Kéo-thả / Dán (Ctrl+V) để chọn ảnh"
+            >
+              {values.cover ? (
+                <img src={values.cover} alt="cover" className={styles.imgPickerImg} />
+              ) : (
+                <div className={styles.imgPickerHint}>
+                  <i className="bi bi-image me-2" />
+                  Chọn hoặc kéo-thả ảnh vào đây
+                </div>
+              )}
+
+              <div className={styles.imgPickerOverlay} onClick={(e) => e.stopPropagation()}>
+                {!uploading ? (
+                  <>
+                    <button type="button" className={styles.btn} onClick={pickFile}>
+                      <i className="bi bi-upload me-1" /> Tải ảnh
+                    </button>
+                    {values.cover && (
+                      <button type="button" className={`${styles.btn} ${styles.btnDanger}`} onClick={clearImage}>
+                        <i className="bi bi-trash me-1" /> Xóa
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <div className={styles.loading}>
+                    <span className={styles.spinner} /> Đang tải…
+                  </div>
+                )}
+              </div>
+
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={(e) => onFile(e.target.files?.[0])}
+              />
+            </div>
+
+            {/* (tuỳ chọn) Hiện URL để copy nhanh */}
+            {values.cover && (
+              <div className={styles.urlRow}>
+                <span className={styles.urlText} title={values.cover}>{values.cover}</span>
+                <button
+                  type="button"
+                  className={styles.iconBtn}
+                  onClick={() => navigator.clipboard.writeText(values.cover)}
+                  title="Copy URL"
+                >
+                  <i className="bi bi-clipboard" />
+                </button>
               </div>
             )}
 
-            <div className={styles.imgPickerOverlay} onClick={(e)=>e.stopPropagation()}>
-              {!uploading ? (
-                <>
-                  <button type="button" className={styles.btn} onClick={pickFile}>
-                    <i className="bi bi-upload me-1" /> Tải ảnh
-                  </button>
-                  {values.cover && (
-                    <button type="button" className={`${styles.btn} ${styles.btnDanger}`} onClick={clearImage}>
-                      <i className="bi bi-trash me-1" /> Xóa
-                    </button>
-                  )}
-                </>
-              ) : (
-                <div className={styles.loading}>
-                  <span className={styles.spinner} /> Đang tải…
-                </div>
-              )}
-            </div>
-
+            <label className={styles.label}>Tags (phân tách bằng dấu phẩy)</label>
             <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              hidden
-              onChange={(e) => onFile(e.target.files?.[0])}
+              className={styles.inputBox}
+              value={values.tags}
+              onChange={(e) => setValues(v => ({ ...v, tags: e.target.value }))}
+              placeholder="Environment, Lighting, Materials"
             />
-          </div>
 
-          {/* (tuỳ chọn) Hiện URL để copy nhanh */}
-          {values.cover && (
-            <div className={styles.urlRow}>
-              <span className={styles.urlText} title={values.cover}>{values.cover}</span>
-              <button
-                type="button"
-                className={styles.iconBtn}
-                onClick={() => navigator.clipboard.writeText(values.cover)}
-                title="Copy URL"
-              >
-                <i className="bi bi-clipboard" />
+            <label className={styles.label}>Số ảnh (shots)</label>
+            <input
+              type="number"
+              className={styles.inputBox}
+              value={values.shots}
+              min={0}
+              onChange={(e) => setValues(v => ({ ...v, shots: Number(e.target.value) }))}
+            />
+
+            <div className={styles.modalFooter}>
+              <button type="button" className={styles.btn} onClick={onClose}>Hủy</button>
+              <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`}>
+                {initial ? "Lưu" : "Thêm mới"}
               </button>
             </div>
-          )}
-
-          <label className={styles.label}>Tags (phân tách bằng dấu phẩy)</label>
-          <input
-            className={styles.inputBox}
-            value={values.tags}
-            onChange={(e) => setValues(v => ({ ...v, tags: e.target.value }))}
-            placeholder="Environment, Lighting, Materials"
-          />
-
-          <label className={styles.label}>Số ảnh (shots)</label>
-          <input
-            type="number"
-            className={styles.inputBox}
-            value={values.shots}
-            min={0}
-            onChange={(e) => setValues(v => ({ ...v, shots: Number(e.target.value) }))}
-          />
-
-          <div className={styles.modalFooter}>
-            <button type="button" className={styles.btn} onClick={onClose}>Hủy</button>
-            <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`}>
-              {initial ? "Lưu" : "Thêm mới"}
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );
 }
 
 /* ConfirmModal giữ nguyên như trước */
-export function ConfirmModal({...props}: any){ /* ... */ return null as any; }
+export function ConfirmModal({ ...props }: any) { /* ... */ return null as any; }

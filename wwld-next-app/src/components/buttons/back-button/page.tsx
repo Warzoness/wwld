@@ -47,7 +47,8 @@ export default function BackButton({
   }
 
   return (
-    <Link
+    <div className={styles.wapper}>
+      <Link
       href={href || "#"}
       onClick={handleClick}
       aria-label={label}
@@ -57,5 +58,6 @@ export default function BackButton({
       <i className="bi bi-arrow-left me-2" />
       {label}
     </Link>
+    </div>
   );
 }
