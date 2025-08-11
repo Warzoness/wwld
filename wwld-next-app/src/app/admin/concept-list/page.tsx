@@ -50,13 +50,11 @@ export default function ConceptListPage() {
   const [showForm, setShowForm] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  // ==== FILTER / SEARCH / PAGINATION ====
   const [query, setQuery] = useState("");
   const [activeTag, setActiveTag] = useState<string>("Tất cả");
   const [page, setPage] = useState(0);
   const pageSize = 8;
 
-  // ... (code còn lại giữ nguyên)
 
   const ConceptFormModal = dynamic(
     () => import("@/components/modals/modal-concept/ModalConcept").then(m => m.ConceptFormModal),
@@ -85,13 +83,11 @@ export default function ConceptListPage() {
   const pageData = filtered.slice(page * pageSize, page * pageSize + pageSize);
   if (page > 0 && page >= totalPages) setPage(0);
 
-  // ==== CRUD HANDLERS ====
   const openAdd = () => { setEditing(null); setShowForm(true); };
   const openEdit = (c: Concept) => { setEditing(c); setShowForm(true); };
   const openDelete = (id: number) => setDeletingId(id);
 
   const handleSave = (payload: Omit<Concept, "id"> & { id?: number }) => {
-    // TODO: gọi API POST/PUT ở đây
     if (payload.id) {
       setConcepts(list => list.map(c => (c.id === payload.id ? { ...payload, id: payload.id } : c)));
     } else {
@@ -104,7 +100,6 @@ export default function ConceptListPage() {
 
   const handleConfirmDelete = () => {
     if (deletingId == null) return;
-    // TODO: gọi API DELETE ở đây
     setConcepts(list => list.filter(c => c.id !== deletingId));
     setDeletingId(null);
   };
@@ -114,7 +109,6 @@ export default function ConceptListPage() {
       <div className={styles.page}>
         <div className="container py-4">
           <BackButton label="Quay lại" />
-          {/* Top bar */}
           <div className={styles.topBar}>
             <h1 className={styles.title}>Concepts</h1>
 
@@ -134,7 +128,6 @@ export default function ConceptListPage() {
             </div>
           </div>
 
-          {/* Tag filters */}
           <div className={styles.tags}>
             {allTags.map(tag => (
               <button
@@ -148,12 +141,10 @@ export default function ConceptListPage() {
             ))}
           </div>
 
-          {/* Grid cards */}
           <div className="row g-4">
             {pageData.map((c) => (
               <div key={c.id} className="col-12 col-sm-6 col-lg-4 col-xxl-3">
                 <div className={styles.card} style={{ ["--accent" as string]: pickAccent(c.tags[0]) }}>
-                  {/* Card action icons */}
                   <div className={styles.cardActions}>
                     <button className={`${styles.iconBtn} ${styles.warn}`} onClick={() => openEdit(c)} title="Sửa">
                       <i className="bi bi-pencil" />
@@ -194,7 +185,6 @@ export default function ConceptListPage() {
             )}
           </div>
 
-          {/* Phân trang */}
           <nav aria-label="Concept pagination" className="mt-4">
             <ul className={`pagination justify-content-center ${styles.pagination}`}>
               <li className={`page-item ${page === 0 ? "disabled" : ""}`}>
@@ -220,7 +210,6 @@ export default function ConceptListPage() {
           </nav>
         </div>
 
-      // ...
         {showForm && (
           <Suspense fallback={null}>
             <ConceptFormModal
