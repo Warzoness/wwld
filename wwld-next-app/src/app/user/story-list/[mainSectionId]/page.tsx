@@ -179,7 +179,7 @@ export default function StoryListPage() {
 
                                             {story.type === 0 ? (
                                                 <button
-                                                    className="iris-cta  iris-cta--solid" style={{backgroundColor: "transparent"}}
+                                                    className="iris-cta  iris-cta--solid" style={{ backgroundColor: "transparent" }}
                                                     onClick={() => {
                                                         setSelectedChapterId(story.id);
                                                         setFilterType("screen");
@@ -189,7 +189,7 @@ export default function StoryListPage() {
                                                 </button>
                                             ) : (
                                                 <button
-                                                    className="iris-cta" style={{backgroundColor: "transparent"}}
+                                                    className="iris-cta" style={{ backgroundColor: "transparent" }}
                                                     onClick={() => handleViewDetail(story)}
                                                 >
                                                     Đọc cốt truyện <i className="bi bi-arrow-right-short"></i>

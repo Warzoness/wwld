@@ -138,7 +138,7 @@ export default function StoryDetailPage() {
                             isLine ? "#22d3ee" : isNarr ? "#ef4444" : isSys ? "#a78bfa" : "#38bdf8";
 
                         return (
-                            <div key={dialog.id} className="iris-dialog" style={{ ["--iris-accent" as any]: accent }}>
+                            <div key={dialog.id} className="iris-dialog" style={{ ["--iris-accent" as string]: accent }}>
                                 {isImage ? (
                                     <div className="dlg-media">
                                         <img src={getImageUrl(dialog.image) || "/default-image.png"} alt="Dialog Image" />
