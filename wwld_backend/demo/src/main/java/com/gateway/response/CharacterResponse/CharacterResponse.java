@@ -16,4 +16,5 @@ public class CharacterResponse extends BaseResponse {
     // This class can be extended in the future to include specific character response fields
     // Currently, it serves as a base response for character-related operations
     List<CharacterDTO> listCharacters;
+    CharacterDTO characterDTO;
 }

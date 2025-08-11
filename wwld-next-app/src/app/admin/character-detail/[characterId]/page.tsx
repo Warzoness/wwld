@@ -1,42 +1,64 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./CharacterDetail.module.css"; // CSS module
-import Link from "next/link";
 import BackButton from "@/components/buttons/back-button/page";
+import { Character } from "@/utils/selectedCharacterStorage";
+import { useParams } from "next/navigation";
+import { fetchCharacterById } from "@/lib/services/characterService";
 
 type Tab = "bio" | "dialogue" | "combat";
 
 export default function CharacterDetailPage() {
   const [tab, setTab] = useState<Tab>("bio");
+  const [loading, setLoading] = useState(true);
+  const [character, setCharacter] = useState<Character>();
+  const params = useParams();
+  const characterId = Number(params.characterId);
+
 
   // TODO: thay bằng dữ liệu thật
-  const character = {
-    name: "Yangyang",
-    overview:
-      "Yangyang journeyed far away from home to become an Outrider in Jinzhou. Instead of seeking the spotlight, she chooses to provide comfort through quiet companionship for others. After enduring hardships and anguish, she has found a clear purpose: to be a beacon of guidance and an aiding presence in a world still in need of healing.",
-    nation: "HuangLong",
-    org: "Đội gác đêm",
-    age: "17",
-    height: "1.65m",
-    portrait: "/images/Yangyang_Card.webp",
-    biography:
-      "Sinh ra ở vùng biên của HuangLong, Yangyang rời quê từ rất sớm để trở thành Outrider tại Jinzhou. Cô điềm tĩnh, luôn hỗ trợ đồng đội và giữ vững lý tưởng dù trải qua nhiều biến cố.",
-    dialogues: [
-      "Mọi người ổn cả chứ?",
-      "Mình ở đây rồi, đừng lo.",
-      "Đường còn dài, đi chậm thôi cũng được.",
-    ],
-    combat: {
-      style:
-        "Hỗ trợ – kiểm soát đám đông, bảo kê đồng đội, tạo khoảng trống giao tranh.",
-      skills: [
-        { name: "Wind Whistle", note: "Hút kẻ địch vào một điểm." },
-        { name: "Breeze Guard", note: "Tạo lá chắn gió cho đồng đội." },
-        { name: "Zephyr Burst (Ultimate)", note: "Hất tung diện rộng." },
-      ],
-    },
-  };
+  // character = {
+  //   name: "Yangyang",
+  //   overview:
+  //     "Yangyang journeyed far away from home to become an Outrider in Jinzhou. Instead of seeking the spotlight, she chooses to provide comfort through quiet companionship for others. After enduring hardships and anguish, she has found a clear purpose: to be a beacon of guidance and an aiding presence in a world still in need of healing.",
+  //   nation: "HuangLong",
+  //   org: "Đội gác đêm",
+  //   age: "17",
+  //   height: "1.65m",
+  //   portrait: "/images/Yangyang_Card.webp",
+  //   biography:
+  //     "Sinh ra ở vùng biên của HuangLong, Yangyang rời quê từ rất sớm để trở thành Outrider tại Jinzhou. Cô điềm tĩnh, luôn hỗ trợ đồng đội và giữ vững lý tưởng dù trải qua nhiều biến cố.",
+  //   dialogues: [
+  //     "Mọi người ổn cả chứ?",
+  //     "Mình ở đây rồi, đừng lo.",
+  //     "Đường còn dài, đi chậm thôi cũng được.",
+  //   ],
+  //   combat: {
+  //     style:
+  //       "Hỗ trợ – kiểm soát đám đông, bảo kê đồng đội, tạo khoảng trống giao tranh.",
+  //     skills: [
+  //       { name: "Wind Whistle", note: "Hút kẻ địch vào một điểm." },
+  //       { name: "Breeze Guard", note: "Tạo lá chắn gió cho đồng đội." },
+  //       { name: "Zephyr Burst (Ultimate)", note: "Hất tung diện rộng." },
+  //     ],
+  //   },
+  // };
+
+  const loadCharacter = async () => {
+    setLoading(true);
+    try {
+      const characterById = await fetchCharacterById(characterId);
+      setCharacter(characterById);
+    } catch {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadCharacter();
+  }, []);
+
 
   const tabs = [
     { key: "bio" as Tab, label: "Tiểu sử", icon: "bi bi-book" },
@@ -61,7 +83,7 @@ export default function CharacterDetailPage() {
                 <div className={styles.kicker}>TỔNG QUAN NHÂN VẬT</div>
 
                 <div className="d-flex align-items-center justify-content-between gap-2">
-                  <h1 className={styles.title}>{character.name}</h1>
+                  <h1 className={styles.title}>{character?.name}</h1>
                   <button className={`btn ${styles.editBtn}`} onClick={handleEditInfo}>
                     <i className="bi bi-pencil-square me-2" />
                     Sửa thông tin
@@ -70,31 +92,31 @@ export default function CharacterDetailPage() {
 
                 {/* Giới thiệu tổng quan (chỉ 1 lần) */}
                 <div className={styles.overview}>
-                  <p>{character.overview}</p>
+                  <p>{character?.overview}</p>
                   <div className={styles.metaGrid}>
-                    <div className={styles.metaItem}><span>QUỐC GIA:</span><strong>{character.nation}</strong></div>
-                    <div className={styles.metaItem}><span>TỔ CHỨC:</span><strong>{character.org}</strong></div>
-                    <div className={styles.metaItem}><span>TUỔI:</span><strong>{character.age}</strong></div>
-                    <div className={styles.metaItem}><span>CHIỀU CAO:</span><strong>{character.height}</strong></div>
+                    <div className={styles.metaItem}><span>QUỐC GIA:</span><strong>{character?.nation}</strong></div>
+                    <div className={styles.metaItem}><span>TỔ CHỨC:</span><strong>{character?.organization}</strong></div>
+                    <div className={styles.metaItem}><span>TUỔI:</span><strong>{character?.age}</strong></div>
+                    <div className={styles.metaItem}><span>CHIỀU CAO:</span><strong>{character?.height}</strong></div>
                   </div>
                 </div>
 
                 {/* Nội dung TAB */}
                 <div className={styles.tabContent}>
-                  {tab === "bio" && (<><h3 className={styles.sectionTitle}>Tiểu sử</h3><p className={styles.text}>{character.biography}</p></>)}
-                  {tab === "dialogue" && (<><h3 className={styles.sectionTitle}>Thoại tiêu biểu</h3><ul className={styles.list}>{character.dialogues.map((d, i) => <li key={i}>{d}</li>)}</ul></>)}
+                  {tab === "bio" && (<><h3 className={styles.sectionTitle}>Tiểu sử</h3><p className={styles.text}>{character?.history}</p></>)}
+                  {/* {tab === "dialogue" && (<><h3 className={styles.sectionTitle}>Thoại tiêu biểu</h3><ul className={styles.list}>{character.dialogues.map((d, i) => <li key={i}>{d}</li>)}</ul></>)} */}
                   {tab === "combat" && (
                     <>
                       <h3 className={styles.sectionTitle}>Combat</h3>
-                      <p className={styles.text}>{character.combat.style}</p>
-                      <div className={styles.skillGrid}>
+                      <p className={styles.text}>{character?.combatStyle}</p>
+                      {/* <div className={styles.skillGrid}>
                         {character.combat.skills.map(s => (
                           <div key={s.name} className={styles.skillCard}>
                             <div className={styles.skillName}>{s.name}</div>
                             <div className={styles.skillNote}>{s.note}</div>
                           </div>
                         ))}
-                      </div>
+                      </div> */}
                     </>
                   )}
                 </div>
@@ -117,7 +139,7 @@ export default function CharacterDetailPage() {
             {/* COL-5: Ảnh */}
             <div className="col-12 col-lg-5">
               <div className={styles.portraitPanel}>
-                <img src={character.portrait} alt={character.name} className={styles.portraitImg} />
+                <img src={character?.imgFull} alt={character?.name} className={styles.portraitImg} />
               </div>
             </div>
 

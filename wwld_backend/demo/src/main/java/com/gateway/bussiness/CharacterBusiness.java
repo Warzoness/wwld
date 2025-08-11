@@ -20,4 +20,6 @@ public interface CharacterBusiness {
 
     void deleteCharacter(Long id) throws Exception;
 
+    CharacterDTO getCharacterById(Long id) throws Exception;
+
 }

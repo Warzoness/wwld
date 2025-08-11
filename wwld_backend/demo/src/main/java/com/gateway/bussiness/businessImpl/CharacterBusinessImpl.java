@@ -55,6 +55,16 @@ public class CharacterBusinessImpl implements CharacterBusiness {
         }
     }
 
+    @Override
+    public CharacterDTO getCharacterById(Long id) throws Exception {
+        CharacterDTO characterDTO = characterDAO.findOneById(id);
+        if (characterDTO != null) {
+            return characterDTO;
+        }else {
+            throw new Exception("Character not found");
+        }
+    }
+
     private void setCharacter(GetCharacterRequest request, GameCharacter character) {
         character.setId(request.getId());
         character.setName(request.getName());

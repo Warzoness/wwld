@@ -118,4 +118,25 @@ public class CharacterService extends BaseFuntion{
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    // Get one character
+    @RequestMapping(value = "/getCharacterById", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<CharacterResponse> getOneCharacter(@RequestBody GetCharacterRequest request) {
+        CharacterResponse response = new CharacterResponse();
+        response.setBaseResponse(getBase(request));
+        try {
+            if (response.getResult().isOk()) {
+                response.setCharacterDTO(characterBusiness.getCharacterById(request.getId()));
+            }else{
+                response.setResult(ApiResult.Result.FAILD);
+            }
+        } catch (Exception e) {
+            response.setResult(ApiResult.Result.FAILD);
+            LOGGER.error("Error while getting characters", e);
+        };
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    };
+
 }

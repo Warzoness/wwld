@@ -148,13 +148,19 @@ export const fetchCharacters = async () => {
     throw error;
   }
 };
+// Lấy 1 nhân vật
+export async function fetchCharacterById(id: number | string) {
+  const res = await fetch(`/api/characters/getCharacterById/${id}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch character");
+  return res.json();
+}
 
 // Cập nhật
 export const updateCharacter = async (payload: CharacterPayload) => {
   try {
     if (!payload.id) throw new Error("Missing id for update");
     const body = toApiPayload(payload);
-    const response = await apiClient.post("/api/characters/update", body);
+    const response = await apiClient.post("/api/getCharacterById/update", body);
     return response.data;
   } catch (error) {
     console.error("Error updating character:", error);
