@@ -155,7 +155,7 @@ export default function StoryListPage() {
                             <div className="col-md-4" key={story.id}>
                                 <div
                                     className="iris-card h-100"
-                                    style={{ ["--iris-accent" as any]: accent }}
+                                    style={{ ["--iris-accent" as string]: accent }}
                                 >
                                     <div className="iris-card__media" style={{ height: 180 }}>
                                         <img src={img} alt={story.title} className="iris-card__img" />

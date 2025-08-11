@@ -141,7 +141,7 @@ export default function ConceptListPage() {
                 key={tag}
                 className={`${styles.tag} ${activeTag === tag ? styles.tagActive : ""}`}
                 onClick={() => { setActiveTag(tag); setPage(0); }}
-                style={{ ["--accent" as any]: pickAccent(tag) }}
+                style={{ ["--accent" as string]: pickAccent(tag) }}
               >
                 {tag}
               </button>
@@ -152,7 +152,7 @@ export default function ConceptListPage() {
           <div className="row g-4">
             {pageData.map((c) => (
               <div key={c.id} className="col-12 col-sm-6 col-lg-4 col-xxl-3">
-                <div className={styles.card} style={{ ["--accent" as any]: pickAccent(c.tags[0]) }}>
+                <div className={styles.card} style={{ ["--accent" as string]: pickAccent(c.tags[0]) }}>
                   {/* Card action icons */}
                   <div className={styles.cardActions}>
                     <button className={`${styles.iconBtn} ${styles.warn}`} onClick={() => openEdit(c)} title="Sửa">
@@ -241,10 +241,12 @@ export default function ConceptListPage() {
         {deletingId !== null && (
           <Suspense fallback={null}>
             <ConfirmModal
+              show={Boolean(deletingId)}
               message="Bạn có chắc muốn xóa concept này?"
               onCancel={() => setDeletingId(null)}
               onConfirm={handleConfirmDelete}
             />
+
           </Suspense>
         )}
       </div>
@@ -268,7 +270,6 @@ function pickAccent(tag?: string) {
   }
 }
 
-/* ----------------- Sub Components ----------------- */
 
 type FormValues = {
   id?: number;

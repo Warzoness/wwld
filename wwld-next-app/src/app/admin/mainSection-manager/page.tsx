@@ -136,7 +136,7 @@ export default function MainSectionManage() {
                   const img = imageUrl || "/images/banner.png";
 
                   return (
-                    <div className="iris-card h-100" style={{ ["--iris-accent" as any]: accent }}>
+                    <div className="iris-card h-100" style={{ ["--iris-accent" as string]: accent }}>
                       {img && (
                         <div className="iris-card__media" style={{ height: 200 }}>
                           <img src={img} alt={mainSection.name} className="iris-card__img" />

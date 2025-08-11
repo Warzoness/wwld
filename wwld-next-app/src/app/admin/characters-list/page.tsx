@@ -103,7 +103,7 @@ export default function CharacterProfileGrid() {
         avatar: c.avatar ?? "",
         imgFull: c.imgFull ?? "",
         birthday: c.birthday ?? "", // dạng YYYY-MM-DD hoặc ISO, Modal/service sẽ chuẩn hoá
-        sex: (c.sex as any) ?? "Nam",
+        sex: (c.sex) ?? "Nam",
         overview: c.overview ?? "",
         history: c.history ?? "",
         organization: c.organization ?? "",
@@ -113,7 +113,7 @@ export default function CharacterProfileGrid() {
         height: c.height ?? undefined,
         combatStyle: c.combatStyle ?? "",
         // các ID không cần nhập → để undefined
-        type: (c.type as any) ?? "playable",
+        type: (c.type) ?? "playable",
       };
 
       setEditCharacter(initialData);
@@ -213,7 +213,7 @@ export default function CharacterProfileGrid() {
                 <div className="col" key={character.id}>
                   <div
                     className="iris-card iris-profile-card h-100 text-center"
-                    style={{ ["--iris-accent" as any]: accent }}
+                    style={{ ["--iris-accent" as string]: accent }}
                   >
                     <div className="iris-avatar">
                       <img src={avatar} alt={character.name} />

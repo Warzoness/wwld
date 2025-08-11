@@ -66,20 +66,24 @@ function toIsoDate(v?: string | Date): string | undefined {
   return isNaN(d.getTime()) ? undefined : d.toISOString();
 }
 
-function isNumber(n: any): n is number {
-  return typeof n === "number" && !isNaN(n);
+// Chuẩn hơn: dùng unknown + Number.isNaN
+export function isNumber(n: unknown): n is number {
+  return typeof n === "number" && !Number.isNaN(n);
 }
 
-/** Xoá key có value undefined/null/"" */
-function stripEmpty<T extends Record<string, any>>(obj: T): T {
-  const out: Record<string, any> = {};
-  for (const k of Object.keys(obj)) {
+/** Xoá key có value undefined/null/"" (rỗng/white-space cũng bị xoá) */
+export function stripEmpty<T extends object>(obj: T): T {
+  const out = {} as T;
+  for (const k of Object.keys(obj) as (keyof T)[]) {
     const v = obj[k];
-    if (v === undefined || v === null || v === "") continue;
+    const emptyStr = typeof v === "string" && v.trim() === "";
+    if (v === undefined || v === null || emptyStr) continue;
     out[k] = v;
   }
-  return out as T;
+  return out;
 }
+
+
 
 /** Map UI -> API (chuẩn hoá ngày/tham số, loại bỏ ID trống) */
 export function toApiPayload(p: CharacterPayload): ApiCharacterPayload {
@@ -98,7 +102,6 @@ export function toApiPayload(p: CharacterPayload): ApiCharacterPayload {
     otherInformation: p.otherInformation,
     height: isNumber(p.height) ? p.height : undefined,
     combatStyle: p.combatStyle,
-    // chỉ gửi khi là số
     mainQuestId: isNumber(p.mainQuestId) ? p.mainQuestId : undefined,
     sideQuestId: isNumber(p.sideQuestId) ? p.sideQuestId : undefined,
     eventQuestId: isNumber(p.eventQuestId) ? p.eventQuestId : undefined,
@@ -106,8 +109,9 @@ export function toApiPayload(p: CharacterPayload): ApiCharacterPayload {
     memeId: isNumber(p.memeId) ? p.memeId : undefined,
     type: p.type,
   };
-  return stripEmpty(api);
+  return stripEmpty(api); // OK, không cần cast
 }
+
 
 // ===== API Client =====
 const backendBaseURL = "https://wwld-production.up.railway.app";

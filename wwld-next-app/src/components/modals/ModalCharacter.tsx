@@ -1,52 +1,103 @@
 // components/CharacterModal.tsx
 import React, { useEffect, useState } from "react";
-import { addCharacter, updateCharacter, CharacterPayload } from "@/lib/services/characterService";
+import { addCharacter, updateCharacter, CharacterPayload, Sex } from "@/lib/services/characterService";
 import { handleImageUpload } from "@/lib/services/uploadService";
 
 interface CharacterModalProps {
   show: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  initialData?: CharacterPayload; // nên cập nhật interface ở service cho khớp schema mới
+  initialData?: CharacterPayload;
 }
 
-// Map UI ⇄ API (type là String nên giữ playable/npc)
-const uiFromApiType = (apiType: unknown): "playable" | "npc" =>
+// Form state dùng kiểu riêng để thuận tiện nhập liệu
+type CharacterTypeUI = "playable" | "npc";
+
+interface CharacterFormData {
+  id: number;
+  name: string;
+  avatar: string;
+  imgFull: string;
+  birthday: string; // yyyy-mm-dd
+  sex: Sex;
+  overview: string;
+  history: string;
+  organization: string;
+  age: number;      // number trong state
+  nation: string;
+  otherInformation: string;
+  height: number;   // number trong state
+  combatStyle: string;
+  type: CharacterTypeUI;
+  mainQuestId?: number | null;
+  sideQuestId?: number | null;
+  eventQuestId?: number | null;
+  areaId?: number | null;
+  memeId?: number | null;
+}
+
+const uiFromApiType = (apiType: unknown): CharacterTypeUI =>
   apiType === "npc" ? "npc" : "playable";
+
+// Type guard cho object trả về từ uploadService để lấy url
+type UploadedLike = {
+  url?: string;
+  secure_url?: string;
+  data?: { url?: string } | null;
+};
+function isUploadedLike(x: unknown): x is UploadedLike {
+  if (!x || typeof x !== "object") return false;
+  const o = x as Record<string, unknown>;
+  return (
+    typeof o.url === "string" ||
+    typeof o.secure_url === "string" ||
+    (o.data !== undefined &&
+      o.data !== null &&
+      typeof (o.data as Record<string, unknown>).url === "string")
+  );
+}
 
 const toUrlString = (uploaded: unknown): string | null => {
   if (!uploaded) return null;
   if (typeof uploaded === "string") return uploaded;
-  if (typeof uploaded === "object" && uploaded !== null) {
-    // @ts-ignore
-    return uploaded.url || uploaded.secure_url || uploaded.data?.url || null;
+  if (isUploadedLike(uploaded)) {
+    return uploaded.url ?? uploaded.secure_url ?? uploaded.data?.url ?? null;
   }
   return null;
 };
 
+const toYMD = (d: string | Date | null | undefined): string => {
+  if (!d) return "";
+  const date = typeof d === "string" ? new Date(d) : d;
+  const t = new Date(date);
+  if (Number.isNaN(t.getTime())) return "";
+  const mm = `${t.getMonth() + 1}`.padStart(2, "0");
+  const dd = `${t.getDate()}`.padStart(2, "0");
+  return `${t.getFullYear()}-${mm}-${dd}`;
+};
+
 const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSuccess, initialData }) => {
-  const [formData, setFormData] = useState({
-    id: 0 as number | string,
+  const [formData, setFormData] = useState<CharacterFormData>({
+    id: 0,
     name: "",
     avatar: "",
     imgFull: "",
-    birthday: "", // YYYY-MM-DD
+    birthday: "",
     sex: "Nam",
     overview: "",
     history: "",
     organization: "",
-    age: "" as number | string,
+    age: 0,
     nation: "",
     otherInformation: "",
-    height: "" as number | string,
+    height: 0,
     combatStyle: "",
-    type: "playable" as "playable" | "npc",
-    // Các ID không hiển thị/không gửi
-    mainQuestId: undefined as number | string | undefined,
-    sideQuestId: undefined as number | string | undefined,
-    eventQuestId: undefined as number | string | undefined,
-    areaId: undefined as number | string | undefined,
-    memeId: undefined as number | string | undefined,
+    type: "playable",
+    mainQuestId: undefined,
+    sideQuestId: undefined,
+    eventQuestId: undefined,
+    areaId: undefined,
+    memeId: undefined,
   });
 
   const [loading, setLoading] = useState(false);
@@ -60,8 +111,7 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
   useEffect(() => {
     if (!initialData) {
       // reset create
-      setFormData((prev) => ({
-        ...prev,
+      setFormData({
         id: 0,
         name: "",
         avatar: "",
@@ -71,10 +121,10 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
         overview: "",
         history: "",
         organization: "",
-        age: "",
+        age: 0,
         nation: "",
         otherInformation: "",
-        height: "",
+        height: 0,
         combatStyle: "",
         type: "playable",
         mainQuestId: undefined,
@@ -82,43 +132,30 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
         eventQuestId: undefined,
         areaId: undefined,
         memeId: undefined,
-      }));
+      });
       setAvatarPreview("");
       setImgFullPreview("");
       return;
     }
 
-    // Chuẩn hoá birthday về YYYY-MM-DD nếu initialData.birthday là ISO/Date
-    const toYMD = (d: any) => {
-      try {
-        if (!d) return "";
-        const date = typeof d === "string" ? new Date(d) : d;
-        if (isNaN(new Date(date).getTime())) return "";
-        const z = new Date(date);
-        const mm = `${z.getMonth() + 1}`.padStart(2, "0");
-        const dd = `${z.getDate()}`.padStart(2, "0");
-        return `${z.getFullYear()}-${mm}-${dd}`;
-      } catch {
-        return "";
-      }
-    };
+    const data: Partial<CharacterPayload> = initialData;
 
     setFormData({
-      id: (initialData as any).id ?? 0,
-      name: (initialData as any).name ?? "",
-      avatar: (initialData as any).avatar ?? "",
-      imgFull: (initialData as any).imgFull ?? "",
-      birthday: toYMD((initialData as any).birthday),
-      sex: (initialData as any).sex ?? "Nam",
-      overview: (initialData as any).overview ?? "",
-      history: (initialData as any).history ?? "",
-      organization: (initialData as any).organization ?? "",
-      age: (initialData as any).age ?? "",
-      nation: (initialData as any).nation ?? "",
-      otherInformation: (initialData as any).otherInformation ?? "",
-      height: (initialData as any).height ?? "",
-      combatStyle: (initialData as any).combatStyle ?? "",
-      type: uiFromApiType((initialData as any).type),
+      id: data.id ?? 0,
+      name: data.name ?? "",
+      avatar: data.avatar ?? "",
+      imgFull: data.imgFull ?? "",
+      birthday: toYMD(data.birthday),
+      sex: data.sex ?? "Nam",
+      overview: data.overview ?? "",
+      history: data.history ?? "",
+      organization: data.organization ?? "",
+      age: data.age ?? 0,
+      nation: data.nation ?? "",
+      otherInformation: data.otherInformation ?? "",
+      height: data.height ?? 0,
+      combatStyle: data.combatStyle ?? "",
+      type: uiFromApiType(data.type),
       mainQuestId: undefined,
       sideQuestId: undefined,
       eventQuestId: undefined,
@@ -126,8 +163,8 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
       memeId: undefined,
     });
 
-    setAvatarPreview((initialData as any).avatar || "");
-    setImgFullPreview((initialData as any).imgFull || "");
+    setAvatarPreview(data.avatar ?? "");
+    setImgFullPreview(data.imgFull ?? "");
   }, [initialData]);
 
   const handleChange = (
@@ -135,49 +172,48 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
   ) => {
     const { name, value } = e.target;
 
-    // number fields: age, height
     if (name === "age") {
-      setFormData((prev) => ({ ...prev, age: value }));
+      setFormData((prev) => ({ ...prev, age: value === "" ? 0 : Number(value) }));
       return;
     }
     if (name === "height") {
-      setFormData((prev) => ({ ...prev, height: value }));
+      setFormData((prev) => ({ ...prev, height: value === "" ? 0 : Number(value) }));
       return;
     }
 
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // nếu nhập URL thủ công (trường hợp bạn đổi thành URL text) → cập nhật preview (hiện tại đang dùng file upload nên không cần)
+    // nếu nhập URL thủ công → cập nhật preview
     if (name === "avatar") setAvatarPreview(value);
     if (name === "imgFull") setImgFullPreview(value);
   };
 
   const handleFileUpload =
     (field: "avatar" | "imgFull", setPreview: React.Dispatch<React.SetStateAction<string>>) =>
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
+      async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-      // local preview
-      const reader = new FileReader();
-      reader.onloadend = () => setPreview(reader.result as string);
-      reader.readAsDataURL(file);
+        // local preview
+        const reader = new FileReader();
+        reader.onloadend = () => setPreview(reader.result as string);
+        reader.readAsDataURL(file);
 
-      try {
-        const uploaded = await handleImageUpload(file);
-        const url = toUrlString(uploaded);
-        if (url) {
-          setFormData((prev) => ({ ...prev, [field]: url }));
-        } else {
-          setError("Tải ảnh thất bại: không lấy được URL.");
+        try {
+          const uploaded = await handleImageUpload(file);
+          const url = toUrlString(uploaded);
+          if (url) {
+            setFormData((prev) => ({ ...prev, [field]: url }));
+          } else {
+            setError("Tải ảnh thất bại: không lấy được URL.");
+          }
+        } catch (err) {
+          console.error(err);
+          setError("Tải ảnh thất bại.");
+        } finally {
+          e.currentTarget.value = "";
         }
-      } catch (err) {
-        console.error(err);
-        setError("Tải ảnh thất bại.");
-      } finally {
-        e.currentTarget.value = "";
-      }
-    };
+      };
 
   const handleSubmit = async () => {
     try {
@@ -185,50 +221,44 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
       setError("");
 
       // convert birthday -> ISO string (nếu có)
-      const birthdayISO =
-        formData.birthday
-          ? new Date(`${formData.birthday}T00:00:00`).toISOString()
-          : null;
+      const birthdayISO = formData.birthday
+        ? new Date(`${formData.birthday}T00:00:00`).toISOString()
+        : undefined;
 
-      // convert number fields
-      const ageNum =
-        formData.age === "" ? null : Number(formData.age);
-      const heightNum =
-        formData.height === "" ? null : Number(formData.height);
+      // convert number fields (0 -> undefined để không gửi nếu bạn muốn)
+      const ageNum = formData.age || undefined;
+      const heightNum = formData.height || undefined;
 
-      const payload: any = {
+      const payload: CharacterPayload = {
         id: formData.id || 0,
         name: formData.name.trim(),
-        avatar: formData.avatar,
-        imgFull: formData.imgFull,
-        birthday: birthdayISO, // backend là Date
-        sex: formData.sex,
-        overview: formData.overview,
-        history: formData.history,
-        organization: formData.organization,
+        avatar: formData.avatar || undefined,
+        imgFull: formData.imgFull || undefined,
+        birthday: birthdayISO,
+        sex: formData.sex || undefined,
+        overview: formData.overview || undefined,
+        history: formData.history || undefined,
+        organization: formData.organization || undefined,
         age: ageNum,
-        nation: formData.nation,
-        otherInformation: formData.otherInformation,
+        nation: formData.nation || undefined,
+        otherInformation: formData.otherInformation || undefined,
         height: heightNum,
-        combatStyle: formData.combatStyle,
-        type: formData.type, // String: "playable" | "npc"
-        // Không gửi các trường ID theo yêu cầu
+        combatStyle: formData.combatStyle || undefined,
+        type: formData.type as CharacterPayload["type"],
+        // các *_Id để undefined theo yêu cầu
       };
 
-      // Xoá key null/undefined để payload gọn gàng
-      Object.keys(payload).forEach((k) => {
-        if (payload[k] === null || payload[k] === undefined || payload[k] === "") {
-          // cho phép gửi "" cho name? tuỳ bạn. Ở đây mình loại các giá trị rỗng.
-          delete payload[k];
-        }
-      });
+      // (Tuỳ chọn) Làm gọn payload: bỏ null/undefined/""
+      const cleaned = Object.fromEntries(
+        Object.entries(payload).filter(([, v]) => v !== null && v !== undefined && v !== "")
+      ) as CharacterPayload;
 
-      console.log("[SUBMIT payload]", payload);
+      console.log("[SUBMIT payload]", cleaned);
 
       if (initialData) {
-        await updateCharacter(payload);
+        await updateCharacter(cleaned);
       } else {
-        await addCharacter(payload);
+        await addCharacter(cleaned);
       }
       onSuccess();
       onClose();

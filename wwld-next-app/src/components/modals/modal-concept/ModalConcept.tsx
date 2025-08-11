@@ -13,6 +13,18 @@ export type ConceptFormData = {
   shots: number;
 };
 
+interface ConfirmModalProps {
+  show: boolean;
+  title?: string;
+  message?: React.ReactNode;
+  confirmText?: string;
+  cancelText?: string;
+  danger?: boolean;
+  loading?: boolean;
+  onConfirm: () => void | Promise<void>;
+  onCancel: () => void;
+}
+
 /** Modal thêm/sửa Concept */
 export function ConceptFormModal({
   initial,
@@ -212,4 +224,47 @@ export function ConceptFormModal({
 }
 
 /* ConfirmModal giữ nguyên như trước */
-export function ConfirmModal({ ...props }: any) { /* ... */ return null as any; }
+export function ConfirmModal({
+  show,
+  title = "Xác nhận",
+  message = "Bạn có chắc muốn thực hiện thao tác này?",
+  confirmText = "Xác nhận",
+  cancelText = "Hủy",
+  danger = false,
+  loading = false,
+  onConfirm,
+  onCancel,
+}: ConfirmModalProps) {
+  if (!show) return null;
+
+  return (
+    <div className={styles.modalBackdrop} onClick={onCancel}>
+      <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h3 className="m-0">{title}</h3>
+          <button className={styles.iconBtn} onClick={onCancel} aria-label="Đóng">
+            <i className="bi bi-x-lg" />
+          </button>
+        </div>
+
+        <div className={styles.modalBody}>
+          <div className={styles.label} style={{ marginBottom: 8 }}>{message}</div>
+        </div>
+
+        <div className={styles.modalFooter}>
+          <button type="button" className={styles.btn} onClick={onCancel} disabled={loading}>
+            {cancelText}
+          </button>
+          <button
+            type="button"
+            className={`${styles.btn} ${styles.btnPrimary} ${danger ? styles.btnDanger : ""}`}
+            onClick={onConfirm}
+            disabled={loading}
+          >
+            {loading ? "Đang xử lý..." : confirmText}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
