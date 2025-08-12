@@ -23,13 +23,13 @@ public class CharacterBusinessImpl implements CharacterBusiness {
 
     @Override
     public GameCharacter createCharacter(GetCharacterRequest request) throws Exception {
-        if (request.getId() == null) {
-            throw new IllegalArgumentException("Character ID and Story ID must not be null");
+        try{
+            GameCharacter character = new GameCharacter();
+            setCharacter(request, character);
+            return characterDAO.save(character);
+        }catch (Exception e){
+            throw new Exception();
         }
-        GameCharacter character = new GameCharacter();
-        setCharacter(request, character);
-        return characterDAO.save(character);
-
     }
 
     @Override
@@ -66,7 +66,6 @@ public class CharacterBusinessImpl implements CharacterBusiness {
     }
 
     private void setCharacter(GetCharacterRequest request, GameCharacter character) {
-        character.setId(request.getId());
         character.setName(request.getName());
         character.setAvatar(request.getAvatar());
         character.setImgFull(request.getImgFull());

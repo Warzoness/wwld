@@ -20,23 +20,8 @@ public class CharacterService extends BaseFuntion{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CharacterService.class);
 
-
     @Autowired
     private CharacterBusiness characterBusiness; // Assuming you have a CharacterBusiness class to handle business logic
-
-    // This class will handle character-related requests
-    // You can define methods here to handle specific endpoints, e.g., getCharacter, createCharacter, etc.
-    // For example:
-
-    // @GetMapping("/{id}")
-    // public ResponseEntity<CharacterDTO> getCharacter(@PathVariable Long id) {
-    //     // Logic to retrieve character by ID
-    // }
-
-    // @PostMapping
-    // public ResponseEntity<CharacterDTO> createCharacter(@RequestBody CharacterRequest request) {
-    //     // Logic to create a new character
-    // }
 
     @RequestMapping(value = "/getCharacters", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
     @ResponseBody
@@ -62,7 +47,7 @@ public class CharacterService extends BaseFuntion{
     public ResponseEntity<CharacterResponse> insert(@RequestBody GetCharacterRequest request) {
         CharacterResponse response = new CharacterResponse();
         response.setBaseResponse(getBase(request));
-        System.out.println(request.toString());
+        System.out.println("request : " + request.toString());
         try {
             if (response.getResult().isOk()) {
                 characterBusiness.createCharacter(request);
@@ -83,8 +68,7 @@ public class CharacterService extends BaseFuntion{
     public ResponseEntity<CharacterResponse> update(@RequestBody GetCharacterRequest request) {
         CharacterResponse response = new CharacterResponse();
         response.setBaseResponse(getBase(request));
-        System.out.println(request.toString());
-
+        LOGGER.info("request : " + request.toString());
         try {
             if (response.getResult().isOk()) {
                 characterBusiness.updateCharacter(request);

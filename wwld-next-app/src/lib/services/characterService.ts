@@ -136,6 +136,18 @@ export const addCharacter = async (payload: CharacterPayload) => {
     throw error;
   }
 };
+// Cập nhật
+export const updateCharacter = async (payload: CharacterPayload) => {
+  try {
+    if (!payload.id) throw new Error("Missing id for update");
+    const body = toApiPayload(payload);
+    const response = await apiClient.post("/api/characters/update", body);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating character:", error);
+    throw error;
+  }
+};
 
 // Lấy danh sách
 export const fetchCharacters = async () => {
@@ -161,18 +173,6 @@ export const fetchOneCharacterById = async (id : number) => {
   }
 };
 
-// Cập nhật
-export const updateCharacter = async (payload: CharacterPayload) => {
-  try {
-    if (!payload.id) throw new Error("Missing id for update");
-    const body = toApiPayload(payload);
-    const response = await apiClient.post("/api/characters/update", body);
-    return response.data;
-  } catch (error) {
-    console.error("Error updating character:", error);
-    throw error;
-  }
-};
 
 // Xoá
 export const deleteCharacter = async (id: number) => {
