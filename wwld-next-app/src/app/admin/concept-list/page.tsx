@@ -1,47 +1,49 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import Link from "next/link";
 import styles from "./ConceptList.module.css";
 import BackButton from "@/components/buttons/back-button/page";
-import { fetchConcepts } from "@/lib/services/conceptService";
-import { ConceptDTO, ConceptModal, ConfirmModal } from "@/components/modals/modal-concept/ModalConcept";
+import { ConceptPayload, fetchConcepts } from "@/lib/services/conceptService";
+import ConceptModal from "@/components/modals/modal-concept/ModalConcept";
 
 export default function ConceptListPage() {
   // ==== DATA ====
   const [loading, setLoading] = useState(true);
-  const [listConcepts, setListConcepts] = useState<ConceptDTO[]>([]);
+  const [listConcepts, setListConcepts] = useState<ConceptPayload[]>([]);
 
   // ==== UI STATE ====
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(0);
   const pageSize = 8;
+  const backendUrl = "https://wwld-production.up.railway.app";
+
 
   // ==== MODALS ====
   const [showForm, setShowForm] = useState(false);
-  const [editing, setEditing] = useState<ConceptDTO | undefined>();
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [editing, setEditing] = useState<ConceptPayload | undefined>();
+  // (Nếu chưa dùng xoá, bỏ deletingId hoặc để TODO)
+  // const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  // Fetch dữ liệu 1 lần khi mount
-  useEffect(() => {
-    let alive = true;
-    const load = async () => {
-      try {
-        const data = await fetchConcepts();
-        if (alive) setListConcepts((data ?? []) as ConceptDTO[]);
-      } catch {
-        if (alive) setListConcepts([]);
-      } finally {
-        if (alive) setLoading(false);
-      }
-    };
-    load();
-    return () => {
-      alive = false;
-    };
+  // Hàm load có thể tái sử dụng (refetch)
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await fetchConcepts();
+      setListConcepts((data ?? []) as ConceptPayload[]);
+    } catch {
+      setListConcepts([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  // Chỉ lọc theo query
+  // Fetch khi mount
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  // Lọc theo query
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return listConcepts.filter((c) => q === "" || c.title.toLowerCase().includes(q));
@@ -50,7 +52,15 @@ export default function ConceptListPage() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const pageData = filtered.slice(page * pageSize, page * pageSize + pageSize);
 
-  // Không set state trong render -> đưa vào effect
+   const getImageUrl = (image?: string) => {
+    if (!image) return "";
+    if (image.startsWith("http")) return image;
+    if (image.startsWith("/uploads/")) return backendUrl + image;
+    return backendUrl + `/uploads/${image.replace(/^\/?uploads\//, "")}`;
+  };
+
+
+  // Giữ page hợp lệ
   useEffect(() => {
     if (page > 0 && page >= totalPages) setPage(0);
   }, [page, totalPages]);
@@ -86,7 +96,10 @@ export default function ConceptListPage() {
           </div>
 
           <div className="row g-4">
-            {pageData.map((c) => (
+            {pageData.map((c) => {
+                const theme = getImageUrl(c.conceptImage) || "/images/banner.png";
+              
+            return (
               <div key={c.id} className="col-12 col-sm-6 col-lg-4 col-xxl-3">
                 <div className={styles.card}>
                   <div className={styles.cardActions}>
@@ -100,17 +113,11 @@ export default function ConceptListPage() {
                     >
                       <i className="bi bi-pencil" />
                     </button>
-                    <button
-                      className={`${styles.iconBtn} ${styles.danger}`}
-                      title="Xóa"
-                      onClick={() => setDeletingId(c.id!)}
-                    >
-                      <i className="bi bi-trash" />
-                    </button>
+              
                   </div>
 
                   <div className={styles.media}>
-                    <img src={c.conceptImage} alt={c.title} />
+                    <img src={theme || ""} alt={c.title} />
                     <span className={styles.badge}>
                       <i className="bi bi-images me-1" />
                       {c.slug}
@@ -129,7 +136,7 @@ export default function ConceptListPage() {
                   </div>
                 </div>
               </div>
-            ))}
+            )})}
 
             {!loading && pageData.length === 0 && (
               <div className="col">
@@ -164,44 +171,24 @@ export default function ConceptListPage() {
             </ul>
           </nav>
         </div>
-        {/* ===== Modals (render BÊN TRONG JSX) ===== */}
-        {showForm && (
-          <ConceptModal
-            initial={editing}
-            onClose={() => setShowForm(false)}
-            onSave={async (payload) => {
-              const finalPayload = {
-                ...payload,
-              };
 
-              if (finalPayload.id) {
-                setListConcepts(prev =>
-                  prev.map(x => (x.id === finalPayload.id ? { ...x, ...finalPayload } : x))
-                );
-              } else {
-                const created = { ...finalPayload, id: Math.max(0, ...listConcepts.map(i => i.id || 0)) + 1 }; // giả lập id
-                setListConcepts(prev => [created, ...prev]);
-              }
-            }}
-          />
-        )}
-
-        {deletingId !== null && (
-          <ConfirmModal
-            show
-            onCancel={() => setDeletingId(null)}
-            onConfirm={async () => {
-              // await deleteConcept(deletingId!);
-              setListConcepts(prev => prev.filter(x => x.id !== deletingId));
-              setDeletingId(null);
-            }}
-          />
-        )}
-
-
+        {/* ===== Modals ===== */}
+        <ConceptModal
+          key={editing?.id || "new"}
+          show={showForm}
+          onClose={() => {
+            setShowForm(false);
+            // nếu đang sửa mà hủy, có thể clear editing:
+            setEditing(undefined);
+          }}
+          onSuccess={async () => {
+            await load();          // refetch danh sách
+            setShowForm(false);    // đóng modal
+            setEditing(undefined); // clear state sửa
+          }}
+          initialData={editing}
+        />
       </div>
     </div>
   );
 }
-
-

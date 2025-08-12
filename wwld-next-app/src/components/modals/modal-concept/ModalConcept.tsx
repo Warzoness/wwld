@@ -1,21 +1,14 @@
 "use client";
 
-import React from "react";
-import styles from "./ConceptModal.module.css";
+import React, { useEffect, useState } from "react";
+import {
+  addConcept,
+  updateConcept,
+  type ConceptPayload,
+} from "@/lib/services/conceptService";
+import { handleImageUpload } from "@/lib/services/uploadService";
 
-/** ===== Types ===== */
-export type ConceptDTO = {
-  id?: number;
-  title: string;
-  slug: string;
-  contentMd: string;
-  conceptImage: string;
-  description: string;
-};
-
-type SaveExtras = { imageFile?: File };
-
-/** ===== Upload helpers (bạn cung cấp) ===== */
+/** ===== Type guard cho kết quả upload để lấy URL ===== */
 type UploadedLike = {
   url?: string;
   secure_url?: string;
@@ -41,9 +34,27 @@ const toUrlString = (uploaded: unknown): string | null => {
   return null;
 };
 
-/** ===== Helpers ===== */
-function slugify(input: string) {
-  return input
+/** ===== Props ===== */
+interface ConceptModalProps {
+  show: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+  initialData?: ConceptPayload;
+}
+
+/** ===== Form state (UI) ===== */
+interface ConceptFormData {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  contentMd: string;
+  conceptImage: string; // cho phép nhập URL
+}
+
+/** ===== Helper: slugify ===== */
+const slugify = (input: string) =>
+  input
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -51,309 +62,255 @@ function slugify(input: string) {
     .trim()
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
-}
 
-/** ===== ConceptModal (Thêm/Sửa) ===== */
-export function ConceptModal({
-  initial,
+const ConceptModal: React.FC<ConceptModalProps> = ({
+  show,
   onClose,
-  onSave,
-  uploadImage, // 👈 hàm upload ảnh của bạn
-  title = "Concept",
-}: {
-  initial?: Partial<ConceptDTO>;
-  onClose: () => void;
-  onSave: (payload: ConceptDTO, extras?: SaveExtras) => void | Promise<void>;
-  uploadImage?: (file: File) => Promise<unknown>;
-  title?: string;
-}) {
-  // form state
-  const [values, setValues] = React.useState<ConceptDTO>({
-    id: initial?.id,
-    title: initial?.title ?? "",
-    slug: initial?.slug ?? "",
-    contentMd: initial?.contentMd ?? "",
-    conceptImage: initial?.conceptImage ?? "",
-    description: initial?.description ?? "",
+  onSuccess,
+  initialData,
+}) => {
+  const [formData, setFormData] = useState<ConceptFormData>({
+    id: 0,
+    title: "",
+    slug: "",
+    description: "",
+    contentMd: "",
+    conceptImage: "",
   });
 
-  // ảnh file & preview
-  const [imageFile, setImageFile] = React.useState<File | undefined>(undefined);
-  const [previewUrl, setPreviewUrl] = React.useState<string>(
-    initial?.conceptImage ?? ""
-  );
-  const lastObjectUrlRef = React.useRef<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  // trạng thái upload
-  const [uploading, setUploading] = React.useState(false);
+  // preview ảnh
 
-  // error / submit
-  const [error, setError] = React.useState("");
-  const [submitting, setSubmitting] = React.useState(false);
-
-  // auto-slug theo title
-  const lastAutoSlug = React.useRef(values.slug);
-  React.useEffect(() => {
-    const auto = slugify(values.title || "");
-    if (!values.slug || values.slug === lastAutoSlug.current) {
-      setValues((v) => ({ ...v, slug: auto }));
-      lastAutoSlug.current = auto;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [values.title]);
-
-  // cleanup objectURL khi đổi file hoặc unmount
-  React.useEffect(() => {
-    return () => {
-      if (lastObjectUrlRef.current) {
-        URL.revokeObjectURL(lastObjectUrlRef.current);
-        lastObjectUrlRef.current = null;
-      }
-    };
-  }, []);
-
-  // phím tắt
-  const canSubmit = React.useMemo(
-    () => Boolean(values.title.trim() && values.slug.trim()),
-    [values.title, values.slug]
-  );
-
-  const handleSubmit = React.useCallback(async () => {
-    if (!canSubmit) {
-      setError("Vui lòng nhập tối thiểu Tiêu đề và Slug.");
-      return;
-    }
-    if (uploading) return; // đang upload, tránh double-submit
-    setError("");
-    try {
-      setSubmitting(true);
-      const payload: ConceptDTO = {
-        id: values.id,
-        title: values.title.trim(),
-        slug: values.slug.trim(),
-        contentMd: values.contentMd ?? "",
-        // Nếu bạn muốn chỉ lưu URL thật (sau upload) thì previewUrl khi đã upload sẽ là url thật;
-        // nếu chưa upload (không có uploadImage) thì vẫn là blob URL/URL nhập tay.
-        conceptImage: previewUrl?.trim() || "",
-        description: values.description?.trim() ?? "",
-      };
-      await onSave(payload, { imageFile }); // truyền cả file gốc để tầng trên muốn upload lại thì tuỳ
-      onClose();
-    } catch (e: any) {
-      setError(e?.message || "Không thể lưu. Vui lòng thử lại.");
-    } finally {
-      setSubmitting(false);
-    }
-  }, [canSubmit, uploading, values, previewUrl, imageFile, onSave, onClose]);
-
-  React.useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        onClose();
-        return;
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "enter") {
-        e.preventDefault();
-        handleSubmit();
-      }
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [handleSubmit, onClose]);
-
-  /** ===== Xử lý chọn file + upload ===== */
-  const handleFileChange = async (file?: File) => {
-    // clear object url cũ
-    if (lastObjectUrlRef.current) {
-      URL.revokeObjectURL(lastObjectUrlRef.current);
-      lastObjectUrlRef.current = null;
-    }
-
-    if (!file) {
-      setImageFile(undefined);
+  // Fill khi sửa / reset khi thêm
+  useEffect(() => {
+    if (!initialData) {
+      setFormData({
+        id: 0,
+        title: "",
+        slug: "",
+        description: "",
+        contentMd: "",
+        conceptImage: "",
+      });
       return;
     }
 
-    setImageFile(file);
+    const d = initialData;
+    setFormData({
+      id: d.id ?? 0,
+      title: d.title ?? "",
+      slug: d.slug ?? "",
+      description: d.description ?? "",
+      contentMd: d.contentMd ?? "",
+      conceptImage: d.conceptImage ?? "",
+    });
+  }, [initialData]);
 
-    // Preview ngay lập tức
-    const objectUrl = URL.createObjectURL(file);
-    lastObjectUrlRef.current = objectUrl;
-    setPreviewUrl(objectUrl);
-    setValues((v) => ({ ...v, conceptImage: objectUrl }));
+  /** ===== Handlers ===== */
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
 
-    // Nếu có hàm upload, tiến hành upload để lấy URL thật
-    if (uploadImage) {
-      try {
-        setUploading(true);
-        const uploaded = await uploadImage(file);
-        const url = toUrlString(uploaded);
-        if (url) {
-          setPreviewUrl(url); // thay preview bằng URL thật sau upload
-          setValues((v) => ({ ...v, conceptImage: url }));
-        } else {
-          setError("Tải ảnh thất bại: không lấy được URL.");
+    if (name === "title") {
+      const next = value;
+      setFormData((prev) => ({
+        ...prev,
+        title: next,
+        // auto slug nếu slug đang rỗng hoặc đang là biến thể auto cũ
+        slug:
+          !prev.slug || prev.slug === slugify(prev.title)
+            ? slugify(next)
+            : prev.slug,
+      }));
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Upload file ảnh + preview
+  const handleFileUpload =
+    () =>
+      async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const inputEl = e.currentTarget;          // tránh event pooling
+        const file = inputEl.files?.[0];
+        if (!file) return;
+
+        // 👉 Preview ngay lập tức bằng blob URL và đẩy vào formData
+        const blobUrl = URL.createObjectURL(file);
+        setFormData(prev => ({ ...prev, conceptImage: blobUrl }));
+
+        try {
+          const uploaded = await handleImageUpload(file);
+          const url = toUrlString(uploaded);
+          if (url) {
+            // 👉 Ghi đè blob URL bằng URL thật từ server
+            setFormData(prev => ({ ...prev, conceptImage: url }));
+          } else {
+            setError("Tải ảnh thất bại: không lấy được URL.");
+          }
+        } catch (err) {
+          console.error(err);
+          setError("Tải ảnh thất bại.");
+          // (giữ blobUrl để người dùng vẫn thấy preview, hoặc bạn có thể clear tuỳ ý)
+        } finally {
+          inputEl.value = "";                     // reset input file an toàn
         }
-      } catch (err) {
-        console.error(err);
-        setError("Tải ảnh thất bại.");
-      } finally {
-        setUploading(false);
+      };
+
+
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const payload: ConceptPayload = {
+        id: formData.id || 0,
+        title: formData.title.trim(),
+        slug: formData.slug.trim(),
+        description: formData.description || undefined,
+        contentMd: formData.contentMd || undefined,
+        conceptImage: formData.conceptImage || undefined,
+      };
+
+      // Làm gọn payload: bỏ "", null, undefined
+      const cleaned = Object.fromEntries(
+        Object.entries(payload).filter(
+          ([, v]) => v !== null && v !== undefined && v !== ""
+        )
+      ) as ConceptPayload;
+
+      if (initialData) {
+        await updateConcept(cleaned);
+        console.log("update thành công :",cleaned);
+        
+      } else {
+        await addConcept(cleaned);
       }
+      alert("Thành công");
+      onSuccess();
+      onClose();
+    } catch (err) {
+      console.error("Error saving concept:", err);
+      setError(
+        "Có lỗi khi lưu dữ liệu. Vui lòng kiểm tra các trường bắt buộc và định dạng."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
-  /** ===== Nhập URL thủ công ===== */
-  const onChangeImageUrl = (url: string) => {
-    // khi người dùng gõ URL tay, bỏ file hiện tại
-    setImageFile(undefined);
-    if (lastObjectUrlRef.current) {
-      URL.revokeObjectURL(lastObjectUrlRef.current);
-      lastObjectUrlRef.current = null;
-    }
-    setPreviewUrl(url);
-    setValues((v) => ({ ...v, conceptImage: url }));
-  };
+  if (!show) return null;
 
   return (
-    <div className={styles.modalBackdrop} onClick={onClose} role="dialog" aria-modal="true">
-      <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.modalHeader}>
-          <h3 className="m-0">{values.id ? `Sửa ${title}` : `Thêm ${title}`}</h3>
-          <button className={styles.iconBtn} onClick={onClose} aria-label="Đóng">
-            <i className="bi bi-x-lg" />
-          </button>
-        </div>
+    <div className="modal d-block" tabIndex={-1} style={{ background: "rgba(0,0,0,0.5)" }}>
+      <div className="modal-dialog modal-lg">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h5>{initialData ? "Sửa concept" : "Thêm concept"}</h5>
+            <button type="button" className="btn-close" onClick={onClose}></button>
+          </div>
 
-        <div className={styles.modalBody}>
-          {error && <div className={styles.error}>{error}</div>}
+          <div className="modal-body">
+            {error && <div className="alert alert-danger py-2">{error}</div>}
 
-          <label className={styles.label}>Tiêu đề *</label>
-          <input
-            className={styles.inputBox}
-            value={values.title}
-            onChange={(e) => setValues((v) => ({ ...v, title: e.target.value }))}
-            placeholder="Nhập tiêu đề"
-          />
+            <div className="row g-3">
+              <div className="col-md-6">
+                <label className="form-label">Tiêu đề *</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                />
+              </div>
 
-          <label className={styles.label}>Slug *</label>
-          <input
-            className={styles.inputBox}
-            value={values.slug}
-            onChange={(e) => setValues((v) => ({ ...v, slug: slugify(e.target.value) }))}
-            placeholder="slug-tu-dong-theo-tieu-de"
-          />
+              <div className="col-md-6">
+                <label className="form-label">Slug *</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  name="slug"
+                  value={formData.slug}
+                  onChange={handleChange}
+                  placeholder="slug-tu-dong-theo-tieu-de"
+                />
+              </div>
 
-          <label className={styles.label}>Mô tả ngắn</label>
-          <textarea
-            className={styles.textarea}
-            rows={3}
-            value={values.description}
-            onChange={(e) => setValues((v) => ({ ...v, description: e.target.value }))}
-            placeholder="Mô tả ngắn…"
-          />
+              <div className="col-md-12">
+                <label className="form-label">Mô tả ngắn</label>
+                <textarea
+                  className="form-control"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  rows={3}
+                />
+              </div>
 
-          {/* Ảnh: chọn file hoặc nhập URL */}
-          <div className={styles.imageRow}>
-            <div className={styles.imageCol}>
-              <label className={styles.label}>Ảnh (chọn file)</label>
-              <input
-                type="file"
-                accept="image/*"
-                className={styles.inputBox}
-                onChange={(e) => handleFileChange(e.target.files?.[0])}
-              />
-              {uploading && <div className={styles.note}>Đang tải ảnh…</div>}
-            </div>
-            <div className={styles.imageCol}>
-              <label className={styles.label}>Ảnh (nhập URL)</label>
-              <input
-                className={styles.inputBox}
-                value={previewUrl}
-                onChange={(e) => onChangeImageUrl(e.target.value)}
-                placeholder="https://example.com/image.jpg"
-              />
+              <div className="col-md-12">
+                <label className="form-label">Nội dung (Markdown)</label>
+                <textarea
+                  className="form-control"
+                  name="contentMd"
+                  value={formData.contentMd}
+                  onChange={handleChange}
+                  rows={6}
+                />
+              </div>
+
+              {/* IMAGE */}
+              <div className="col-md-8">
+                <label className="form-label">Ảnh (URL)</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  name="conceptImage"
+                  value={formData.conceptImage}
+                  onChange={handleChange}
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
+              <div className="col-md-4">
+                <label className="form-label">Hoặc chọn file</label>
+                <input
+                  type="file"
+                  className="form-control mt-2"
+                  accept="image/*"
+                  onChange={handleFileUpload()}   // 👈 không truyền setImagePreview nữa
+                />
+
+              </div>
+
+              {formData.conceptImage && (
+                <div className="col-md-12">
+                  <div className="mt-2">
+                    <img
+                      src={formData.conceptImage}
+                      alt="Preview"
+                      className="img-thumbnail"
+                      style={{ maxWidth: 360, maxHeight: 240, objectFit: "cover" }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {previewUrl && (
-            <div className={styles.preview}>
-              <img
-                src={previewUrl}
-                alt="preview"
-                onError={(e) => ((e.currentTarget as HTMLImageElement).style.opacity = "0")}
-              />
-            </div>
-          )}
-
-          <label className={styles.label}>Nội dung (Markdown)</label>
-          <textarea
-            className={styles.textarea}
-            rows={6}
-            value={values.contentMd}
-            onChange={(e) => setValues((v) => ({ ...v, contentMd: e.target.value }))}
-            placeholder="## Tiêu đề cấp 2..."
-          />
-        </div>
-
-        <div className={styles.modalFooter}>
-          <button type="button" className={styles.btn} onClick={onClose} disabled={submitting}>
-            Hủy
-          </button>
-          <button
-            type="button"
-            className={`${styles.btn} ${styles.btnPrimary}`}
-            onClick={handleSubmit}
-            disabled={!canSubmit || submitting || uploading}
-            title={uploading ? "Đang tải ảnh..." : undefined}
-          >
-            {submitting ? "Đang lưu…" : values.id ? "Lưu" : "Thêm mới"}
-          </button>
+          <div className="modal-footer">
+            <button className="btn btn-secondary" onClick={onClose}>Hủy</button>
+            <button className="btn btn-primary" onClick={handleSubmit} disabled={loading}>
+              {loading ? "Đang lưu..." : "Lưu"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
   );
-}
+};
 
-/** ===== ConfirmModal (Xác nhận xoá) ===== */
-export function ConfirmModal({
-  show = true,
-  message = "Bạn có chắc muốn xóa mục này?",
-  onCancel,
-  onConfirm,
-}: {
-  show?: boolean;
-  message?: string;
-  onCancel: () => void;
-  onConfirm: () => void | Promise<void>;
-}) {
-  if (!show) return null;
-
-  const handleConfirm = async () => {
-    await onConfirm();
-    onCancel();
-  };
-
-  return (
-    <div className={styles.modalBackdrop} onClick={onCancel} role="dialog" aria-modal="true">
-      <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.modalHeader}>
-          <h3 className="m-0">Xác nhận</h3>
-          <button className={styles.iconBtn} onClick={onCancel} aria-label="Đóng">
-            <i className="bi bi-x-lg" />
-          </button>
-        </div>
-
-        <div className={styles.modalBody}>
-          <p>{message}</p>
-        </div>
-
-        <div className={styles.modalFooter}>
-          <button className={styles.btn} onClick={onCancel}>Hủy</button>
-          <button className={`${styles.btn} ${styles.btnDanger}`} onClick={handleConfirm}>Xóa</button>
-        </div>
-      </div>
-    </div>
-  );
-}
+export default ConceptModal;

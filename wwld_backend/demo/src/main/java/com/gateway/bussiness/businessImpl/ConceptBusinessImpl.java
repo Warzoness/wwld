@@ -39,13 +39,14 @@ public class ConceptBusinessImpl implements ConceptBusiness {
     @Override
     public Concept updateConcept(ConceptRequest request) throws Exception {
         ConceptDTO dto = conceptDAO.findConceptById(request.getId());
-        if (dto == null) {
-            Concept concept = new Concept();
+        Concept concept = new Concept();
+        if (dto != null) {
             setConcept(request,concept);
-
+            concept.setId(dto.getId());
             conceptDAO.save(concept);
         }
-        return null;
+
+        return concept;
     }
 
     @Override
@@ -72,6 +73,6 @@ public class ConceptBusinessImpl implements ConceptBusiness {
         concept.setTitle(request.getTitle());
         concept.setDescription(request.getDescription());
         concept.setContentMd(request.getContentMd());
-        concept.setConceptImage(request.getContentImage());
+        concept.setConceptImage(request.getConceptImage());
     }
 }

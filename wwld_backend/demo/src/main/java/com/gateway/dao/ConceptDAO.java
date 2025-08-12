@@ -32,7 +32,7 @@ public interface ConceptDAO extends JpaRepository<Concept, Long> {
     @Query("SELECT new com.gateway.dto.ConceptDTO(" +
             "c.id,c.title,c.slug,c.contentMd,c.conceptImage,c.description ) " +
             "FROM Concept c " +
-            " WHERE (c.id =: id)"
+            " WHERE (c.id =:id)"
     )
     ConceptDTO findConceptById(
             @Param("id") Long id

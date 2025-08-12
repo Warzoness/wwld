@@ -66,16 +66,6 @@ const toUrlString = (uploaded: unknown): string | null => {
   return null;
 };
 
-const toYMD = (d: string | Date | null | undefined): string => {
-  if (!d) return "";
-  const date = typeof d === "string" ? new Date(d) : d;
-  const t = new Date(date);
-  if (Number.isNaN(t.getTime())) return "";
-  const mm = `${t.getMonth() + 1}`.padStart(2, "0");
-  const dd = `${t.getDate()}`.padStart(2, "0");
-  return `${t.getFullYear()}-${mm}-${dd}`;
-};
-
 const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSuccess, initialData }) => {
   const [formData, setFormData] = useState<CharacterFormData>({
     id: 0,

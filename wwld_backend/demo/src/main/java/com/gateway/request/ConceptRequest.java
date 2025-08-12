@@ -13,6 +13,6 @@ public class ConceptRequest extends BaseRequest {
     private String title;
     private String slug;
     private String contentMd;
-    private String contentImage;
+    private String conceptImage;
     private String description;
 }

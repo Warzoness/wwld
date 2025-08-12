@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const backendBaseURL = "http://localhost:8080";
+const backendBaseURL = "https://wwld-production.up.railway.app";
 
 const apiClient = axios.create({
   baseURL: backendBaseURL,
@@ -14,9 +14,9 @@ export interface ConceptPayload{
     id?: number;
     title: string;
     slug: string;
-    contentMd: string;
-    conceptImage: string;
-    description : string;
+    contentMd?: string;
+    conceptImage?: string;
+    description? : string;
 }
 
 // tạo mới
@@ -51,6 +51,8 @@ export const fetchConcepts = async () => {
 export const updateConcept = async (payload: ConceptPayload) => {
   try {
     const response = await apiClient.post("/api/concept/update", payload);
+    console.log("payload :",payload);
+    
     return response.data;
   } catch (error) {
     console.error("Error updating concept:", error);
