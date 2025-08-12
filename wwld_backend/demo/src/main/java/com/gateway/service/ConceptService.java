@@ -31,11 +31,11 @@ public class ConceptService extends BaseFuntion{
         response.setBaseResponse(getBase(request));
         try {
             if (response.getResult().isOk()) {
-                ConceptDTO dto = conceptBusinessImpl.findConceptById(request);
-                response.setConceptDTO(dto);
+                List<ConceptDTO> concepts = conceptBusinessImpl.findConcepts(request);
+                response.setListConcepts(concepts);
             }
         } catch (Exception e) {
-            LOGGER.error("Error while getting concept ", e);
+            LOGGER.error("Error while getting concepts ", e);
         }
         return ResponseEntity.ok(response);
     }
@@ -47,8 +47,8 @@ public class ConceptService extends BaseFuntion{
         response.setBaseResponse(getBase(request));
         try {
             if (response.getResult().isOk()) {
-                List<ConceptDTO> concepts = conceptBusinessImpl.findConcepts(request);
-                response.setListConcepts(concepts);
+                ConceptDTO conceptDTO = conceptBusinessImpl.findConceptById(request);
+                response.setConceptDTO(conceptDTO);
             }
         } catch (Exception e) {
             LOGGER.error("Error while getting concepts ", e);
