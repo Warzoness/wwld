@@ -22,10 +22,20 @@ const slugify = (input: string) =>
 // helper ép về /uploads/...
 const toUploadsPath = (input: unknown): string | null => {
   if (!input) return null;
-  if (typeof input === "object") {
-    const o = input as any;
-    return toUploadsPath(o?.secure_url ?? o?.url ?? o?.data?.url ?? null);
+
+  if (typeof input === "object" && input !== null) {
+    // ép kiểu rõ ràng thành Record<string, unknown> thay vì any
+    const o = input as Record<string, unknown>;
+    const secureUrl = typeof o.secure_url === "string" ? o.secure_url : undefined;
+    const url = typeof o.url === "string" ? o.url : undefined;
+    const dataUrl =
+      typeof (o.data as Record<string, unknown> | undefined)?.url === "string"
+        ? (o.data as Record<string, unknown>).url
+        : undefined;
+
+    return toUploadsPath(secureUrl ?? url ?? dataUrl ?? null);
   }
+
   if (typeof input === "string") {
     const s = input.trim();
     if (!s || s.startsWith("blob:") || s.startsWith("data:")) return null;
@@ -35,13 +45,17 @@ const toUploadsPath = (input: unknown): string | null => {
       try {
         const u = new URL(s);
         if (/^\/uploads\/.+/i.test(u.pathname)) return u.pathname;
-      } catch { }
+      } catch {
+        /* ignore invalid URL */
+      }
     }
     const m = s.match(/\/uploads\/.+/i);
     return m ? m[0] : null;
   }
+
   return null;
 };
+
 
 
 /** ===== Props ===== */
@@ -131,13 +145,12 @@ const ConceptModal: React.FC<ConceptModalProps> = ({
 
   // Upload ảnh + preview
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const inputEl = e.currentTarget; // lưu lại reference ngay đầu
+    const file = inputEl.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string);
-    };
+    reader.onloadend = () => setImagePreview(reader.result as string);
     reader.readAsDataURL(file);
 
     try {
@@ -153,9 +166,10 @@ const ConceptModal: React.FC<ConceptModalProps> = ({
       console.error(err);
       setError("Tải ảnh thất bại");
     } finally {
-      e.currentTarget.value = "";
+      inputEl.value = ""; // reset input file an toàn
     }
   };
+
 
   const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
