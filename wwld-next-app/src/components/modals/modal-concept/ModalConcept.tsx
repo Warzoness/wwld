@@ -8,31 +8,41 @@ import {
 } from "@/lib/services/conceptService";
 import { handleImageUpload } from "@/lib/services/uploadService";
 
-/** ===== Type guard cho kết quả upload để lấy URL ===== */
-type UploadedLike = {
-  url?: string;
-  secure_url?: string;
-  data?: { url?: string } | null;
-};
-function isUploadedLike(x: unknown): x is UploadedLike {
-  if (!x || typeof x !== "object") return false;
-  const o = x as Record<string, unknown>;
-  return (
-    typeof o.url === "string" ||
-    typeof o.secure_url === "string" ||
-    (o.data !== undefined &&
-      o.data !== null &&
-      typeof (o.data as Record<string, unknown>).url === "string")
-  );
-}
-const toUrlString = (uploaded: unknown): string | null => {
-  if (!uploaded) return null;
-  if (typeof uploaded === "string") return uploaded;
-  if (isUploadedLike(uploaded)) {
-    return uploaded.url ?? uploaded.secure_url ?? uploaded.data?.url ?? null;
+/** ===== Helper: slugify ===== */
+const slugify = (input: string) =>
+  input
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+
+// helper ép về /uploads/...
+const toUploadsPath = (input: unknown): string | null => {
+  if (!input) return null;
+  if (typeof input === "object") {
+    const o = input as any;
+    return toUploadsPath(o?.secure_url ?? o?.url ?? o?.data?.url ?? null);
+  }
+  if (typeof input === "string") {
+    const s = input.trim();
+    if (!s || s.startsWith("blob:") || s.startsWith("data:")) return null;
+    if (/^\/uploads\/.+/i.test(s)) return s;
+    if (/^uploads\/.+/i.test(s)) return `/${s}`;
+    if (/^https?:\/\//i.test(s)) {
+      try {
+        const u = new URL(s);
+        if (/^\/uploads\/.+/i.test(u.pathname)) return u.pathname;
+      } catch { }
+    }
+    const m = s.match(/\/uploads\/.+/i);
+    return m ? m[0] : null;
   }
   return null;
 };
+
 
 /** ===== Props ===== */
 interface ConceptModalProps {
@@ -49,19 +59,7 @@ interface ConceptFormData {
   slug: string;
   description: string;
   contentMd: string;
-  conceptImage: string; // cho phép nhập URL
 }
-
-/** ===== Helper: slugify ===== */
-const slugify = (input: string) =>
-  input
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
 
 const ConceptModal: React.FC<ConceptModalProps> = ({
   show,
@@ -75,51 +73,52 @@ const ConceptModal: React.FC<ConceptModalProps> = ({
     slug: "",
     description: "",
     contentMd: "",
-    conceptImage: "",
   });
 
+  const [imageUrl, setImageUrl] = useState<string>(""); // URL gốc từ server
+  const [imagePreview, setImagePreview] = useState<string>(""); // blob hoặc full URL
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // preview ảnh
+  const backendUrl = "https://wwld-production.up.railway.app";
 
   // Fill khi sửa / reset khi thêm
   useEffect(() => {
-    if (!initialData) {
+    if (!show) return;
+    setError("");
+
+    if (initialData) {
+      const d = initialData;
       setFormData({
-        id: 0,
-        title: "",
-        slug: "",
-        description: "",
-        contentMd: "",
-        conceptImage: "",
+        id: d.id ?? 0,
+        title: d.title ?? "",
+        slug: d.slug ?? "",
+        description: d.description ?? "",
+        contentMd: d.contentMd ?? "",
       });
-      return;
+
+      // LẤY ẢNH CŨ -> gán sẵn
+      const oldPath = toUploadsPath(d.conceptImage) ?? "";
+      setImageUrl(oldPath);              // giá trị để lưu (luôn là /uploads/...)
+      setImagePreview(oldPath ? backendUrl + oldPath : ""); // chỉ để hiển thị
+    } else {
+      // reset
+      setFormData({ id: 0, title: "", slug: "", description: "", contentMd: "" });
+      setImageUrl("");
+      setImagePreview("");
     }
+  }, [initialData, show]);
 
-    const d = initialData;
-    setFormData({
-      id: d.id ?? 0,
-      title: d.title ?? "",
-      slug: d.slug ?? "",
-      description: d.description ?? "",
-      contentMd: d.contentMd ?? "",
-      conceptImage: d.conceptImage ?? "",
-    });
-  }, [initialData]);
 
-  /** ===== Handlers ===== */
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-
     if (name === "title") {
       const next = value;
       setFormData((prev) => ({
         ...prev,
         title: next,
-        // auto slug nếu slug đang rỗng hoặc đang là biến thể auto cũ
         slug:
           !prev.slug || prev.slug === slugify(prev.title)
             ? slugify(next)
@@ -127,45 +126,79 @@ const ConceptModal: React.FC<ConceptModalProps> = ({
       }));
       return;
     }
-
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Upload file ảnh + preview
-  const handleFileUpload =
-    () =>
-      async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const inputEl = e.currentTarget;          // tránh event pooling
-        const file = inputEl.files?.[0];
-        if (!file) return;
+  // Upload ảnh + preview
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-        // 👉 Preview ngay lập tức bằng blob URL và đẩy vào formData
-        const blobUrl = URL.createObjectURL(file);
-        setFormData(prev => ({ ...prev, conceptImage: blobUrl }));
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
 
-        try {
-          const uploaded = await handleImageUpload(file);
-          const url = toUrlString(uploaded);
-          if (url) {
-            // 👉 Ghi đè blob URL bằng URL thật từ server
-            setFormData(prev => ({ ...prev, conceptImage: url }));
-          } else {
-            setError("Tải ảnh thất bại: không lấy được URL.");
-          }
-        } catch (err) {
-          console.error(err);
-          setError("Tải ảnh thất bại.");
-          // (giữ blobUrl để người dùng vẫn thấy preview, hoặc bạn có thể clear tuỳ ý)
-        } finally {
-          inputEl.value = "";                     // reset input file an toàn
-        }
-      };
+    try {
+      const uploaded = await handleImageUpload(file);
+      const path = toUploadsPath(uploaded);
+      if (path) {
+        setImageUrl(path);
+        setImagePreview(backendUrl + path);
+      } else {
+        setError("Tải ảnh thành công nhưng không lấy được đường dẫn /uploads/...");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Tải ảnh thất bại");
+    } finally {
+      e.currentTarget.value = "";
+    }
+  };
 
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    try {
+      const uploaded = await handleImageUpload(file);
+      const path = toUploadsPath(uploaded);
+      if (path) {
+        setImageUrl(path);
+        setImagePreview(backendUrl + path);
+      } else {
+        setError("Tải ảnh thành công nhưng không lấy được đường dẫn /uploads/...");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Tải ảnh thất bại");
+    }
+  };
 
   const handleSubmit = async () => {
+    if (!formData.title.trim()) {
+      setError("Tiêu đề không được để trống");
+      return;
+    }
+
     try {
       setLoading(true);
       setError("");
+
+      // Nếu user không upload mới -> dùng lại ảnh cũ từ initialData
+      const finalImagePath =
+        toUploadsPath(imageUrl) ??                 // ảnh mới (nếu có)
+        toUploadsPath(initialData?.conceptImage) ?? // fallback ảnh cũ
+        undefined;                                  // có thể cho phép null nếu muốn xóa ảnh
 
       const payload: ConceptPayload = {
         id: formData.id || 0,
@@ -173,45 +206,44 @@ const ConceptModal: React.FC<ConceptModalProps> = ({
         slug: formData.slug.trim(),
         description: formData.description || undefined,
         contentMd: formData.contentMd || undefined,
-        conceptImage: formData.conceptImage || undefined,
+        conceptImage: finalImagePath, // <-- LUÔN GỬI (nếu có)
       };
 
-      // Làm gọn payload: bỏ "", null, undefined
+      // nếu bạn đang filter field rỗng, KHÔNG xoá conceptImage đã có giá trị
       const cleaned = Object.fromEntries(
-        Object.entries(payload).filter(
-          ([, v]) => v !== null && v !== undefined && v !== ""
-        )
+        Object.entries(payload).filter(([, v]) => v !== undefined && v !== "")
       ) as ConceptPayload;
 
-      if (initialData) {
-        await updateConcept(cleaned);
-        console.log("update thành công :",cleaned);
-        
-      } else {
-        await addConcept(cleaned);
-      }
+      if (initialData) await updateConcept(cleaned);
+      else await addConcept(cleaned);
+
       alert("Thành công");
       onSuccess();
       onClose();
     } catch (err) {
-      console.error("Error saving concept:", err);
-      setError(
-        "Có lỗi khi lưu dữ liệu. Vui lòng kiểm tra các trường bắt buộc và định dạng."
-      );
+      console.error(err);
+      setError("Có lỗi khi lưu dữ liệu");
     } finally {
       setLoading(false);
     }
   };
 
+
   if (!show) return null;
 
   return (
-    <div className="modal d-block" tabIndex={-1} style={{ background: "rgba(0,0,0,0.5)" }}>
+    <div
+      className="modal d-block"
+      tabIndex={-1}
+      style={{ background: "rgba(0,0,0,0.5)" }}
+    >
       <div className="modal-dialog modal-lg">
         <div className="modal-content">
-          <div className="modal-header">
-            <h5>{initialData ? "Sửa concept" : "Thêm concept"}</h5>
-            <button type="button" className="btn-close" onClick={onClose}></button>
+          <div className="modal-header bg-primary text-white">
+            <h5 className="modal-title fw-bold">
+              {initialData ? "✏️ Sửa concept" : "➕ Thêm concept"}
+            </h5>
+            <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
           </div>
 
           <div className="modal-body">
@@ -263,41 +295,40 @@ const ConceptModal: React.FC<ConceptModalProps> = ({
                 />
               </div>
 
-              {/* IMAGE */}
-              <div className="col-md-8">
-                <label className="form-label">Ảnh (URL)</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  name="conceptImage"
-                  value={formData.conceptImage}
-                  onChange={handleChange}
-                  placeholder="https://example.com/image.jpg"
-                />
-              </div>
-              <div className="col-md-4">
-                <label className="form-label">Hoặc chọn file</label>
-                <input
-                  type="file"
-                  className="form-control mt-2"
-                  accept="image/*"
-                  onChange={handleFileUpload()}   // 👈 không truyền setImagePreview nữa
-                />
-
-              </div>
-
-              {formData.conceptImage && (
-                <div className="col-md-12">
-                  <div className="mt-2">
-                    <img
-                      src={formData.conceptImage}
-                      alt="Preview"
-                      className="img-thumbnail"
-                      style={{ maxWidth: 360, maxHeight: 240, objectFit: "cover" }}
-                    />
-                  </div>
+              {/* IMAGE — giống DialogModal */}
+              <div className="col-md-12">
+                <label className="form-label fw-semibold">🖼 Ảnh minh họa</label>
+                <div
+                  className="border border-2 rounded-3 p-3 text-center position-relative"
+                  style={{ minHeight: 150, cursor: "pointer", backgroundColor: "#f9f9f9" }}
+                  onClick={() => document.getElementById("concept-image-input")?.click()}
+                  onDragOver={e => { e.preventDefault(); e.stopPropagation(); }}
+                  onDrop={handleDrop}
+                >
+                  <input
+                    id="concept-image-input"
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={handleFileChange}
+                  />
+                  {imagePreview ? (
+                    <div>
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="img-fluid rounded shadow-sm"
+                        style={{ maxHeight: 160 }}
+                      />
+                      <div className="mt-2">
+                        <small className="text-muted">Nhấn để thay ảnh</small>
+                      </div>
+                    </div>
+                  ) : (
+                    <span className="text-muted">📤 Chọn hoặc kéo-thả ảnh vào đây</span>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           </div>
 
