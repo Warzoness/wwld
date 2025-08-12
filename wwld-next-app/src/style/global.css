@@ -42,6 +42,7 @@ body {
   background-image: url("/images/darkmode.png");
   background-size: cover;
   padding: 1rem;
+  min-height: 100vh;
 }
 
 

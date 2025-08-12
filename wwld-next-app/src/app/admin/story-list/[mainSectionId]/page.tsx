@@ -27,10 +27,6 @@ export default function StoryListPage() {
     const params = useParams();
     const mainSectionId = Number(params.mainSectionId);
     const mainSectionName = useSearchParams().get("mainSectionName") || "Chưa đặt tên";
-
-
-
-
     const [stories, setStories] = useState<Story[]>([]);
     const [loading, setLoading] = useState(true);
     const [viewMode, setViewMode] = useState<"card" | "table">("card");

@@ -14,7 +14,8 @@ interface MainSection {
   image: string;
 }
 
-const PASSCODE = "123456"; // Đổi thành passcode của bạn
+// Nhap passcode moi lan goi modal sua hoac xoa
+const PASSCODE = "123456"; 
 
 export default function MainSectionManage() {
   const [showModal, setShowModal] = React.useState(false);

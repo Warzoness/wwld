@@ -219,13 +219,6 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
     try {
       setLoading(true);
       setError("");
-
-      // // convert birthday -> ISO string (nếu có)
-      // const birthdayISO = formData.birthday
-      //   ? new Date(`${formData.birthday}T00:00:00`).toISOString()
-      //   : undefined;
-
-      // convert number fields (0 -> undefined để không gửi nếu bạn muốn)
       const ageNum = formData.age || undefined;
       const heightNum = formData.height || undefined;
 

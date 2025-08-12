@@ -59,9 +59,7 @@ public class MainSectionService extends BaseFuntion {
             LOGGER.error("Error while inserting main section", e);
         }
         return ResponseEntity.ok(response);
-    }
-
-    ;
+    };
 
     @RequestMapping(value = "update", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody

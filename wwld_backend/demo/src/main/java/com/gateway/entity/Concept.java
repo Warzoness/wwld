@@ -2,6 +2,11 @@ package com.gateway.entity;
 
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 
 @Entity
 @Table(name="concept")
@@ -23,8 +28,6 @@ public class Concept {
     @Column(name="concept_image")
     private String conceptImage;
 
-    @Lob
-    @Column(name="contentHtml",columnDefinition = "TEXT" )
-    private String contentHtml;
-
+    @Column(name="description")
+    private String description;
 }
