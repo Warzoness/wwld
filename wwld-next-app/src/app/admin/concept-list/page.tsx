@@ -96,10 +96,10 @@ export default function ConceptListPage() {
           </div>
 
           <div className="row g-4">
-            {pageData.map((c) => {
-                const theme = getImageUrl(c.conceptImage) || "/images/banner.png";
+            {pageData.map((c) => 
+               
               
-            return (
+             (
               <div key={c.id} className="col-12 col-sm-6 col-lg-4 col-xxl-3">
                 <div className={styles.card}>
                   <div className={styles.cardActions}>
@@ -117,7 +117,7 @@ export default function ConceptListPage() {
                   </div>
 
                   <div className={styles.media}>
-                    <img src={theme || ""} alt={c.title} />
+                    <img src={c.conceptImage} alt={c.title} />
                     <span className={styles.badge}>
                       <i className="bi bi-images me-1" />
                       {c.slug}
@@ -136,7 +136,7 @@ export default function ConceptListPage() {
                   </div>
                 </div>
               </div>
-            )})}
+            ))}
 
             {!loading && pageData.length === 0 && (
               <div className="col">

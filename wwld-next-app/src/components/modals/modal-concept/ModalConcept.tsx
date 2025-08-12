@@ -22,20 +22,10 @@ const slugify = (input: string) =>
 // helper ép về /uploads/...
 const toUploadsPath = (input: unknown): string | null => {
   if (!input) return null;
-
-  if (typeof input === "object" && input !== null) {
-    // ép kiểu rõ ràng thành Record<string, unknown> thay vì any
-    const o = input as Record<string, unknown>;
-    const secureUrl = typeof o.secure_url === "string" ? o.secure_url : undefined;
-    const url = typeof o.url === "string" ? o.url : undefined;
-    const dataUrl =
-      typeof (o.data as Record<string, unknown> | undefined)?.url === "string"
-        ? (o.data as Record<string, unknown>).url
-        : undefined;
-
-    return toUploadsPath(secureUrl ?? url ?? dataUrl ?? null);
+  if (typeof input === "object") {
+    const o = input as any;
+    return toUploadsPath(o?.secure_url ?? o?.url ?? o?.data?.url ?? null);
   }
-
   if (typeof input === "string") {
     const s = input.trim();
     if (!s || s.startsWith("blob:") || s.startsWith("data:")) return null;
@@ -45,17 +35,13 @@ const toUploadsPath = (input: unknown): string | null => {
       try {
         const u = new URL(s);
         if (/^\/uploads\/.+/i.test(u.pathname)) return u.pathname;
-      } catch {
-        /* ignore invalid URL */
-      }
+      } catch { }
     }
     const m = s.match(/\/uploads\/.+/i);
     return m ? m[0] : null;
   }
-
   return null;
 };
-
 
 
 /** ===== Props ===== */
@@ -73,6 +59,7 @@ interface ConceptFormData {
   slug: string;
   description: string;
   contentMd: string;
+  conceptImage: string;
 }
 
 const ConceptModal: React.FC<ConceptModalProps> = ({
@@ -87,6 +74,7 @@ const ConceptModal: React.FC<ConceptModalProps> = ({
     slug: "",
     description: "",
     contentMd: "",
+    conceptImage : ""
   });
 
   const [imageUrl, setImageUrl] = useState<string>(""); // URL gốc từ server
@@ -109,6 +97,7 @@ const ConceptModal: React.FC<ConceptModalProps> = ({
         slug: d.slug ?? "",
         description: d.description ?? "",
         contentMd: d.contentMd ?? "",
+        conceptImage : d.conceptImage ?? ""
       });
 
       // LẤY ẢNH CŨ -> gán sẵn
@@ -117,7 +106,7 @@ const ConceptModal: React.FC<ConceptModalProps> = ({
       setImagePreview(oldPath ? backendUrl + oldPath : ""); // chỉ để hiển thị
     } else {
       // reset
-      setFormData({ id: 0, title: "", slug: "", description: "", contentMd: "" });
+      setFormData({ id: 0, title: "", slug: "", description: "", contentMd: "" ,conceptImage: ""});
       setImageUrl("");
       setImagePreview("");
     }
