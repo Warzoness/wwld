@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import styles from "./ConceptDetail.module.css";
 import { useParams } from "next/navigation";
-import { fetchOneConceptById } from "@/lib/services/conceptService";
+import { ConceptPayload, fetchOneConceptById } from "@/lib/services/conceptService";
 
 type Concept = {
   id?: number;
@@ -29,12 +29,21 @@ export default function ConceptDetailPage() {
   });
 
   const params = useParams();
-  const conceptId = Number(params.id);
+  const conceptId = Number(params.conceptId);
+
+  const conceptReq : ConceptPayload = {
+      id : conceptId,
+      slug: "",
+      conceptImage: "",
+      title : "",
+      contentMd: "",
+      description: ""
+  }
 
   const loadConcept = async () => {
     setLoading(true);
     try {
-      const conceptById = await fetchOneConceptById(conceptId);
+      const conceptById = await fetchOneConceptById(conceptReq);
       setConcept(conceptById);
     } catch {
       setLoading(false);

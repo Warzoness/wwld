@@ -74,16 +74,14 @@ export const deleteConcept = async (payload : ConceptPayload) => {
 
 // get one by id 
 
-export const fetchOneConceptById = async (id : number) => {
+export const fetchOneConceptById = async (payload: ConceptPayload) => {
   try {
-    const request = {
-      clientTime: new Date().toISOString(),
-      id
-    };
-    const response = await apiClient.post("/api/concept/getOneById", request);
+    console.log("payload :",payload );
+    
+    const response = await apiClient.post("/api/concept/getOneById", {payload});
     console.log("response : ", response.data.conceptDTO);
     
-    return response.data.listConcepts;
+    return response.data.conceptDTO;
   } catch (error) {
     console.error("Error fetching concept :", error);
     throw error;
