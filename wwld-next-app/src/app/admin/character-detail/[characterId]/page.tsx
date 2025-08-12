@@ -16,35 +16,6 @@ export default function CharacterDetailPage() {
   const params = useParams();
   const characterId = Number(params.characterId);
 
-
-  // TODO: thay bằng dữ liệu thật
-  // character = {
-  //   name: "Yangyang",
-  //   overview:
-  //     "Yangyang journeyed far away from home to become an Outrider in Jinzhou. Instead of seeking the spotlight, she chooses to provide comfort through quiet companionship for others. After enduring hardships and anguish, she has found a clear purpose: to be a beacon of guidance and an aiding presence in a world still in need of healing.",
-  //   nation: "HuangLong",
-  //   org: "Đội gác đêm",
-  //   age: "17",
-  //   height: "1.65m",
-  //   portrait: "/images/Yangyang_Card.webp",
-  //   biography:
-  //     "Sinh ra ở vùng biên của HuangLong, Yangyang rời quê từ rất sớm để trở thành Outrider tại Jinzhou. Cô điềm tĩnh, luôn hỗ trợ đồng đội và giữ vững lý tưởng dù trải qua nhiều biến cố.",
-  //   dialogues: [
-  //     "Mọi người ổn cả chứ?",
-  //     "Mình ở đây rồi, đừng lo.",
-  //     "Đường còn dài, đi chậm thôi cũng được.",
-  //   ],
-  //   combat: {
-  //     style:
-  //       "Hỗ trợ – kiểm soát đám đông, bảo kê đồng đội, tạo khoảng trống giao tranh.",
-  //     skills: [
-  //       { name: "Wind Whistle", note: "Hút kẻ địch vào một điểm." },
-  //       { name: "Breeze Guard", note: "Tạo lá chắn gió cho đồng đội." },
-  //       { name: "Zephyr Burst (Ultimate)", note: "Hất tung diện rộng." },
-  //     ],
-  //   },
-  // };
-
   const loadCharacter = async () => {
     setLoading(true);
     try {

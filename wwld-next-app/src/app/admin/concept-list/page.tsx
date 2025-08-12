@@ -4,28 +4,21 @@ import React, { useEffect, useMemo, useState, useCallback } from "react";
 import Link from "next/link";
 import styles from "./ConceptList.module.css";
 import BackButton from "@/components/buttons/back-button/page";
-import { ConceptPayload, fetchConcepts } from "@/lib/services/conceptService";
+import { ConceptPayload, fetchConcepts, deleteConcept } from "@/lib/services/conceptService";
 import ConceptModal from "@/components/modals/modal-concept/ModalConcept";
 
 export default function ConceptListPage() {
-  // ==== DATA ====
   const [loading, setLoading] = useState(true);
   const [listConcepts, setListConcepts] = useState<ConceptPayload[]>([]);
 
-  // ==== UI STATE ====
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(0);
   const pageSize = 8;
   const backendUrl = "https://wwld-production.up.railway.app";
 
-
-  // ==== MODALS ====
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<ConceptPayload | undefined>();
-  // (Nếu chưa dùng xoá, bỏ deletingId hoặc để TODO)
-  // const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  // Hàm load có thể tái sử dụng (refetch)
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -38,12 +31,10 @@ export default function ConceptListPage() {
     }
   }, []);
 
-  // Fetch khi mount
   useEffect(() => {
     load();
   }, [load]);
 
-  // Lọc theo query
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return listConcepts.filter((c) => q === "" || c.title.toLowerCase().includes(q));
@@ -52,15 +43,25 @@ export default function ConceptListPage() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const pageData = filtered.slice(page * pageSize, page * pageSize + pageSize);
 
-   const getImageUrl = (image?: string) => {
+  const getImageUrl = (image?: string) => {
     if (!image) return "";
     if (image.startsWith("http")) return image;
     if (image.startsWith("/uploads/")) return backendUrl + image;
     return backendUrl + `/uploads/${image.replace(/^\/?uploads\//, "")}`;
   };
 
+  const handleDelete = async (concept : ConceptPayload) => {
+    if (!confirm("Bạn có chắc muốn xóa concept này?")) return;
+    try {
+      await deleteConcept(concept);
+      alert("Xóa thành công");
+      await load();
+    } catch (err) {
+      console.error(err);
+      alert("Lỗi khi xóa");
+    }
+  };
 
-  // Giữ page hợp lệ
   useEffect(() => {
     if (page > 0 && page >= totalPages) setPage(0);
   }, [page, totalPages]);
@@ -96,10 +97,7 @@ export default function ConceptListPage() {
           </div>
 
           <div className="row g-4">
-            {pageData.map((c) => 
-               
-              
-             (
+            {pageData.map((c) => (
               <div key={c.id} className="col-12 col-sm-6 col-lg-4 col-xxl-3">
                 <div className={styles.card}>
                   <div className={styles.cardActions}>
@@ -113,11 +111,17 @@ export default function ConceptListPage() {
                     >
                       <i className="bi bi-pencil" />
                     </button>
-              
+                    <button
+                      className={`${styles.iconBtn} ${styles.danger}`}
+                      title="Xóa"
+                      onClick={() => handleDelete(c)}
+                    >
+                      <i className="bi bi-trash" />
+                    </button>
                   </div>
 
                   <div className={styles.media}>
-                    <img src={c.conceptImage} alt={c.title} />
+                    <img src={getImageUrl(c.conceptImage) || "/images/banner.png"} alt={c.title} />
                     <span className={styles.badge}>
                       <i className="bi bi-images me-1" />
                       {c.slug}
@@ -178,13 +182,12 @@ export default function ConceptListPage() {
           show={showForm}
           onClose={() => {
             setShowForm(false);
-            // nếu đang sửa mà hủy, có thể clear editing:
             setEditing(undefined);
           }}
           onSuccess={async () => {
-            await load();          // refetch danh sách
-            setShowForm(false);    // đóng modal
-            setEditing(undefined); // clear state sửa
+            await load();
+            setShowForm(false);
+            setEditing(undefined);
           }}
           initialData={editing}
         />

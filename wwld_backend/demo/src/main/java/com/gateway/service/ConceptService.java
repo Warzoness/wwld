@@ -31,6 +31,22 @@ public class ConceptService extends BaseFuntion{
         response.setBaseResponse(getBase(request));
         try {
             if (response.getResult().isOk()) {
+                ConceptDTO dto = conceptBusinessImpl.findConceptById(request);
+                response.setConceptDTO(dto);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error while getting concept ", e);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @RequestMapping(value = "getOneById",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<ConceptResponse> getOneById(@RequestBody ConceptRequest request){
+        ConceptResponse response = new ConceptResponse();
+        response.setBaseResponse(getBase(request));
+        try {
+            if (response.getResult().isOk()) {
                 List<ConceptDTO> concepts = conceptBusinessImpl.findConcepts(request);
                 response.setListConcepts(concepts);
             }

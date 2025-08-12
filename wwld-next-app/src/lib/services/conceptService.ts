@@ -61,12 +61,31 @@ export const updateConcept = async (payload: ConceptPayload) => {
 };
 
 // Xóa
-export const deleteConcept = async (id: number) => {
+export const deleteConcept = async (payload : ConceptPayload) => {
   try {
-    const response = await apiClient.post("/api/concept/delete", { id });
+    
+    const response = await apiClient.post("/api/concept/delete", { payload });
     return response.data;
   } catch (error) {
     console.error("Error deleting concept:", error);
+    throw error;
+  }
+};
+
+// get one by id 
+
+export const fetchOneConceptById = async (id : number) => {
+  try {
+    const request = {
+      clientTime: new Date().toISOString(),
+      id
+    };
+    const response = await apiClient.post("/api/concept/getOneById", request);
+    console.log("response : ", response.data.conceptDTO);
+    
+    return response.data.listConcepts;
+  } catch (error) {
+    console.error("Error fetching concept :", error);
     throw error;
   }
 };
