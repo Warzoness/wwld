@@ -36,6 +36,8 @@ body {
 
 * {
   font-family: 'CustomFont';
+  white-space: pre-line; /* hoặc pre-wrap */
+
 }
 
 .container-all-content {

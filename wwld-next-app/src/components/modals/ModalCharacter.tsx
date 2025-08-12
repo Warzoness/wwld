@@ -205,16 +205,34 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
         }
       };
 
+  function cleanPayload<T extends object>(obj: T): {
+    [K in keyof T as T[K] extends string | number | undefined | null
+    ? (undefined extends T[K] ? K : K)
+    : K]: Exclude<T[K], "" | null | undefined>
+  } {
+    const clone = { ...obj };
+    for (const key of Object.keys(clone) as Array<keyof T>) {
+      const v = clone[key];
+      if (v === undefined || v === null || v === "") {
+        delete clone[key];
+      }
+    }
+    return clone as any; // sẽ không bị any khi gán vào biến Partial
+  }
+
+
   const handleSubmit = async () => {
     try {
       setLoading(true);
       setError("");
-      const ageNum = formData.age || undefined;
-      const heightNum = formData.height || undefined;
 
-      const payload: CharacterPayload = {
-        id: formData.id || 0,
-        name: formData.name.trim(),
+      const isEditing = !!initialData;
+      const ageNum = formData.age ?? undefined;
+      const heightNum = formData.height ?? undefined;
+
+      const payload: Partial<CharacterPayload> = {
+        ...(isEditing ? { id: formData.id } : {}),
+        name: formData.name,
         avatar: formData.avatar || undefined,
         imgFull: formData.imgFull || undefined,
         birthday: formData.birthday || undefined,
@@ -228,31 +246,32 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
         height: heightNum,
         combatStyle: formData.combatStyle || undefined,
         type: formData.type as CharacterPayload["type"],
-        // các *_Id để undefined theo yêu cầu
       };
 
-      // (Tuỳ chọn) Làm gọn payload: bỏ null/undefined/""
-      const cleaned = Object.fromEntries(
-        Object.entries(payload).filter(([, v]) => v !== null && v !== undefined && v !== "")
-      ) as CharacterPayload;
+      const cleaned = cleanPayload(payload);
 
-      console.log("[SUBMIT payload]", cleaned);
-
-      if (initialData) {
-        await updateCharacter(cleaned);
-      } else {
-        await addCharacter(cleaned);
+      // Nếu thêm mới thì xóa id
+      if (!isEditing) {
+        delete cleaned.id;
       }
+
+      if (isEditing) {
+        await updateCharacter(cleaned as CharacterPayload);
+      } else {
+        await addCharacter(cleaned as CharacterPayload);
+      }
+
       alert("Thành công");
       onSuccess();
       onClose();
     } catch (err) {
       console.error("Error saving character:", err);
-      setError("Có lỗi khi lưu dữ liệu. Vui lòng kiểm tra các trường bắt buộc và định dạng.");
+      setError("Có lỗi khi lưu dữ liệu.");
     } finally {
       setLoading(false);
     }
   };
+
 
   if (!show) return null;
 

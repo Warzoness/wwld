@@ -28,6 +28,6 @@ public class Concept {
     @Column(name="concept_image")
     private String conceptImage;
 
-    @Column(name="description")
+    @Column(name="description",columnDefinition = "TEXT")
     private String description;
 }

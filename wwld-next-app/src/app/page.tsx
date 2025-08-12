@@ -92,9 +92,9 @@ export default function HomePage() {
                       href={{
                         pathname:
                           mainSection.name === "Hồ sơ nhân vật"
-                            ? "/admin/characters-list"
+                            ? "/user/character-list"
                             : mainSection.name === "Khái niệm Thế giới"
-                              ? "/admin/concept-list"
+                              ? "/user/concept-list"
                               : `/user/story-list/${mainSection.id}`,
                         query:
                           mainSection.name === "Hồ sơ nhân vật" || mainSection.name === "Khái niệm Thế giới"

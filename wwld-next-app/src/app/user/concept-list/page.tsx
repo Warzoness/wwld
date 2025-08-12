@@ -5,7 +5,6 @@ import Link from "next/link";
 import styles from "./ConceptList.module.css";
 import BackButton from "@/components/buttons/back-button/page";
 import { ConceptPayload, fetchConcepts, deleteConcept } from "@/lib/services/conceptService";
-import ConceptModal from "@/components/modals/modal-concept/ModalConcept";
 
 export default function ConceptListPage() {
   const [loading, setLoading] = useState(true);
@@ -16,8 +15,6 @@ export default function ConceptListPage() {
   const pageSize = 8;
   const backendUrl = "https://wwld-production.up.railway.app";
 
-  const [showForm, setShowForm] = useState(false);
-  const [editing, setEditing] = useState<ConceptPayload | undefined>();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -50,18 +47,6 @@ export default function ConceptListPage() {
     return backendUrl + `/uploads/${image.replace(/^\/?uploads\//, "")}`;
   };
 
-  const handleDelete = async (concept : ConceptPayload) => {
-    if (!confirm("Bạn có chắc muốn xóa concept này?")) return;
-    try {
-      await deleteConcept(concept);
-      alert("Xóa thành công");
-      await load();
-    } catch (err) {
-      console.error(err);
-      alert("Lỗi khi xóa");
-    }
-  };
-
   useEffect(() => {
     if (page > 0 && page >= totalPages) setPage(0);
   }, [page, totalPages]);
@@ -84,15 +69,6 @@ export default function ConceptListPage() {
                   onChange={(e) => setQuery(e.target.value)}
                 />
               </div>
-              <button
-                className={styles.addBtn}
-                onClick={() => {
-                  setEditing(undefined);
-                  setShowForm(true);
-                }}
-              >
-                <i className="bi bi-plus-lg me-1" /> Thêm concept
-              </button>
             </div>
           </div>
 
@@ -100,26 +76,6 @@ export default function ConceptListPage() {
             {pageData.map((c) => (
               <div key={c.id} className="col-12 col-sm-6 col-lg-4 col-xxl-3">
                 <div className={styles.card}>
-                  <div className={styles.cardActions}>
-                    <button
-                      className={`${styles.iconBtn} ${styles.warn}`}
-                      title="Sửa"
-                      onClick={() => {
-                        setEditing(c);
-                        setShowForm(true);
-                      }}
-                    >
-                      <i className="bi bi-pencil" />
-                    </button>
-                    <button
-                      className={`${styles.iconBtn} ${styles.danger}`}
-                      title="Xóa"
-                      onClick={() => handleDelete(c)}
-                    >
-                      <i className="bi bi-trash" />
-                    </button>
-                  </div>
-
                   <div className={styles.media}>
                     <img src={getImageUrl(c.conceptImage) || "/images/banner.png"} alt={c.title} />
                     <span className={styles.badge}>
@@ -133,7 +89,7 @@ export default function ConceptListPage() {
                     <p className={styles.excerpt}>{c.description}</p>
 
                     <div className={styles.actions}>
-                      <Link href={`/admin/concept-detail/${c.id}`} className={styles.cta}>
+                      <Link href={`/user/concept-detail/${c.id}`} className={styles.cta}>
                         Xem chi tiết <i className="bi bi-arrow-right-short" />
                       </Link>
                     </div>
@@ -176,21 +132,6 @@ export default function ConceptListPage() {
           </nav>
         </div>
 
-        {/* ===== Modals ===== */}
-        <ConceptModal
-          key={editing?.id || "new"}
-          show={showForm}
-          onClose={() => {
-            setShowForm(false);
-            setEditing(undefined);
-          }}
-          onSuccess={async () => {
-            await load();
-            setShowForm(false);
-            setEditing(undefined);
-          }}
-          initialData={editing}
-        />
       </div>
     </div>
   );

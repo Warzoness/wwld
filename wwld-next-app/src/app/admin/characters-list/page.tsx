@@ -221,7 +221,6 @@ export default function CharacterProfileGrid() {
 
                     <div className="iris-card__body">
                       <h5 className="iris-card__heading">{character.name}</h5>
-                      {/* <p className="iris-card__text line-clamp-3 small">{desc}</p> */}
                     </div>
 
                     <div className="iris-card__footer d-flex justify-content-between align-items-center">

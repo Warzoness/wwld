@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { fetchStoriesByMainSectionId } from "@/lib/services/storyService";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import BackButton from "@/components/buttons/back-button/page";
 
 
 interface Story {
@@ -26,13 +26,9 @@ export default function StoryListPage() {
     const mainSectionId = Number(params.mainSectionId);
     const mainSectionName = useSearchParams().get("mainSectionName") || "Chưa đặt tên";
 
-
-
-
     const [stories, setStories] = useState<Story[]>([]);
     const [loading, setLoading] = useState(true);
-    const [viewMode, setViewMode] = useState<"card" | "table">("card");
-    const [filterType, setFilterType] = useState<"all" | "chapter" | "screen">("all");
+    const [filterType, setFilterType] = useState<"all" | "chapter" | "screen">("chapter");
 
     const [selectedChapterId, setSelectedChapterId] = useState<number | null>(null);
 
@@ -96,7 +92,7 @@ export default function StoryListPage() {
 
     return (
         <div className="container mt-4">
-
+            <BackButton label="Quay lại" />
             <h2><span className="text-primary">{mainSectionName}</span></h2>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
@@ -115,20 +111,7 @@ export default function StoryListPage() {
                     <option value="screen">Màn</option>
                 </select>
 
-                <div>
-                    <button
-                        className={`btn btn-outline-primary me-2 ${viewMode === "card" ? "active" : ""}`}
-                        onClick={() => setViewMode("card")}
-                    >
-                        Dạng thẻ
-                    </button>
-                    <button
-                        className={`btn btn-outline-secondary ${viewMode === "table" ? "active" : ""}`}
-                        onClick={() => setViewMode("table")}
-                    >
-                        Dạng bảng
-                    </button>
-                </div>
+
             </div>
 
             {selectedChapterId !== null && (
@@ -141,101 +124,62 @@ export default function StoryListPage() {
                     </button>
                 </div>
             )}
+            <div className="row g-4">
+                {filteredStories.map((story) => {
+                    const accent = story.type === 0 ? "#ef4444" : "#22d3ee"; // chapter vs màn (tuỳ bạn đổi)
+                    const img = story.image ? getImageUrl(story.image) : "/images/banner.png";
 
+                    return (
+                        <div className="col-md-4" key={story.id}>
+                            <div
+                                className="iris-card h-100"
+                                style={{ ["--iris-accent" as string]: accent }}
+                            >
+                                <div className="iris-card__media" style={{ height: 180 }}>
+                                    <img src={img} alt={story.title} className="iris-card__img" />
+                                </div>
 
-            {loading ? (
-                <p>Đang tải...</p>
-            ) : viewMode === "card" ? (
-                <div className="row g-4">
-                    {filteredStories.map((story) => {
-                        const accent = story.type === 0 ? "#ef4444" : "#22d3ee"; // chapter vs màn (tuỳ bạn đổi)
-                        const img = story.image ? getImageUrl(story.image) : "/images/banner.png";
-
-                        return (
-                            <div className="col-md-4" key={story.id}>
-                                <div
-                                    className="iris-card h-100"
-                                    style={{ ["--iris-accent" as string]: accent }}
-                                >
-                                    <div className="iris-card__media" style={{ height: 180 }}>
-                                        <img src={img} alt={story.title} className="iris-card__img" />
+                                <div className="iris-card__body">
+                                    <div className="iris-card__title">
+                                        <span className="iris-glyph">
+                                            <i className="bi bi-journal-text"></i>
+                                        </span>
+                                        <h5 className="iris-card__heading" title={story.title}>
+                                            {story.title}
+                                        </h5>
                                     </div>
 
-                                    <div className="iris-card__body">
-                                        <div className="iris-card__title">
-                                            <span className="iris-glyph">
-                                                <i className="bi bi-journal-text"></i>
-                                            </span>
-                                            <h5 className="iris-card__heading" title={story.title}>
-                                                {story.title}
-                                            </h5>
-                                        </div>
+                                    <p className="iris-card__text line-clamp-3">
+                                        {story.description}
+                                    </p>
 
-                                        <p className="iris-card__text line-clamp-3">
-                                            {story.description}
-                                        </p>
+                                    <div className="d-flex align-items-center justify-content-between mt-2">
 
-                                        <div className="d-flex align-items-center justify-content-between mt-2">
-
-                                            {story.type === 0 ? (
-                                                <button
-                                                    className="iris-cta  iris-cta--solid" style={{ backgroundColor: "transparent" }}
-                                                    onClick={() => {
-                                                        setSelectedChapterId(story.id);
-                                                        setFilterType("screen");
-                                                    }}
-                                                >
-                                                    Xem danh sách màn <i className="bi bi-arrow-right-short"></i>
-                                                </button>
-                                            ) : (
-                                                <button
-                                                    className="iris-cta" style={{ backgroundColor: "transparent" }}
-                                                    onClick={() => handleViewDetail(story)}
-                                                >
-                                                    Đọc cốt truyện <i className="bi bi-arrow-right-short"></i>
-                                                </button>
-                                            )}
-                                        </div>
+                                        {story.type === 0 ? (
+                                            <button
+                                                className="iris-cta  iris-cta--solid" style={{ backgroundColor: "transparent" }}
+                                                onClick={() => {
+                                                    setSelectedChapterId(story.id);
+                                                    setFilterType("screen");
+                                                }}
+                                            >
+                                                Xem danh sách màn <i className="bi bi-arrow-right-short"></i>
+                                            </button>
+                                        ) : (
+                                            <button
+                                                className="iris-cta" style={{ backgroundColor: "transparent" }}
+                                                onClick={() => handleViewDetail(story)}
+                                            >
+                                                Đọc cốt truyện <i className="bi bi-arrow-right-short"></i>
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>
-                        );
-                    })}
-                </div>
-
-            ) : (
-                <table className="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Ảnh</th>
-                            <th>Tiêu đề</th>
-                            <th>Mô tả</th>
-                            <th>Thể loại</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredStories.map(story => (
-                            <tr key={story.id}>
-                                <td>
-                                    {story.image && (
-                                        <img
-                                            src={getImageUrl(story.image)}
-                                            alt={story.title}
-                                            style={{ width: 80, height: 60, objectFit: "cover" }}
-                                        />
-                                    )}
-                                </td>
-                                <td>{story.title}</td>
-                                <td>{story.description}</td>
-                                <td>{story.type === 0 ? "Chương" : "Màn"}</td>
-
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            )}
-
-
+                        </div>
+                    );
+                })}
+            </div>
         </div>
     );
 }

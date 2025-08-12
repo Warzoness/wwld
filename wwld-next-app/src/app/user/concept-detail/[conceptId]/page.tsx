@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import styles from "./ConceptDetail.module.css";
+import styles from "@/app/admin/concept-detail/[conceptId]/ConceptDetail.module.css";
 import { useParams } from "next/navigation";
 import { ConceptPayload, fetchOneConceptById } from "@/lib/services/conceptService";
-import BackButton from "@/components/buttons/back-button/page";
 
 type Concept = {
   id?: number;
@@ -82,10 +81,7 @@ export default function ConceptDetailPage() {
   return (
     <div className={styles.wapper}>
       <div className={styles.page}>
-
         <div className="container py-4">
-          <BackButton label="Quay lại" className="mb-3" />
-
 
           {/* Hàng trên: ảnh chính + mô tả */}
           <div className="row g-4 align-items-start">

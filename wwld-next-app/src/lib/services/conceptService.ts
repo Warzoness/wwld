@@ -78,7 +78,7 @@ export const fetchOneConceptById = async (payload: ConceptPayload) => {
   try {
     console.log("payload :",payload );
     
-    const response = await apiClient.post("/api/concept/getOneById", {payload});
+    const response = await apiClient.post("/api/concept/getOneById", payload);
     console.log("response : ", response.data.conceptDTO);
     
     return response.data.conceptDTO;
