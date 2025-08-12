@@ -5,9 +5,9 @@ import styles from "./CharacterDetail.module.css"; // CSS module
 import BackButton from "@/components/buttons/back-button/page";
 import { Character } from "@/utils/selectedCharacterStorage";
 import { useParams } from "next/navigation";
-import { fetchCharacterById } from "@/lib/services/characterService";
+import { fetchOneCharacterById } from "@/lib/services/characterService";
 
-type Tab = "bio" | "dialogue" | "combat";
+type Tab = "bio" | "history" | "combat";
 
 export default function CharacterDetailPage() {
   const [tab, setTab] = useState<Tab>("bio");
@@ -48,7 +48,7 @@ export default function CharacterDetailPage() {
   const loadCharacter = async () => {
     setLoading(true);
     try {
-      const characterById = await fetchCharacterById(characterId);
+      const characterById = await fetchOneCharacterById(characterId);
       setCharacter(characterById);
     } catch {
       setLoading(false);
@@ -61,15 +61,11 @@ export default function CharacterDetailPage() {
 
 
   const tabs = [
-    { key: "bio" as Tab, label: "Tiểu sử", icon: "bi bi-book" },
-    { key: "dialogue" as Tab, label: "Thoại", icon: "bi bi-chat-dots" },
+    { key: "bio" as Tab, label: "Giới thiệu chung", icon: "bi bi-book" },
+    { key: "history" as Tab, label: "Tiểu sử", icon: "bi bi-chat-dots" },
     { key: "combat" as Tab, label: "Combat", icon: "bi bi-crosshair2" },
   ];
 
-  const handleEditInfo = () => {
-    // TODO: mở modal chỉnh sửa info
-    alert("Mở modal sửa thông tin");
-  };
 
   return (
     <div className={styles.wapper}>
@@ -81,42 +77,46 @@ export default function CharacterDetailPage() {
             <div className="col-12 col-lg-6">
               <section className={styles.panel}>
                 <div className={styles.kicker}>TỔNG QUAN NHÂN VẬT</div>
-
-                <div className="d-flex align-items-center justify-content-between gap-2">
-                  <h1 className={styles.title}>{character?.name}</h1>
-                  <button className={`btn ${styles.editBtn}`} onClick={handleEditInfo}>
-                    <i className="bi bi-pencil-square me-2" />
-                    Sửa thông tin
-                  </button>
-                </div>
-
-                {/* Giới thiệu tổng quan (chỉ 1 lần) */}
-                <div className={styles.overview}>
-                  <p>{character?.overview}</p>
-                  <div className={styles.metaGrid}>
-                    <div className={styles.metaItem}><span>QUỐC GIA:</span><strong>{character?.nation}</strong></div>
-                    <div className={styles.metaItem}><span>TỔ CHỨC:</span><strong>{character?.organization}</strong></div>
-                    <div className={styles.metaItem}><span>TUỔI:</span><strong>{character?.age}</strong></div>
-                    <div className={styles.metaItem}><span>CHIỀU CAO:</span><strong>{character?.height}</strong></div>
-                  </div>
-                </div>
-
-                {/* Nội dung TAB */}
                 <div className={styles.tabContent}>
-                  {tab === "bio" && (<><h3 className={styles.sectionTitle}>Tiểu sử</h3><p className={styles.text}>{character?.history}</p></>)}
-                  {/* {tab === "dialogue" && (<><h3 className={styles.sectionTitle}>Thoại tiêu biểu</h3><ul className={styles.list}>{character.dialogues.map((d, i) => <li key={i}>{d}</li>)}</ul></>)} */}
+                  {tab === "bio" && (
+                    <>
+                      {/* Meta info */}
+                      <div className={styles.metaGrid}>
+                        <div className={styles.metaItem}>
+                          <span>QUỐC GIA:</span>
+                          <strong>{character?.nation}</strong>
+                        </div>
+                        <div className={styles.metaItem}>
+                          <span>TỔ CHỨC:</span>
+                          <strong>{character?.organization}</strong>
+                        </div>
+                        <div className={styles.metaItem}>
+                          <span>TUỔI:</span>
+                          <strong>{character?.age}</strong>
+                        </div>
+                        <div className={styles.metaItem}>
+                          <span>CHIỀU CAO:</span>
+                          <strong>{character?.height} M</strong>
+                        </div>
+                        <div className={`${styles.metaItem} ${styles.metaItemFull} ${styles.colSpanAll}`}>
+                          <span>THÔNG TIN CHUNG:</span>
+                          <p className={styles.text}>{character?.overview}</p>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {tab === "history" && (
+                    <>
+                      <h3 className={styles.sectionTitle}>Tiểu sử nhân vật</h3>
+                      <p className={styles.text}>{character?.history}</p>
+                    </>
+                  )}
+
                   {tab === "combat" && (
                     <>
                       <h3 className={styles.sectionTitle}>Combat</h3>
                       <p className={styles.text}>{character?.combatStyle}</p>
-                      {/* <div className={styles.skillGrid}>
-                        {character.combat.skills.map(s => (
-                          <div key={s.name} className={styles.skillCard}>
-                            <div className={styles.skillName}>{s.name}</div>
-                            <div className={styles.skillNote}>{s.note}</div>
-                          </div>
-                        ))}
-                      </div> */}
                     </>
                   )}
                 </div>

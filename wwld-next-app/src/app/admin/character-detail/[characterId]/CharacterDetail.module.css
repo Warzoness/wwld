@@ -162,3 +162,25 @@
 @media (max-width: 991.98px){
   .portraitImg{ max-height: 36vh; }
 }
+
+/* span full width của grid */
+.colSpanAll { grid-column: 1 / -1; }
+
+/* Biến thể cho item có nội dung dài */
+.metaItemFull{
+  flex-direction: column;        /* đổi từ hàng -> cột */
+  align-items: stretch;          /* kéo full chiều ngang */
+  gap: 8px;                      /* cách label với nội dung */
+}
+
+.metaItemFull > span{
+  display: block;
+  margin: 0;                     /* tránh margin đè */
+  line-height: 1.2;
+}
+
+.metaItemFull .text{
+  margin: 0;                     /* bỏ margin mặc định của <p> */
+  line-height: 1.7;
+  white-space: pre-line;         /* giữ xuống dòng trong text */
+}

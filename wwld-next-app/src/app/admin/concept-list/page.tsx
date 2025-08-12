@@ -169,7 +169,7 @@ export default function ConceptListPage() {
                     </div>
 
                     <div className={styles.actions}>
-                      <Link href={`/concepts/${c.id}`} className={styles.cta}>
+                      <Link href={`/admin/concept-detail/${c.id}`} className={styles.cta}>
                         Xem chi tiết <i className="bi bi-arrow-right-short" />
                       </Link>
                     </div>

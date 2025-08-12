@@ -16,7 +16,7 @@ public class GetCharacterRequest extends BaseRequest {
     private String name;
     private String avatar;
     private String imgFull;
-    private Date birthday;
+    private String birthday;
     private String sex;
     private String overview;
     private String history;

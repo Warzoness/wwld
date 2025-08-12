@@ -23,10 +23,10 @@ interface CharacterFormData {
   overview: string;
   history: string;
   organization: string;
-  age: number;      // number trong state
+  age?: number;      // number trong state
   nation: string;
   otherInformation: string;
-  height: number;   // number trong state
+  height?: number;   // number trong state
   combatStyle: string;
   type: CharacterTypeUI;
   mainQuestId?: number | null;
@@ -87,10 +87,10 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
     overview: "",
     history: "",
     organization: "",
-    age: 0,
+    age: undefined,
     nation: "",
     otherInformation: "",
-    height: 0,
+    height: undefined,
     combatStyle: "",
     type: "playable",
     mainQuestId: undefined,
@@ -121,10 +121,10 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
         overview: "",
         history: "",
         organization: "",
-        age: 0,
+        age: undefined,
         nation: "",
         otherInformation: "",
-        height: 0,
+        height: undefined,
         combatStyle: "",
         type: "playable",
         mainQuestId: undefined,
@@ -145,15 +145,15 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
       name: data.name ?? "",
       avatar: data.avatar ?? "",
       imgFull: data.imgFull ?? "",
-      birthday: toYMD(data.birthday),
+      birthday: data.birthday ?? "",
       sex: data.sex ?? "Nam",
       overview: data.overview ?? "",
       history: data.history ?? "",
       organization: data.organization ?? "",
-      age: data.age ?? 0,
+      age: data.age ?? undefined,
       nation: data.nation ?? "",
       otherInformation: data.otherInformation ?? "",
-      height: data.height ?? 0,
+      height: data.height ?? undefined,
       combatStyle: data.combatStyle ?? "",
       type: uiFromApiType(data.type),
       mainQuestId: undefined,
@@ -173,11 +173,11 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
     const { name, value } = e.target;
 
     if (name === "age") {
-      setFormData((prev) => ({ ...prev, age: value === "" ? 0 : Number(value) }));
+      setFormData((prev) => ({ ...prev, age: value === "" ? undefined : Number(value) }));
       return;
     }
     if (name === "height") {
-      setFormData((prev) => ({ ...prev, height: value === "" ? 0 : Number(value) }));
+      setFormData((prev) => ({ ...prev, height: value === "" ? undefined : Number(value) }));
       return;
     }
 
@@ -220,10 +220,10 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
       setLoading(true);
       setError("");
 
-      // convert birthday -> ISO string (nếu có)
-      const birthdayISO = formData.birthday
-        ? new Date(`${formData.birthday}T00:00:00`).toISOString()
-        : undefined;
+      // // convert birthday -> ISO string (nếu có)
+      // const birthdayISO = formData.birthday
+      //   ? new Date(`${formData.birthday}T00:00:00`).toISOString()
+      //   : undefined;
 
       // convert number fields (0 -> undefined để không gửi nếu bạn muốn)
       const ageNum = formData.age || undefined;
@@ -234,7 +234,7 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
         name: formData.name.trim(),
         avatar: formData.avatar || undefined,
         imgFull: formData.imgFull || undefined,
-        birthday: birthdayISO,
+        birthday: formData.birthday || undefined,
         sex: formData.sex || undefined,
         overview: formData.overview || undefined,
         history: formData.history || undefined,
@@ -260,6 +260,7 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
       } else {
         await addCharacter(cleaned);
       }
+      alert("Thành công");
       onSuccess();
       onClose();
     } catch (err) {
@@ -299,7 +300,7 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
               <div className="col-md-6">
                 <label className="form-label">Ngày sinh</label>
                 <input
-                  type="date"
+                  type="text"
                   className="form-control"
                   name="birthday"
                   value={formData.birthday}

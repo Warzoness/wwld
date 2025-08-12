@@ -11,7 +11,7 @@ export interface CharacterPayload {
   name: string;
   avatar?: string;
   imgFull?: string;
-  birthday?: string | Date; // UI có thể dùng "YYYY-MM-DD" hoặc Date
+  birthday?: string; // UI có thể dùng "YYYY-MM-DD" hoặc Date
   sex?: Sex;
   overview?: string;
   history?: string;
@@ -92,7 +92,7 @@ export function toApiPayload(p: CharacterPayload): ApiCharacterPayload {
     name: (p.name ?? "").trim(),
     avatar: p.avatar,
     imgFull: p.imgFull,
-    birthday: toIsoDate(p.birthday),
+    birthday: p.birthday,
     sex: p.sex,
     overview: p.overview,
     history: p.history,
@@ -149,18 +149,24 @@ export const fetchCharacters = async () => {
   }
 };
 // Lấy 1 nhân vật
-export async function fetchCharacterById(id: number | string) {
-  const res = await fetch(`/api/characters/getCharacterById/${id}`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Failed to fetch character");
-  return res.json();
-}
+export const fetchOneCharacterById = async (id : number) => {
+  try {
+    const request = { clientTime: new Date().toISOString(),id };
+    
+    const response = await apiClient.post("/api/characters/getCharacterById", request);
+    return response.data.characterDTO;
+  } catch (error) {
+    console.error("Error fetching characters:", error);
+    throw error;
+  }
+};
 
 // Cập nhật
 export const updateCharacter = async (payload: CharacterPayload) => {
   try {
     if (!payload.id) throw new Error("Missing id for update");
     const body = toApiPayload(payload);
-    const response = await apiClient.post("/api/getCharacterById/update", body);
+    const response = await apiClient.post("/api/characters/update", body);
     return response.data;
   } catch (error) {
     console.error("Error updating character:", error);

@@ -27,12 +27,12 @@ public class GameCharacter {
     private String imgFull; // ảnh hồ sơ đầy đủ
 
     @Column(name="birthday")
-    private Date birthday; // Ngày sinh
+    private String birthday; // Ngày sinh
 
     @Column(name="sex")
     private String sex; // Giới tính
 
-    @Column(name="overview")
+    @Column(name="overview",columnDefinition = "TEXT")
     private String overview; // Tổng quan
 
     @Column(name="history",columnDefinition = "MEDIUMTEXT")  // Tiểu sử

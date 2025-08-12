@@ -221,12 +221,12 @@ export default function CharacterProfileGrid() {
 
                     <div className="iris-card__body">
                       <h5 className="iris-card__heading">{character.name}</h5>
-                      <p className="iris-card__text line-clamp-3 small">{desc}</p>
+                      {/* <p className="iris-card__text line-clamp-3 small">{desc}</p> */}
                     </div>
 
                     <div className="iris-card__footer d-flex justify-content-between align-items-center">
                       <Link href={`/admin/character-detail/${character.id}`} className="iris-cta iris-cta--accent" >
-                        Xem <i className="bi bi-arrow-right-short"></i>
+                        Xem<i className="bi bi-arrow-right-short"></i>
                       </Link>
                       <div className="d-flex gap-2">  
                         <button

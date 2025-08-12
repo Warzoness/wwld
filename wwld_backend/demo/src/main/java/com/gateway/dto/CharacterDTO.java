@@ -14,7 +14,7 @@ public class CharacterDTO {
     private String name;
     private String avatar;
     private String imgFull;
-    private Date birthday;
+    private String birthday;
     private String sex;
     private String overview;
     private String history;
@@ -31,7 +31,7 @@ public class CharacterDTO {
     private Long memeId;
     private String type;
 
-    public CharacterDTO(Long id, String name, String avatar, String imgFull, Date birthday, String sex, String overview,String history,String organization,Integer age,String nation,String otherInformation,Float height, String combatStyle, Long mainQuestId, Long sideQuestId, Long eventQuestId, Long areaId, Long memeId, String type) {
+    public CharacterDTO(Long id, String name, String avatar, String imgFull, String birthday, String sex, String overview,String history,String organization,Integer age,String nation,String otherInformation,Float height, String combatStyle, Long mainQuestId, Long sideQuestId, Long eventQuestId, Long areaId, Long memeId, String type) {
         this.id = id;
         this.name = name;
         this.avatar = avatar;
