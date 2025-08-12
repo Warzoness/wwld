@@ -22,10 +22,19 @@ const slugify = (input: string) =>
 // helper ép về /uploads/...
 const toUploadsPath = (input: unknown): string | null => {
   if (!input) return null;
-  if (typeof input === "object") {
-    const o = input as any;
-    return toUploadsPath(o?.secure_url ?? o?.url ?? o?.data?.url ?? null);
+
+  if (typeof input === "object" && input !== null) {
+    const o = input as Record<string, unknown>;
+    const secureUrl = typeof o.secure_url === "string" ? o.secure_url : null;
+    const url = typeof o.url === "string" ? o.url : null;
+    const dataUrl =
+      o.data && typeof o.data === "object" && o.data !== null && "url" in o.data
+        ? (o.data as Record<string, unknown>).url
+        : null;
+
+    return toUploadsPath(secureUrl ?? url ?? (typeof dataUrl === "string" ? dataUrl : null));
   }
+
   if (typeof input === "string") {
     const s = input.trim();
     if (!s || s.startsWith("blob:") || s.startsWith("data:")) return null;
@@ -35,13 +44,15 @@ const toUploadsPath = (input: unknown): string | null => {
       try {
         const u = new URL(s);
         if (/^\/uploads\/.+/i.test(u.pathname)) return u.pathname;
-      } catch { }
+      } catch { /* ignore invalid URL */ }
     }
     const m = s.match(/\/uploads\/.+/i);
     return m ? m[0] : null;
   }
+
   return null;
 };
+
 
 
 /** ===== Props ===== */

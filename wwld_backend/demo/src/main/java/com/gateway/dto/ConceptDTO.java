@@ -15,15 +15,15 @@ public class ConceptDTO {
     private String title;
     private String slug;
     private String contentMd;
-    private String contentImage;
+    private String conceptImage;
     private String description;
 
-    public ConceptDTO(Long id, String title, String slug, String contentMd, String contentImage, String description) {
+    public ConceptDTO(Long id, String title, String slug, String contentMd, String conceptImage, String description) {
         this.id = id;
         this.title = title;
         this.slug = slug;
         this.contentMd = contentMd;
-        this.contentImage = contentImage;
+        this.conceptImage = conceptImage;
         this.description = description;
     }
 }
