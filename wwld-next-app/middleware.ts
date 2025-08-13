@@ -7,7 +7,7 @@ export function middleware(req: NextRequest) {
   if (url.pathname.startsWith('/admin')) {
     const role = req.cookies.get('role')?.value; // hoặc decode JWT
     if (!role) {
-      return NextResponse.redirect(new URL('/login', req.url));
+      return NextResponse.redirect(new URL('/authenticate/login', req.url));
     }
     if (role !== 'ADMIN') {
       return NextResponse.redirect(new URL('/403', req.url));
