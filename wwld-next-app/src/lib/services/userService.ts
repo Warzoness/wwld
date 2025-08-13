@@ -5,7 +5,7 @@ import {
 } from "../types/user";
 import { apiClient } from "../apiClient";
 
-const base = "/api/authentication";
+const base = "/authentication";
 
 export async function login(payload: { username: string; hashpassword: string }): Promise<UserDTO> {
   const { data } = await apiClient.post<UserResponse>(`${base}/login`, payload);
