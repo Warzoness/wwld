@@ -12,7 +12,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
-                        .allowedOrigins("https://your-frontend-domain.com") // hoặc "*": tạm test
+                        .allowedOrigins("*") // hoặc "*": tạm test
                         .allowedMethods("GET","POST","PUT","DELETE","OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(false)
