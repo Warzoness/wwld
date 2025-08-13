@@ -1,21 +1,23 @@
+// next.config.ts
 import type { NextConfig } from "next";
 
-const BACKEND = (process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8080").replace(/\/$/, "");
+const RAW = process.env.BACKEND_URL ?? "http://localhost:8080";
+const BACKEND = RAW.replace(/\/$/, ""); // bỏ dấu / cuối
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "res.cloudinary.com" },              // ảnh Cloudinary
-      { protocol: "https", hostname: "wwld-production.up.railway.app" }, // ảnh cũ từ backend prod (nếu còn dùng /uploads)
-      { protocol: "http",  hostname: "localhost" },                       // ảnh cũ từ backend dev
+      { protocol: "https", hostname: "res.cloudinary.com" },
+      { protocol: "https", hostname: "wwld-production.up.railway.app" },
+      { protocol: "http",  hostname: "localhost" },
     ],
   },
   async rewrites() {
     return [
       {
         source: "/api/:path*",
-        destination: `${BACKEND}/api/:path*`, // Proxy mọi /api/... sang Spring Boot theo ENV
+        destination: `${BACKEND}/api/:path*`,
       },
     ];
   },

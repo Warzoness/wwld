@@ -3,17 +3,9 @@ import {
   UserDTO, UserResponse, SearchUsersPayload,
   RegisterUserPayload, UpdateUserPayload, DeleteUserPayload, LoginPayload
 } from "../types/user";
+import { apiClient } from "../apiClient";
 
 const base = "/api/authentication";
-
-export const apiClient = axios.create({
-  baseURL:
-    process.env.NEXT_PUBLIC_API_BASE_URL ??
-    process.env.VITE_API_BASE_URL ??
-    "http://wwld-production.up.railway.app",
-  headers: { "Content-Type": "application/json" },
-  withCredentials: false
-});
 
 export async function login(payload: { username: string; hashpassword: string }): Promise<UserDTO> {
   const { data } = await apiClient.post<UserResponse>(`${base}/login`, payload);
