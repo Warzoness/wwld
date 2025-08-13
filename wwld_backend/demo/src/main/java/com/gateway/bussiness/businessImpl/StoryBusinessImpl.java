@@ -51,8 +51,8 @@ public class StoryBusinessImpl implements StoryBusiness {
         StoryDTO storyDTO = storyDAO.findOneById(request.getId());
         if (storyDTO != null) {
             Story story = new Story();
-            story.setId(request.getId());
             setStory(request, story);
+            story.setId(request.getId());
             return storyDAO.save(story);
         } else {
             throw new Exception();

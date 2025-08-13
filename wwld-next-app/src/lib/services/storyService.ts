@@ -75,8 +75,9 @@ export const fetchStoriesByMainSectionId = async (mainSectionId: number) => {
 // Sửa
 export const updateStory = async (payload: StoryPayload) => {
   try {
-    console.log("payload", payload);
     const response = await apiClient.post("/api/stories/update", payload);
+    console.log("payload", payload);
+
     return response.data;
   } catch (error) {
     console.error("Error updating main section:", error);

@@ -50,7 +50,6 @@ export default function HomePage() {
       ) : (
         <div className="row g-4">
           {mainSections.map(mainSection => {
-            // Xử lý ảnh
             // const backendUrl = "http://localhost:8080";
             const backendUrl = "https://wwld-production.up.railway.app";
             let imageUrl = "";

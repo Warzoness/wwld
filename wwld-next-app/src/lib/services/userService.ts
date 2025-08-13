@@ -17,10 +17,16 @@ export const apiClient = axios.create({
 
 export async function login(payload: LoginPayload): Promise<UserDTO> {
   const { data } = await apiClient.post<UserResponse>(`${base}/login`, payload);
-  console.log("data :",data.result);
+  console.log("data :", data.userDTO);
 
   if (!data.userDTO) throw new Error("Login failed");
-  
+  await fetch("/api/auth/set-session", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ role: data.userDTO.role }),
+  });
+
+
   return data.userDTO;
 }
 

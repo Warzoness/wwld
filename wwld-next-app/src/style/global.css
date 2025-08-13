@@ -28,6 +28,8 @@ body {
   color: #333333;
 }
 
+.dropdown-menu { z-index: 2000; }
+
 
 @font-face {
   font-family: 'CustomFont';
