@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { login } from "@/lib/services/userService";
@@ -8,8 +8,14 @@ import styles from "@/app/authenticate/authenticate.module.css";
 
 export default function LoginPage() {
   const router = useRouter();
-  const q = useSearchParams();
-  const redirect = q.get("redirect") || "/"; // ví dụ: /admin
+
+  // ✨ thay cho useSearchParams
+  const [redirect, setRedirect] = useState<string>("/");
+
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    setRedirect(sp.get("redirect") || "/");
+  }, []);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -20,7 +26,6 @@ export default function LoginPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErrorMsg("");
-
     if (!username || !password) {
       setErrorMsg("Vui lòng nhập đủ tên đăng nhập và mật khẩu.");
       return;
@@ -28,17 +33,10 @@ export default function LoginPage() {
 
     try {
       setLoading(true);
-
-      // 1) Login backend -> nhận userDTO { id, role, fullname, ... }
       const user = await login({ username, hashpassword: password });
-
-      // Phòng case role trả về "admin" thường -> chuẩn hoá
       user.role = String(user.role || "").toUpperCase();
-
-      // 2) Lưu UI state (tùy chọn)
       localStorage.setItem("userDTO", JSON.stringify(user));
 
-      // 3) Đặt session cookie qua API route cùng domain
       const res = await fetch("/api/auth/set-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -46,21 +44,18 @@ export default function LoginPage() {
         cache: "no-store",
       });
       if (!res.ok) {
-        throw new Error("Không thể thiết lập phiên đăng nhập.");
+        let detail = "";
+        try { const j = await res.json(); detail = j?.error || ""; } catch { }
+        throw new Error(detail || "Không thể thiết lập phiên đăng nhập.");
       }
 
-      // 4) Điều hướng (quay lại nơi định vào, ví dụ /admin)
       router.replace(redirect);
     } catch (err) {
-      if (err instanceof Error) {
-        setErrorMsg(err.message);
-      } else {
-        setErrorMsg("Đăng nhập thất bại");
-      }
+      if (err instanceof Error) setErrorMsg(err.message);
+      else setErrorMsg("Đăng nhập thất bại");
     } finally {
       setLoading(false);
     }
-
   }
 
   return (
