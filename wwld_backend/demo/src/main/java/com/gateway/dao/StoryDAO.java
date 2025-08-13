@@ -35,10 +35,12 @@ public interface StoryDAO extends JpaRepository<Story, Long> {
             @Param("type") Integer type
     );
 
-    //findById
-    @Query("SELECT new com.gateway.dto.StoryDTO(s.id, s.title, s.type, s.active," +
-            " s.mainSectionId, s.areaId, s.parentId,sp.title, s.timeStarted, s.timeEnded,s.description) " +
-            "FROM Story s JOIN Story sp ON (sp.id = s.parentId OR s.parentId = 0) WHERE s.id = :id")
+    @Query("SELECT new com.gateway.dto.StoryDTO(s.id, s.title, s.type, s.active, " +
+            "s.mainSectionId, s.areaId, s.parentId, sp.title, s.timeStarted, s.timeEnded, s.description) " +
+            "FROM Story s " +
+            "LEFT JOIN Story sp ON sp.id = s.parentId " +
+            "WHERE s.id = :id")
     StoryDTO findOneById(@Param("id") Long id);
+
 
 }

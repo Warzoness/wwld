@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service(value = "storyBusiness")
 public class StoryBusinessImpl implements StoryBusiness {
@@ -48,16 +49,16 @@ public class StoryBusinessImpl implements StoryBusiness {
     // update an existing story
     @Override
     public Story updateStory(StoryRequest request) throws Exception {
-        StoryDTO storyDTO = storyDAO.findOneById(request.getId());
-        if (storyDTO != null) {
-            Story story = new Story();
-            setStory(request, story);
-            story.setId(request.getId());
-            return storyDAO.save(story);
+        Optional<Story> optStory = storyDAO.findById(request.getId());
+        if (optStory.isPresent()) {
+            Story story = optStory.get(); // lấy bản ghi gốc từ DB
+            setStory(request, story);     // gán field mới
+            return storyDAO.save(story);  // Hibernate sẽ update
         } else {
-            throw new Exception();
+            throw new Exception("Story not found");
         }
     }
+
 
     // Helper method to set story properties from request
     private void setStory(StoryRequest request, Story story) {
