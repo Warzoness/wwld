@@ -15,7 +15,7 @@ export const apiClient = axios.create({
   withCredentials: false
 });
 
-export async function login(payload: LoginPayload): Promise<UserDTO> {
+export async function login(payload: { username: string; hashpassword: string }): Promise<UserDTO> {
   const { data } = await apiClient.post<UserResponse>(`${base}/login`, payload);
   console.log("data :", data.userDTO);
 
