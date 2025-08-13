@@ -19,15 +19,15 @@ public class CustomUserDetailsService implements UserDetailsService {
     private UserDAO userDAO;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserDTO userDTO = userDAO.findUserByUsername(username);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        UserDTO userDTO = userDAO.findUserByEmail(email);
         if(userDTO == null) {
-            throw new UsernameNotFoundException("User not found with username: " + username);
+            throw new UsernameNotFoundException("User not found with email: " + email);
         }
 
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority(userDTO.getRole());
         return new org.springframework.security.core.userdetails.User(
-                userDTO.getUsername(),
+                userDTO.getEmail(),
                 userDTO.getHashpassword(),
                 Collections.singleton(authority)
         );

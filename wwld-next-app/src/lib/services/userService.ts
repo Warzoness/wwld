@@ -1,0 +1,46 @@
+import axios from "axios";
+import {
+  UserDTO, UserResponse, SearchUsersPayload,
+  RegisterUserPayload, UpdateUserPayload, DeleteUserPayload, LoginPayload
+} from "../types/user";
+
+const base = "/api/authentication";
+
+export const apiClient = axios.create({
+  baseURL:
+    process.env.NEXT_PUBLIC_API_BASE_URL ??
+    process.env.VITE_API_BASE_URL ??
+    "http://localhost:8080",
+  headers: { "Content-Type": "application/json" },
+  withCredentials: false
+});
+
+export async function login(payload: LoginPayload): Promise<UserDTO> {
+  const { data } = await apiClient.post<UserResponse>(`${base}/login`, payload);
+  console.log("data :",data.result);
+
+  if (!data.userDTO) throw new Error("Login failed");
+  
+  return data.userDTO;
+}
+
+export async function getListUsers(payload: SearchUsersPayload = {}): Promise<UserDTO[]> {
+  const { data } = await apiClient.post<UserResponse>(`${base}/getListUsers`, payload);
+  if (data.result !== "OK") throw new Error("Get users failed");
+  return data.listUsers ?? [];
+}
+
+export async function registerUser(payload: RegisterUserPayload): Promise<void> {
+  const { data } = await apiClient.post<UserResponse>(`${base}/register`, payload);
+  if (data.result !== "OK") throw new Error("Register failed");
+}
+
+export async function updateUser(payload: UpdateUserPayload): Promise<void> {
+  const { data } = await apiClient.post<UserResponse>(`${base}/update`, payload);
+  if (data.result !== "OK") throw new Error("Update failed");
+}
+
+export async function deleteUser(payload: DeleteUserPayload): Promise<void> {
+  const { data } = await apiClient.post<UserResponse>(`${base}/delete`, payload);
+  if (data.result !== "OK") throw new Error("Delete failed");
+}

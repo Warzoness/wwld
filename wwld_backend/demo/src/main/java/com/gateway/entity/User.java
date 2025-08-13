@@ -14,6 +14,9 @@ public class User {
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "fullname", nullable = false, unique = true)
+    private String fullname;
+
     @Column(name = "username", nullable = false, unique = true)
     private String username;
 
@@ -26,15 +29,15 @@ public class User {
     @Column(name = "role", nullable = false)
     private String role;
 
-    @Column(name = "status", nullable = false)
+    @Column(name = "status")
     private String status;
 
-    @Column(name= "created_at", nullable = false)
+    @Column(name= "created_at")
     private String createdAt;
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     private String updatedAt;
 
-    @Column(name = "enabled", nullable = false)
+    @Column(name = "enabled")
     private boolean enabled = true; // Mặc định là true, có thể thay đổi khi
 }

@@ -7,6 +7,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -16,10 +18,17 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin/**").hasRole("ADMIN")  // hoặc .hasRole("ADMIN")
+                        // Yêu cầu quyền ADMIN cho tất cả URL bắt đầu bằng /admin/
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        // Yêu cầu quyền USER cho tất cả URL bắt đầu bằng /user/
+                        .requestMatchers("/user/**").hasRole("USER")
+                        // Các request khác được phép truy cập không cần đăng nhập
                         .anyRequest().permitAll()
                 )
-                .httpBasic(AbstractHttpConfigurer::disable);
+                // Nếu dùng form login
+                .formLogin(withDefaults())
+                // Nếu vẫn muốn bật Basic Auth (cho test API nhanh)
+                .httpBasic(withDefaults());
 
         return http.build();
     }

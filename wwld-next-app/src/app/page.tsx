@@ -7,6 +7,7 @@ import { fetchMainSection } from "@/lib/services/mainSectionService";
 import '@/style/global.css';
 import Banner from "@/components/Banner";
 import Link from "next/link";
+import Header from "@/components/Header";
 
 interface MainSection {
   id: number;
@@ -38,6 +39,8 @@ export default function HomePage() {
   return (
 
     <div className="container body-content">
+      <Header />
+
       <Banner />
       {loading ? (
         <div className="text-center py-5">

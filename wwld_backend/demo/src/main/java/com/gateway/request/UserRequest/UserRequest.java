@@ -11,6 +11,7 @@ import lombok.*;
 @ToString
 public class UserRequest extends BaseRequest {
     private Long id;
+    private String fullname;
     private String username;
     private String email;
     private String role;

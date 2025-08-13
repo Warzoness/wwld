@@ -5,7 +5,6 @@ import com.gateway.dao.UserDAO;
 import com.gateway.dto.UserDTO;
 import com.gateway.entity.User;
 import com.gateway.request.UserRequest.UserRequest;
-import com.gateway.utils.PasswordHasher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,12 +24,14 @@ public class UserBusinessImpl implements UserBusiness {
 
     @Override
     public List<UserDTO> findUsers(UserRequest request) {
-        return userDAO.findUsers(request.getId(), request.getUsername());
+        return userDAO.findUsers(request.getId(), request.getFullname());
     }
 
     @Override
     public User createUser(UserRequest request) throws Exception {
         User user = new User();
+        user.setFullname(request.getFullname());
+        user.setUsername(request.getUsername());
         user.setHashpassword(hashPassword(request.getHashpassword()));
         user.setEmail(request.getEmail());
         user.setRole(request.getRole());
@@ -51,10 +52,12 @@ public class UserBusinessImpl implements UserBusiness {
     @Override
     public UserDTO updateUser(UserRequest request) throws Exception {
         UserDTO userDTO = new UserDTO();
-        userDTO = userDAO.findUserByUsername(request.getUsername());
+        userDTO = userDAO.findUserById(request.getId());
         if (userDTO != null) {
             User user = new User();
             user.setId(userDTO.getId());
+            user.setFullname(request.getFullname());
+            user.setUsername(request.getUsername());
             user.setHashpassword(hashPassword(request.getHashpassword()));
             user.setEmail(request.getEmail());
             user.setRole(request.getRole());
@@ -73,10 +76,12 @@ public class UserBusinessImpl implements UserBusiness {
     @Override
     public void deleteUser(UserRequest request) throws Exception {
         UserDTO userDTO = new UserDTO();
-        userDTO = userDAO.findUserByUsername(request.getUsername());
+        userDTO = userDAO.findUserById(request.getId());
         if (userDTO != null) {
             User user = new User();
             user.setId(userDTO.getId());
+            user.setFullname(request.getFullname());
+            user.setUsername(request.getUsername());
             user.setHashpassword(hashPassword(request.getHashpassword()));
             user.setEmail(request.getEmail());
             user.setRole(request.getRole());
@@ -87,14 +92,14 @@ public class UserBusinessImpl implements UserBusiness {
 
             userDAO.delete(user);
         } else {
-            throw new Exception("User not found with username: " + request.getUsername());
+            throw new Exception("User not found with id: " + request.getId());
         }
     }
 
     @Override
     public UserDTO authenticate(String username, String password) {
         // Lấy user theo username
-        UserDTO user = userDAO.findUserByUsername(username); // userDAO bạn đã có hoặc cần viết thêm
+        UserDTO user = userDAO.findUserByEmail(username); // userDAO bạn đã có hoặc cần viết thêm
         if (user != null && passwordEncoder.matches(password, user.getHashpassword())) {
             return user; // đúng mật khẩu
         }

@@ -1,10 +1,8 @@
 package com.gateway.service;
 
 
-import com.gateway.bussiness.UserBusiness;
 import com.gateway.bussiness.businessImpl.UserBusinessImpl;
 import com.gateway.dto.UserDTO;
-import com.gateway.entity.User;
 import com.gateway.request.UserRequest.UserRequest;
 import com.gateway.response.ApiResult;
 import com.gateway.response.UserResponse.UserResponse;
@@ -126,7 +124,6 @@ public class UserService extends BaseFuntion {
         response.setBaseResponse(getBase(request));
         try {
             if (response.getResult().isOk()) {
-                // Gọi business để kiểm tra thông tin đăng nhập
                 UserDTO user = userBusiness.authenticate(request.getUsername(), request.getHashpassword());
                 if (user != null) {
                     response.setUserDTO(user);
@@ -144,9 +141,5 @@ public class UserService extends BaseFuntion {
         }
         return ResponseEntity.ok(response);
     }
-
-
-
-
 
 }

@@ -12,6 +12,7 @@ import lombok.Setter;
 
 public class UserDTO {
     private Long id;
+    private String fullname;
     private String username;
     private String email;
     private String role;
@@ -21,8 +22,9 @@ public class UserDTO {
     private String hashpassword;
     private boolean enabled;
 
-    public UserDTO(Long id, String username, String email, String role, String status, String createdAt, String updatedAt, String hashpassword) {
+    public UserDTO(Long id, String fullname,String username, String email, String role, String status, String createdAt, String updatedAt, String hashpassword) {
         this.id = id;
+        this.fullname = fullname;
         this.username = username;
         this.email = email;
         this.role = role;
