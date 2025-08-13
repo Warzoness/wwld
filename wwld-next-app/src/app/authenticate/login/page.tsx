@@ -43,7 +43,6 @@ export default function LoginPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user }),
-        // same-origin nên KHÔNG cần credentials: 'include'
         cache: "no-store",
       });
       if (!res.ok) {
@@ -52,11 +51,16 @@ export default function LoginPage() {
 
       // 4) Điều hướng (quay lại nơi định vào, ví dụ /admin)
       router.replace(redirect);
-    } catch (err: any) {
-      setErrorMsg(err?.message || "Đăng nhập thất bại");
+    } catch (err) {
+      if (err instanceof Error) {
+        setErrorMsg(err.message);
+      } else {
+        setErrorMsg("Đăng nhập thất bại");
+      }
     } finally {
       setLoading(false);
     }
+
   }
 
   return (
