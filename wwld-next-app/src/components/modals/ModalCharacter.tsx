@@ -184,7 +184,6 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // local preview
         const reader = new FileReader();
         reader.onloadend = () => setPreview(reader.result as string);
         reader.readAsDataURL(file);
@@ -197,28 +196,31 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
           } else {
             setError("Tải ảnh thất bại: không lấy được URL.");
           }
-        } catch (err) {
+        } catch (err: unknown) {
           console.error(err);
-          setError("Tải ảnh thất bại.");
+          if (err instanceof Error) {
+            setError(`Tải ảnh thất bại: ${err.message}`);
+          } else {
+            setError("Tải ảnh thất bại.");
+          }
         } finally {
           e.currentTarget.value = "";
         }
       };
 
   function cleanPayload<T extends object>(obj: T): {
-    [K in keyof T as T[K] extends string | number | undefined | null
-    ? (undefined extends T[K] ? K : K)
-    : K]: Exclude<T[K], "" | null | undefined>
+    [K in keyof T]: Exclude<T[K], "" | null | undefined>
   } {
-    const clone = { ...obj };
+    const clone = { ...obj } as { [K in keyof T]: Exclude<T[K], "" | null | undefined> };
     for (const key of Object.keys(clone) as Array<keyof T>) {
       const v = clone[key];
       if (v === undefined || v === null || v === "") {
-        delete clone[key];
+        delete clone[key as keyof typeof clone];
       }
     }
-    return clone as any; // sẽ không bị any khi gán vào biến Partial
+    return clone;
   }
+
 
 
   const handleSubmit = async () => {
