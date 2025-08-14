@@ -6,6 +6,7 @@ import { fetchStoriesByMainSectionId } from "@/lib/services/storyService";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import BackButton from "@/components/buttons/back-button/page";
+import { getImageUrl } from "@/lib/consts/const";
 
 
 interface Story {
@@ -64,17 +65,6 @@ export default function StoryListPage() {
 
         return stories;
     }, [stories, filterType, selectedChapterId]);
-
-
-
-    // const backendUrl = "http://localhost:8080";
-    const backendUrl = "https://wwld-production.up.railway.app";
-    const getImageUrl = (image: string) => {
-        if (!image) return "";
-        if (image.startsWith("http")) return image;
-        if (image.startsWith("/uploads/")) return backendUrl + image;
-        return backendUrl + `/uploads/${image.replace(/^\/?uploads\//, "")}`;
-    };
 
 
     // Xem chi tiết story

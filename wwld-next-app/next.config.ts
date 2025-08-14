@@ -1,7 +1,8 @@
 // next.config.ts
 import type { NextConfig } from "next";
 
-const RAW = process.env.BACKEND_URL ?? "http://localhost:8080";
+// const RAW = process.env.BACKEND_URL ?? "http://localhost:8080";
+const RAW = "http://localhost:8080";
 const BACKEND = RAW.replace(/\/$/, ""); // bỏ dấu / cuối
 
 const nextConfig: NextConfig = {

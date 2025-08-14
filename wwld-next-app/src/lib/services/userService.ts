@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   UserDTO, UserResponse, SearchUsersPayload,
   RegisterUserPayload, UpdateUserPayload, DeleteUserPayload, LoginPayload

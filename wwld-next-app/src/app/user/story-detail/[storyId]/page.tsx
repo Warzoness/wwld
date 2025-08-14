@@ -1,30 +1,10 @@
 'use client';
 
-import { fetchDialogPagesByStoryId, fetchDialogsByStoryId, updateDialogOrder } from "@/lib/services/dialogService";
+import { getImageUrl } from "@/lib/consts/const";
+import { fetchDialogPagesByStoryId } from "@/lib/services/dialogService";
+import { Dialog, StoryData } from "@/lib/types/dialog";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-
-interface Dialog {
-    id: number;
-    characterId: number;
-    characterName: string;
-    storyId: number;
-    content: string;
-    image: string;
-    // type = 0 : image (characterId : null), type = 1 : text (characterId : not null), type = 2 : text ( main character)
-    type: number;
-    orderIndex: number;
-    voice?: string;
-    noNameCharacter?: string; // dùng khi không chọn nhân vật nào
-}
-
-interface StoryData {
-    chapterName: string;
-    actName: string;
-    description: string;
-}
-
-const PASSCODE = "1";
 
 
 export default function StoryDetailPage() {
@@ -76,15 +56,7 @@ export default function StoryDetailPage() {
         }
     };
 
-    // const backendUrl = "http://localhost:8080";
-    const backendUrl = "https://wwld-production.up.railway.app";
-    const getImageUrl = (image: string) => {
-        if (!image) return "";
-        if (image.startsWith("http")) return image;
-        if (image.startsWith("/uploads/")) return backendUrl + image;
-        return backendUrl + `/uploads/${image.replace(/^\/?uploads\//, "")}`;
-    };
-
+    
 
     return (
         <div className="container dialog-detail-page py-4 iris-page">

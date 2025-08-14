@@ -3,16 +3,9 @@
 import { useEffect, useState } from "react";
 import styles from "@/app/admin/concept-detail/[conceptId]/ConceptDetail.module.css";
 import { useParams } from "next/navigation";
-import { ConceptPayload, fetchOneConceptById } from "@/lib/services/conceptService";
+import { fetchOneConceptById } from "@/lib/services/conceptService";
+import { Concept, ConceptPayload } from "@/lib/types/concept";
 
-type Concept = {
-  id?: number;
-  title: string;
-  slug: string;
-  contentMd?: string;
-  conceptImage?: string;
-  description?: string;
-};
 
 export default function ConceptDetailPage() {
   const [concept, setConcept] = useState<Concept | undefined>(undefined);

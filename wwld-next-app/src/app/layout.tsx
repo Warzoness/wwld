@@ -1,10 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-
 import "@/style/global.css"; // CSS toàn cục
 import Footer from "@/components/Footer";
-import Header from "@/components/Header";
-
 
 export const metadata = {
   title: "Wuthering Waves Lore Data",

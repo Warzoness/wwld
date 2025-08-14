@@ -1,35 +1,12 @@
 'use client';
 
 import BackButton from "@/components/buttons/back-button/page";
+import { getImageUrl } from "@/lib/consts/const";
 import { fetchCharacters } from "@/lib/services/characterService";
+import { Character } from "@/utils/selectedCharacterStorage";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
-type Character = {
-    id: number;
-    name: string;
-    avatar?: string;
-    imgFull?: string;
-    birthday?: string; // ISO date string
-    sex?: "Nam" | "Nữ" | "Khác";
-    overview?: string;
-    history?: string;
-    organization?: string;
-    age?: number;
-    nation?: string;
-    otherInformation?: string;
-    height?: number;
-    combatStyle?: string;
-    // các ID có thể có hoặc không, nhưng không cần nhập ở modal
-    mainQuestId?: number;
-    sideQuestId?: number;
-    eventQuestId?: number;
-    areaId?: number;
-    memeId?: number;
-    type?: "playable" | "npc";
-};
-
-const backendUrl = "https://wwld-production.up.railway.app";
 
 export default function CharacterProfileGrid() {
     const [loading, setLoading] = useState(true);
@@ -50,12 +27,6 @@ export default function CharacterProfileGrid() {
         loadCharacters();
     }, []);
 
-    const getImageUrl = (image?: string) => {
-        if (!image) return "";
-        if (image.startsWith("http")) return image;
-        if (image.startsWith("/uploads/")) return backendUrl + image;
-        return backendUrl + `/uploads/${image.replace(/^\/?uploads\//, "")}`;
-    };
 
     return (
         <div className="container py-5 iris-page">

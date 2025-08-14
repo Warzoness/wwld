@@ -1,7 +1,7 @@
-import { CharacterType, Sex } from "@/lib/services/characterService";
+import { CharacterType, Sex } from "@/lib/types/character";
 
 export interface Character {
-    id?: number;
+    id: number;
     name: string;
     avatar?: string;
     imgFull?: string;

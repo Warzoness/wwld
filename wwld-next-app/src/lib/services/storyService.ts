@@ -1,25 +1,14 @@
 import axios from "axios";
+import { StoryPayload } from "../types/story";
+import { backendUrl } from "../consts/const";
 
-
-const backendBaseURL = "https://wwld-production.up.railway.app";
 
 const apiClient = axios.create({
-  baseURL: backendBaseURL,
+  baseURL: backendUrl,
   headers: {
     "Content-Type": "application/json",
   },
 });
-// Interface payload
-export interface StoryPayload {
-  id?: number;
-  title: string;
-  mainSectionId: number; // ✅ sửa lại từ area_id
-  description: string;
-  image: string;
-  type: number;
-  parentId: number;
-}
-
 
 // Tạo mới
 export const addStory = async (payload: StoryPayload) => {

@@ -4,8 +4,10 @@ import React, { useEffect, useMemo, useState, useCallback } from "react";
 import Link from "next/link";
 import styles from "./ConceptList.module.css";
 import BackButton from "@/components/buttons/back-button/page";
-import { ConceptPayload, fetchConcepts, deleteConcept } from "@/lib/services/conceptService";
+import { fetchConcepts, deleteConcept } from "@/lib/services/conceptService";
 import ConceptModal from "@/components/modals/modal-concept/ModalConcept";
+import { ConceptPayload } from "@/lib/types/concept";
+import { backendUrl } from "@/lib/consts/const";
 
 export default function ConceptListPage() {
   const [loading, setLoading] = useState(true);
@@ -14,7 +16,6 @@ export default function ConceptListPage() {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(0);
   const pageSize = 8;
-  const backendUrl = "https://wwld-production.up.railway.app";
 
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<ConceptPayload | undefined>();

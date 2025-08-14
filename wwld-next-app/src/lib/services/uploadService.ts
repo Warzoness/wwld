@@ -9,7 +9,7 @@ export const handleImageUpload = async (file: File): Promise<string | null> => {
   try {
     // 1) Lấy chữ ký từ backend Spring
     const backend =
-      process.env.NEXT_PUBLIC_BACKEND_URL ?? "https://wwld-production.up.railway.app";
+      process.env.NEXT_PUBLIC_BACKEND_URL ?? "https://localhost:8080";
 
     const signRes = await fetch(`${backend}/cloudinary/sign`, {
       method: "POST",

@@ -3,19 +3,13 @@
 
 import BackButton from "@/components/buttons/back-button/page";
 import StoryModal from "@/components/modals/ModalMainSection";
+import { backendUrl, PASSCODE } from "@/lib/consts/const";
 import { deleteMainSection, fetchMainSection } from "@/lib/services/mainSectionService";
+import { MainSection } from "@/lib/types/mainSection";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
-interface MainSection {
-  id: number;
-  name: string;
-  description: string;
-  image: string;
-}
 
-// Nhap passcode moi lan goi modal sua hoac xoa
-const PASSCODE = "123456"; 
 
 export default function MainSectionManage() {
   const [showModal, setShowModal] = React.useState(false);
@@ -91,7 +85,7 @@ export default function MainSectionManage() {
     <div className="container">
       {/* Quay lại */}
       <div className="mb-3">
-          <BackButton label="Quay Lại" />
+        <BackButton label="Quay Lại" />
       </div>
 
       {/* Tiêu đề + nút thêm */}
@@ -111,9 +105,6 @@ export default function MainSectionManage() {
       ) : (
         <div className="row g-4">
           {mainSection.map(mainSection => {
-            // Xử lý ảnh
-            // const backendUrl = "http://localhost:8080";
-            const backendUrl = "https://wwld-production.up.railway.app";
             let imageUrl = "";
             if (mainSection.image) {
               if (mainSection.image.startsWith("http")) {
@@ -165,15 +156,18 @@ export default function MainSectionManage() {
                                   ? "/admin/characters-list"
                                   : mainSection.name === "Khái niệm Thế giới"
                                     ? "/admin/concept-list"
-                                    : `/admin/story-list/${mainSection.id}`,
+                                    : mainSection.name === "Các mảnh ghi chú"
+                                      ? "/admin/note-list"
+                                      : `/admin/story-list/${mainSection.id}`,
                               query:
-                                mainSection.name === "Hồ sơ nhân vật" || mainSection.name === "Khái niệm Thế giới"
+                                ["Hồ sơ nhân vật", "Khái niệm Thế giới", "Các mảnh ghi chú"].includes(mainSection.name)
                                   ? undefined
                                   : { mainSectionName: mainSection.name }
                             }}
                           >
                             Xem chi tiết <i className="bi bi-arrow-right-short"></i>
                           </Link>
+
 
                           <div className="d-flex gap-2">
                             <button className="iris-btn iris-btn--warn" onClick={() => handleOpenEdit(mainSection)}>

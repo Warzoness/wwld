@@ -20,8 +20,6 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedHeaders("*")
                 .allowCredentials(true); // nếu có dùng cookie hoặc auth
     }
-
-
     // Cấu hình để truy cập file ảnh từ folder uploads
     // filepath: src/main/java/com/gateway/config/WebConfig.java
     @Override

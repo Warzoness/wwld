@@ -1,9 +1,8 @@
 import axios from "axios";
-
-const backendBaseURL = "https://wwld-production.up.railway.app";
+import { backendUrl } from "../consts/const";
 
 const apiClient = axios.create({
-  baseURL: backendBaseURL,
+  baseURL: backendUrl,
   headers: {
     "Content-Type": "application/json",
   },

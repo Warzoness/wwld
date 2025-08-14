@@ -1,22 +1,9 @@
 import axios from "axios";
-
-export interface DialogPayload {
-    id: number;
-    characterId: number | null; // null nếu không có nhân vật
-    storyId: number;
-    content: string;
-    image: string;
-    // type = 0 : image (characterId : null), type = 1 : text (characterId : not null), type = 2 : text ( main character), type = 3 : text (description or nana)
-    type: number;
-    orderIndex: number;
-    voice?: string;
-    noNameCharacter?: string; // dùng khi không chọn nhân vật nào
-}
-
-const backendBaseURL = "https://wwld-production.up.railway.app";
+import { DialogPayload } from "../types/dialog";
+import { backendUrl } from "../consts/const";
 
 const apiClient = axios.create({
-  baseURL: backendBaseURL,
+  baseURL: backendUrl,
   headers: {
     "Content-Type": "application/json",
   },

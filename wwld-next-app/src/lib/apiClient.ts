@@ -6,3 +6,4 @@ export const apiClient = axios.create({
   headers: { "Content-Type": "application/json" },
   withCredentials: false, // không cần gửi cookie sang backend
 });
+

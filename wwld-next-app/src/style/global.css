@@ -28,7 +28,9 @@ body {
   color: #333333;
 }
 
-.dropdown-menu { z-index: 2000; }
+.dropdown-menu {
+  z-index: 2000;
+}
 
 
 @font-face {
@@ -38,7 +40,8 @@ body {
 
 * {
   font-family: 'CustomFont';
-  white-space: pre-line; /* hoặc pre-wrap */
+  white-space: pre-line;
+  /* hoặc pre-wrap */
 
 }
 
@@ -336,7 +339,7 @@ body.iris-theme {
 
 /* Body */
 .iris-card__body {
-  padding: 18px 18px 16px;
+  padding: 12px 12px 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -554,18 +557,20 @@ body.iris-theme {
   opacity: .8;
 }
 
-.dlg-bubble--line {}
-
 .dlg-bubble--narr {
-  font-weight: 600;
+  font-weight: 500;
   color: color-mix(in srgb, var(--iris-accent) 75%, var(--iris-text));
 }
 
-.dlg-bubble--sys {
-  border-style: dashed;
-  color: #c4b5fd;
-  /* tím nhạt */
+/* Kiểu cho sys */
+
+.dlg-sys-text {
+  font-style: italic;      /* chữ nghiêng */
+  font-weight: 600;        /* đậm vừa */
+  color: #facc15;          /* màu vàng nổi bật, có thể đổi sang #ff4d4f hoặc màu khác */
 }
+
+
 
 /* toolbar */
 .dlg-toolbar {
@@ -575,6 +580,8 @@ body.iris-theme {
   gap: 8px;
   flex-wrap: wrap;
 }
+
+
 
 /* reuse iris-btn from trước; thêm size nhỏ */
 .iris-btn {

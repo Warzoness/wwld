@@ -27,11 +27,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Cho preflight OPTIONS qua
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
                         // Bảo vệ các route backend (nếu có)
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/user/**").hasRole("USER")
-
                         .anyRequest().permitAll()
                 )
                 .httpBasic(AbstractHttpConfigurer::disable);
@@ -53,7 +51,6 @@ public class SecurityConfig {
         cfg.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // áp cho toàn bộ API (hoặc "/**" nếu backend trả file tĩnh)
         source.registerCorsConfiguration("/**", cfg);
         return source;
     }

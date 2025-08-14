@@ -1,37 +1,15 @@
 'use client';
 
 import CharacterModal from "@/components/modals/ModalCharacter";
+import { getImageUrl, PASSCODE } from "@/lib/consts/const";
 import { deleteCharacter, fetchCharacters } from "@/lib/services/characterService";
-import type { CharacterPayload } from "@/lib/services/characterService";
+import { CharacterPayload } from "@/lib/types/character";
+import { Character } from "@/utils/selectedCharacterStorage";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
-type Character = {
-  id: number;
-  name: string;
-  avatar?: string;
-  imgFull?: string;
-  birthday?: string; // ISO date string
-  sex?: "Nam" | "Nữ" | "Khác";
-  overview?: string;
-  history?: string;
-  organization?: string;
-  age?: number;
-  nation?: string;
-  otherInformation?: string;
-  height?: number;
-  combatStyle?: string;
-  // các ID có thể có hoặc không, nhưng không cần nhập ở modal
-  mainQuestId?: number;
-  sideQuestId?: number;
-  eventQuestId?: number;
-  areaId?: number;
-  memeId?: number;
-  type?: "playable" | "npc";
-};
 
-const PASSCODE = "1";
-const backendUrl = "https://wwld-production.up.railway.app";
+
 
 export default function CharacterProfileGrid() {
   const [loading, setLoading] = useState(true);
@@ -131,13 +109,6 @@ export default function CharacterProfileGrid() {
     }
   };
 
-  const getImageUrl = (image?: string) => {
-    if (!image) return "";
-    if (image.startsWith("http")) return image;
-    if (image.startsWith("/uploads/")) return backendUrl + image;
-    return backendUrl + `/uploads/${image.replace(/^\/?uploads\//, "")}`;
-  };
-
   return (
     <div className="container py-5 iris-page">
       {/* Back */}
@@ -195,8 +166,8 @@ export default function CharacterProfileGrid() {
               filter === "all"
                 ? true
                 : filter === "playable"
-                ? c.type === "playable"
-                : c.type === "npc"
+                  ? c.type === "playable"
+                  : c.type === "npc"
             )
             .map((character) => {
               const accent = character.type === "playable" ? "#22c55e" : "#f59e0b";
@@ -227,7 +198,7 @@ export default function CharacterProfileGrid() {
                       <Link href={`/admin/character-detail/${character.id}`} className="iris-cta iris-cta--accent" >
                         Xem<i className="bi bi-arrow-right-short"></i>
                       </Link>
-                      <div className="d-flex gap-2">  
+                      <div className="d-flex gap-2">
                         <button
                           className="iris-btn iris-btn--warn"
                           onClick={() => handleOpenEdit(character)}

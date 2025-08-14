@@ -1,0 +1,74 @@
+.wrap {
+    position: relative;
+}
+
+.textarea {
+    width: 100%;
+    background: #0b1224;
+    border: 1px solid #1f2937;
+    color: #e5e7eb;
+    padding: 10px 12px;
+    border-radius: 10px;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.dropdown {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    transform: translateY(100%);
+    background: #0e152b;
+    border: 1px solid #1f2937;
+    border-radius: 12px;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, .35);
+    z-index: 20;
+    overflow: hidden;
+}
+
+.loading,
+.empty {
+    padding: 10px 12px;
+    color: #94a3b8;
+    font-size: 0.95rem;
+}
+
+.list {
+    list-style: none;
+    margin: 0;
+    padding: 6px 0;
+    max-height: 240px;
+    overflow: auto;
+}
+
+.item {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    color: #e5e7eb;
+}
+
+.item:hover,
+.active {
+    background: rgba(239, 68, 68, 0.12);
+}
+
+.icon {
+    opacity: 0.85;
+}
+
+.name {
+    font-weight: 600;
+}
+
+.typeBadge {
+    font-size: 0.75rem;
+    color: #cbd5e1;
+    border: 1px solid #334155;
+    border-radius: 999px;
+    padding: 2px 8px;
+}

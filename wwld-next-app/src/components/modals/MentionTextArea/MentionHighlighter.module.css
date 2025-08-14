@@ -1,0 +1,26 @@
+.container {
+  white-space: pre-wrap; /* giữ xuống dòng trong text */
+  line-height: 1.6;
+}
+
+.mention {
+  display: inline;
+  padding: 0 6px;
+  border-radius: 8px;
+  text-decoration: none;
+  border-bottom: 1px dashed #64748b;
+  transition: background .15s ease, border-color .15s ease;
+}
+
+/* màu theo loại đích */
+.character { background: rgba(56, 189, 248, .12); }
+.character:hover { background: rgba(56, 189, 248, .24); border-color: #38bdf8; }
+
+.concept   { background: rgba(168, 85, 247, .12); }
+.concept:hover { background: rgba(168, 85, 247, .24); border-color: #a855f7; }
+
+.note      { background: rgba(239, 68, 68, .12); }
+.note:hover { background: rgba(239, 68, 68, .24); border-color: #ef4444; }
+
+.other     { background: rgba(148, 163, 184, .12); }
+.other:hover { background: rgba(148, 163, 184, .24); border-color: #94a3b8; }

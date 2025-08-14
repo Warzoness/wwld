@@ -1,36 +1,14 @@
 'use client';
 
+import MentionHighlighter from "@/components/modals/MentionTextArea/MentionHighlighter";
 import DialogModal from "@/components/modals/ModalDialog";
+import { backendUrl, getImageUrl, PASSCODE } from "@/lib/consts/const";
 import { deleteDialog, fetchDialogPagesByStoryId, updateDialogOrder } from "@/lib/services/dialogService";
+import { Dialog, StoryData } from "@/lib/types/dialog";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-interface Dialog {
-    id: number;
-    characterId: number;
-    characterName: string;
-    storyId: number;
-    content: string;
-    image: string;
-    // type = 0 : image (characterId : null), type = 1 : text (characterId : not null), type = 2 : text ( main character)
-    type: number;
-    orderIndex: number;
-    voice?: string;
-    noNameCharacter?: string; // dùng khi không chọn nhân vật nào
-}
-
-interface StoryData {
-    chapterName: string;
-    actName: string;
-    description: string;
-}
-
-const PASSCODE = "1";
-
-
 export default function StoryDetailPage() {
-
-
     const params = useParams();
     const [storyData, setStoryData] = useState<StoryData | null>(null);
     const [loading, setLoading] = useState(true);
@@ -58,8 +36,6 @@ export default function StoryDetailPage() {
         if (storyData) {
             setStoryData(JSON.parse(storyData));
         }
-
-
         if (!params.storyId) return;
 
         const load = async () => {
@@ -77,6 +53,7 @@ export default function StoryDetailPage() {
         };
         load();
     }, [params.storyId, pageNumber, pageSize]);
+
     const safeTotalItems = Number(totalItem) || 0;
     const safePageSize = Number(pageSize) || 1; // tránh chia cho 0
     const totalPages = Math.ceil(safeTotalItems / safePageSize);
@@ -127,9 +104,6 @@ export default function StoryDetailPage() {
         });
     };
 
-
-
-
     const handlePassSubmit = async () => {
         if (passInput !== PASSCODE) {
             setPassError("Sai passcode!");
@@ -150,19 +124,8 @@ export default function StoryDetailPage() {
                 alert("Xóa story thất bại!");
             }
         }
-
         setPendingAction(null);
     };
-
-    // const backendUrl = "http://localhost:8080";
-    const backendUrl = "https://wwld-production.up.railway.app";
-    const getImageUrl = (image: string) => {
-        if (!image) return "";
-        if (image.startsWith("http")) return image;
-        if (image.startsWith("/uploads/")) return backendUrl + image;
-        return backendUrl + `/uploads/${image.replace(/^\/?uploads\//, "")}`;
-    };
-
 
     return (
         <div className="container dialog-detail-page py-4 iris-page">
@@ -247,13 +210,20 @@ export default function StoryDetailPage() {
                                 ) : (
                                     <div className="dlg-grid">
                                         <div className="dlg-side">
-                                            <span className={`dlg-chip ${dialog.characterId ? "dlg-chip--char" : "dlg-chip--anon"}`}>
+                                            <span
+                                                className={`dlg-chip ${dialog.characterId ? "dlg-chip--char" : "dlg-chip--anon"}`}
+                                                title={displayName}
+                                            >
                                                 <i className="bi bi-person"></i>
-                                                <span className="text-truncate">{displayName}</span>
+                                                <span className="text-truncate" title={displayName}>
+                                                    {displayName}
+                                                </span>
                                             </span>
+
                                         </div>
 
                                         <div className="dlg-main">
+
                                             <div
                                                 className={
                                                     "dlg-bubble " +
@@ -261,9 +231,13 @@ export default function StoryDetailPage() {
                                                 }
                                                 title={isLine ? displayName : undefined}
                                             >
-                                                {isNarr && <i className="bi bi-arrow-right-square me-2"></i>}
-                                                {dialog.content}
+                                                {isSys ? (
+                                                    <MentionHighlighter text={dialog.content} className="dlg-sys-text" />
+                                                ) : (
+                                                    <MentionHighlighter text={dialog.content} />
+                                                )}
                                             </div>
+
 
                                             {/* Toolbar */}
                                             <div className="dlg-toolbar">
@@ -288,41 +262,40 @@ export default function StoryDetailPage() {
                     })}
                 </div>
             </div>
-
             {/* Pagination */}
             <nav aria-label="Dialog pagination" className="mt-4">
-  <ul className="pagination justify-content-center iris-pagination">
-    <li className={`page-item ${pageNumber === 0 ? "disabled" : ""}`}>
-      <button
-        className="page-link"
-        onClick={() => handlePageChange(pageNumber - 1)}
-        disabled={pageNumber === 0}
-      >
-        <i className="bi bi-chevron-left d-inline d-sm-none"></i>
-        <span className="d-none d-sm-inline">Trước</span>
-      </button>
-    </li>
+                <ul className="pagination justify-content-center iris-pagination">
+                    <li className={`page-item ${pageNumber === 0 ? "disabled" : ""}`}>
+                        <button
+                            className="page-link"
+                            onClick={() => handlePageChange(pageNumber - 1)}
+                            disabled={pageNumber === 0}
+                        >
+                            <i className="bi bi-chevron-left d-inline d-sm-none"></i>
+                            <span className="d-none d-sm-inline">Trước</span>
+                        </button>
+                    </li>
 
-    {pageNumbers.map((index) => (
-      <li key={index} className={`page-item ${pageNumber === index ? "active" : ""}`}>
-        <button className="page-link" onClick={() => handlePageChange(index)}>
-          {index + 1}
-        </button>
-      </li>
-    ))}
+                    {pageNumbers.map((index) => (
+                        <li key={index} className={`page-item ${pageNumber === index ? "active" : ""}`}>
+                            <button className="page-link" onClick={() => handlePageChange(index)}>
+                                {index + 1}
+                            </button>
+                        </li>
+                    ))}
 
-    <li className={`page-item ${pageNumber >= totalPages - 1 ? "disabled" : ""}`}>
-      <button
-        className="page-link"
-        onClick={() => handlePageChange(pageNumber + 1)}
-        disabled={pageNumber >= totalPages - 1}
-      >
-        <span className="d-none d-sm-inline">Sau</span>
-        <i className="bi bi-chevron-right d-inline d-sm-none"></i>
-      </button>
-    </li>
-  </ul>
-</nav>
+                    <li className={`page-item ${pageNumber >= totalPages - 1 ? "disabled" : ""}`}>
+                        <button
+                            className="page-link"
+                            onClick={() => handlePageChange(pageNumber + 1)}
+                            disabled={pageNumber >= totalPages - 1}
+                        >
+                            <span className="d-none d-sm-inline">Sau</span>
+                            <i className="bi bi-chevron-right d-inline d-sm-none"></i>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
 
 
             {/* Nút lên đầu trang */}

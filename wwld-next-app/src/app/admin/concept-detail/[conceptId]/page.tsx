@@ -2,18 +2,12 @@
 
 import { useEffect, useState } from "react";
 import styles from "./ConceptDetail.module.css";
-import { useParams } from "next/navigation";
-import { ConceptPayload, fetchOneConceptById } from "@/lib/services/conceptService";
+import { fetchOneConceptById } from "@/lib/services/conceptService";
 import BackButton from "@/components/buttons/back-button/page";
+import { Concept, ConceptPayload } from "@/lib/types/concept";
+import { params } from "@/lib/consts/const";
 
-type Concept = {
-  id?: number;
-  title: string;
-  slug: string;
-  contentMd?: string;
-  conceptImage?: string;
-  description?: string;
-};
+
 
 export default function ConceptDetailPage() {
   const [concept, setConcept] = useState<Concept | undefined>(undefined);
@@ -26,7 +20,6 @@ export default function ConceptDetailPage() {
     x: 0, y: 0, dx: 0, dy: 0, active: false
   });
 
-  const params = useParams();
   const conceptId = Number(params.conceptId);
 
   const conceptReq: ConceptPayload = {
@@ -50,8 +43,6 @@ export default function ConceptDetailPage() {
 
   useEffect(() => {
     loadConcept();
-    // nếu conceptId có thể thay đổi theo route:
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conceptId]);
 
   const openLightbox = () => {

@@ -4,7 +4,9 @@ import React, { useEffect, useMemo, useState, useCallback } from "react";
 import Link from "next/link";
 import styles from "./ConceptList.module.css";
 import BackButton from "@/components/buttons/back-button/page";
-import { ConceptPayload, fetchConcepts, deleteConcept } from "@/lib/services/conceptService";
+import { fetchConcepts, deleteConcept } from "@/lib/services/conceptService";
+import { ConceptPayload } from "@/lib/types/concept";
+import { getImageUrl } from "@/lib/consts/const";
 
 export default function ConceptListPage() {
   const [loading, setLoading] = useState(true);
@@ -13,7 +15,6 @@ export default function ConceptListPage() {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(0);
   const pageSize = 8;
-  const backendUrl = "https://wwld-production.up.railway.app";
 
 
   const load = useCallback(async () => {
@@ -40,12 +41,6 @@ export default function ConceptListPage() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const pageData = filtered.slice(page * pageSize, page * pageSize + pageSize);
 
-  const getImageUrl = (image?: string) => {
-    if (!image) return "";
-    if (image.startsWith("http")) return image;
-    if (image.startsWith("/uploads/")) return backendUrl + image;
-    return backendUrl + `/uploads/${image.replace(/^\/?uploads\//, "")}`;
-  };
 
   useEffect(() => {
     if (page > 0 && page >= totalPages) setPage(0);

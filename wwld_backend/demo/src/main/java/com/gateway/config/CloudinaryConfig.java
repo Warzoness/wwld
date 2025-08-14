@@ -4,6 +4,8 @@ import com.cloudinary.utils.ObjectUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+
+// Cai dat luu tru dam may
 @Configuration
 public class CloudinaryConfig {
     @Bean

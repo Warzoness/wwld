@@ -8,13 +8,10 @@ import '@/style/global.css';
 import Banner from "@/components/Banner";
 import Link from "next/link";
 import Header from "@/components/Header";
+import { MainSection } from "@/lib/types/mainSection";
+import { backendUrl } from "@/lib/consts/const";
 
-interface MainSection {
-  id: number;
-  name: string;
-  description: string;
-  image: string;
-}
+
 
 export default function HomePage() {
   const [mainSections, setMainSections] = useState<MainSection[]>([]);
@@ -32,10 +29,6 @@ export default function HomePage() {
     };
     load();
   }, []);
-
-  // // const backendUrl = "http://localhost:8080";
-  const backendUrl = "https://wwld-production.up.railway.app";
-
   return (
 
     <div className="container body-content">
@@ -50,8 +43,6 @@ export default function HomePage() {
       ) : (
         <div className="row g-4">
           {mainSections.map(mainSection => {
-            // const backendUrl = "http://localhost:8080";
-            const backendUrl = "https://wwld-production.up.railway.app";
             let imageUrl = "";
             if (mainSection.image) {
               if (mainSection.image.startsWith("http")) {

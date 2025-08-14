@@ -1,10 +1,16 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { addDialog, DialogPayload, updateDialog } from "@/lib/services/dialogService";
+import { addDialog, updateDialog } from "@/lib/services/dialogService";
 import { handleImageUpload } from "@/lib/services/uploadService";
-import { CharacterPayload, fetchCharacters } from "@/lib/services/characterService";
+import { fetchCharacters } from "@/lib/services/characterService";
 import { useParams } from "next/navigation";
+import { backendUrl } from "@/lib/consts/const";
+import { DialogPayload } from "@/lib/types/dialog";
+import { CharacterPayload } from "@/lib/types/character";
+import { fetchListNote } from "@/lib/services/noteListService";
+import { fetchConcepts } from "@/lib/services/conceptService";
+import MentionTextArea, { Suggestion } from "./MentionTextArea/MentionTextArea";
 
 interface DialogModalProps {
   show: boolean;
@@ -24,45 +30,27 @@ const DialogModal: React.FC<DialogModalProps> = ({ show, onClose, onSuccess, ini
   const [storyId, setStoryId] = useState<number>(0);
   const [noNameCharacter, setNoNameCharacter] = useState("");
 
+  const [allCharacters, setAllCharacters] = useState<CharacterPayload[]>([]);
+  const [allNotes, setAllNotes] = useState<{ id: number; noteName: string }[]>([]);
+  const [allConcepts, setAllConcepts] = useState<{ id: number; title: string }[]>([]);
+
   const param = useParams();
 
   useEffect(() => {
     if (!show) return;
+    // nạp dữ liệu nền một lần khi mở modal
+    fetchCharacters().then((data) => {
+      setCharacters(data);
+      setAllCharacters(data);
+    });
+    fetchListNote().then((notes) => {
+      const m = (notes ?? []).map((n: { id: number; noteName: string }) => ({ id: n.id, noteName: n.noteName }));
+      setAllNotes(m);
+    });
+    fetchConcepts().then((c) => setAllConcepts(c));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [show]);
 
-    setError("");
-    setStoryId(Number(param.storyId) || 0);
-    fetchCharacters().then(setCharacters);
-
-    if (initialData) {
-      setContent(initialData.content);
-      setCharacterId(initialData.characterId || null);
-      setType(initialData.type ?? 1);
-      setNoNameCharacter(initialData.noNameCharacter || "");
-
-      const backendUrl = "https://wwld-production.up.railway.app";
-      let img = "";
-
-      if (initialData.image) {
-        if (initialData.image.startsWith("http")) {
-          img = initialData.image;
-        } else if (initialData.image.startsWith("/uploads/")) {
-          img = backendUrl + initialData.image;
-        } else {
-          img = backendUrl + `/uploads/${initialData.image.replace(/^\/?uploads\//, "")}`;
-        }
-      }
-
-      setImagePreview(img);
-      setImageUrl(img);
-    } else {
-      setCharacterId(null);
-      setImagePreview("");
-      setImageUrl("");
-      setContent("");
-      setType(1);
-      setNoNameCharacter("");
-    }
-  }, [initialData, show]);
 
   const handleSubmit = async () => {
     if (!content.trim()) {
@@ -94,6 +82,43 @@ const DialogModal: React.FC<DialogModalProps> = ({ show, onClose, onSuccess, ini
     } catch (err) {
       console.error(err);
       setError("Có lỗi xảy ra khi lưu dữ liệu.");
+    }
+  };
+
+  // Lọc suggestion theo keyword (không dấu cách) sau @
+  const fetchSuggestions = async (keyword: string): Promise<Suggestion[]> => {
+    const q = keyword.trim().toLowerCase();
+
+    // lọc local (nhanh, không spam API)
+    const chars: Suggestion[] = allCharacters
+      .filter((c) => (c.name ?? "").toLowerCase().includes(q))
+      .slice(0, 5)
+      .map((c) => ({ id: c.id ?? 0, name: c.name ?? "Unknown", type: "character" }));
+
+    const concepts: Suggestion[] = allConcepts
+      .filter((c) => (c.title ?? "").toLowerCase().includes(q))
+      .slice(0, 5)
+      .map((c) => ({ id: c.id, name: c.title, type: "concept" }));
+
+    const notes: Suggestion[] = allNotes
+      .filter((n) => (n.noteName ?? "").toLowerCase().includes(q))
+      .slice(0, 5)
+      .map((n) => ({ id: n.id, name: n.noteName, type: "note" }));
+
+    // có thể thay đổi thứ tự ưu tiên
+    return [...chars, ...concepts, ...notes].slice(0, 10);
+  };
+
+  const buildEntityUrl = (s: Suggestion): string => {
+    switch (s.type) {
+      case "character":
+        return `/admin/character-detail/${s.id}`;
+      case "concept":
+        return `/admin/concept-detail/${s.id}`;
+      case "note":
+        return `/admin/note-detail/${s.id}`;
+      default:
+        return "#";
     }
   };
 
@@ -166,13 +191,15 @@ const DialogModal: React.FC<DialogModalProps> = ({ show, onClose, onSuccess, ini
             {/* Nội dung */}
             <div className="mb-3">
               <label className="form-label fw-semibold">📝 Nội dung thoại</label>
-              <textarea
-                className="form-control"
-                rows={4}
-                placeholder="Nhập nội dung..."
+              <MentionTextArea
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
-              ></textarea>
+                onChange={setContent}
+                fetchSuggestions={fetchSuggestions}
+                buildEntityUrl={buildEntityUrl}
+                placeholder="Nhập nội dung… Gõ @ để mention nhân vật/khái niệm/note"
+                rows={4}
+                ariaLabel="dialog content with mentions"
+              />
             </div>
 
             {/* Loại nội dung */}

@@ -7,20 +7,8 @@ import Link from "next/link";
 import StoryModal from "@/components/modals/ModalStory";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-
-
-interface Story {
-    id: number;
-    title: string;
-    description: string;
-    image: string;
-    type: 0 | 1; // 0: chapter, 1: screen
-    mainSectionId: number;
-    parentId: number;
-    parentTitle: string;
-}
-
-const PASSCODE = "123456";
+import { Story } from "@/lib/types/story";
+import { backendUrl, PASSCODE } from "@/lib/consts/const";
 
 export default function StoryListPage() {
     const router = useRouter();
@@ -44,8 +32,6 @@ export default function StoryListPage() {
     const [selectedChapterId, setSelectedChapterId] = useState<number | null>(null);
     const [passInput, setPassInput] = useState("");
     const [passError, setPassError] = useState("");
-
-
 
     useEffect(() => {
         const load = async () => {
@@ -100,8 +86,6 @@ export default function StoryListPage() {
         setPendingAction(null);
     };
 
-
-
     const filteredStories = useMemo(() => {
         if (selectedChapterId !== null) {
             // Nếu đang chọn 1 chương, chỉ hiển thị các màn con
@@ -120,17 +104,12 @@ export default function StoryListPage() {
     }, [stories, filterType, selectedChapterId]);
 
 
-
-    // const backendUrl = "http://localhost:8080";
-    const backendUrl = "https://wwld-production.up.railway.app";
     const getImageUrl = (image: string) => {
         if (!image) return "";
         if (image.startsWith("http")) return image;
         if (image.startsWith("/uploads/")) return backendUrl + image;
         return backendUrl + `/uploads/${image.replace(/^\/?uploads\//, "")}`;
     };
-
-
     // Xem chi tiết story
     const handleViewDetail = (story: Story) => {
         router.push(`/admin/story-detail/${story.id}`);
