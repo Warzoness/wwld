@@ -1,6 +1,6 @@
 // /lib/services/characterService.ts
 import axios from "axios";
-import { ApiCharacterPayload, CharacterPayload } from "../types/character";
+import { ApiCharacterPayload, CharacterPayload,Sex } from "../types/character";
 import { backendUrl } from "../consts/const";
 
 // ===== Helpers =====
