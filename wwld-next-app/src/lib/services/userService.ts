@@ -1,13 +1,21 @@
+import axios from "axios";
 import {
   UserDTO, UserResponse, SearchUsersPayload,
   RegisterUserPayload, UpdateUserPayload, DeleteUserPayload, LoginPayload
 } from "../types/user";
-import { apiClient } from "../apiClient";
+import { backendUrl } from "../consts/const";
 
 const base = "/authentication";
 
+const apiClient = axios.create({
+  baseURL: backendUrl,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
 export async function login(payload: { username: string; hashpassword: string }): Promise<UserDTO> {
-  const { data } = await apiClient.post<UserResponse>(`${base}/login`, payload);
+  const { data } = await apiClient.post<UserResponse>(`/login`, payload);
   console.log("data :", data.userDTO);
 
   if (!data.userDTO) throw new Error("Login failed");
