@@ -129,3 +129,5 @@ export const deleteCharacter = async (id: number) => {
     throw error;
   }
 };
+
+export type {CharacterPayload, Sex} from "@/lib/types/character"
