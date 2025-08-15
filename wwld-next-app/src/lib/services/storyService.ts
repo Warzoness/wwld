@@ -84,3 +84,6 @@ export const deleteStory = async (id: number) => {
     throw error;
   }
 };
+
+export type { StoryPayload };
+
