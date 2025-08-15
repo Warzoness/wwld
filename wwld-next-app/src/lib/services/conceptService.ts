@@ -71,3 +71,5 @@ export const fetchOneConceptById = async (payload: ConceptPayload) => {
     throw error;
   }
 };
+
+export type { ConceptPayload };
