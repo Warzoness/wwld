@@ -40,4 +40,7 @@ public class CharacterDialog {
 
     @Column(name="noNameCharacter")
     private String noNameCharacter;
+
+    @Column(name="parentId")
+    private Long parentId;
 }

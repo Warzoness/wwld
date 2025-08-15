@@ -1,8 +1,8 @@
 import { useParams } from "next/navigation";
 
 export const PASSCODE = "1";
-export const backendUrl = "http://localhost:8080";
-// export const backendUrl = "https://wwld-production.up.railway.app";
+// export const backendUrl = "http://localhost:8080";
+export const backendUrl = "https://wwld-production.up.railway.app";
 
 export const getImageUrl = (image?: string) => {
     if (!image) return "";

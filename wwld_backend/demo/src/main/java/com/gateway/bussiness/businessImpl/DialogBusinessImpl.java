@@ -94,5 +94,6 @@ public class DialogBusinessImpl implements CharacterDialogBusiness {
         dialog.setType(request.getType());
         dialog.setVoice(request.getVoice());
         dialog.setNoNameCharacter(request.getNoNameCharacter());
+        dialog.setParentId(request.getParentId());
     }
 }

@@ -5,7 +5,7 @@ import styles from "./ConceptDetail.module.css";
 import { fetchOneConceptById } from "@/lib/services/conceptService";
 import BackButton from "@/components/buttons/back-button/page";
 import { Concept, ConceptPayload } from "@/lib/types/concept";
-import { params } from "@/lib/consts/const";
+import { useParams } from "next/navigation";
 
 
 
@@ -19,6 +19,8 @@ export default function ConceptDetailPage() {
   const [drag, setDrag] = useState<{ x: number; y: number; dx: number; dy: number; active: boolean }>({
     x: 0, y: 0, dx: 0, dy: 0, active: false
   });
+
+  const params = useParams();
 
   const conceptId = Number(params.conceptId);
 

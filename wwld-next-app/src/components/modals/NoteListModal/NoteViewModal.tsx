@@ -17,6 +17,7 @@ interface NoteViewModalProps {
     onClose: () => void;
 }
 
+
 export default function NoteViewModal({ open, note, onClose }: NoteViewModalProps) {
     if (!open || !note) return null;
 

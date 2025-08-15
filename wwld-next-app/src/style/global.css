@@ -24,8 +24,9 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-  background-color: #f5f5f5;
-  color: #333333;
+  background-color: #fffffffd;
+  color: #080808;
+  font-size: 1.2rem;
 }
 
 .dropdown-menu {
@@ -35,11 +36,16 @@ body {
 
 @font-face {
   font-family: 'CustomFont';
-  src: url('/fonts/Afacad/static/Afacad-Regular.ttf') format('truetype');
+  src: url('/fonts/Afacad/static/Afacad-Light.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Gilroy';
+  src: url('/fonts/Gilroy/SVN-Gilroy Light.otf') format('truetype');
 }
 
 * {
-  font-family: 'CustomFont';
+  font-family: 'Gilroy';
   white-space: pre-line;
   /* hoặc pre-wrap */
 
@@ -413,9 +419,9 @@ body.iris-theme {
   background: linear-gradient(180deg, var(--iris-card) 0%, var(--iris-card-2) 100%);
   border: 1px solid var(--iris-border);
   border-radius: 16px;
-  padding: 14px;
+  padding: 5px;
   box-shadow: var(--iris-shadow);
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
 
@@ -430,6 +436,30 @@ body.iris-theme {
   display: grid;
   grid-template-columns: 170px 1fr;
   gap: 14px;
+}
+
+.dlg-grid--full .dlg-side {
+  display: none;
+}
+.dlg-grid--full .dlg-main {
+  grid-column: 1 / -1;
+}
+
+.dlg-rule {
+  height: 3px;
+  width: 100%;
+  margin-bottom: 8px;
+  background: var(--iris-accent, #a78bfa);
+  border-radius: 2px;
+}
+
+.dlg-bubble--sys {
+  background: transparent;  /* hoặc giữ màu theme của bạn */
+  color: #ffffff;
+}
+
+.dlg-chip--char {
+  font-weight: bold;
 }
 
 /* Hiển thị full ảnh, không upscale, không crop */
@@ -567,7 +597,7 @@ body.iris-theme {
 .dlg-sys-text {
   font-style: italic;      /* chữ nghiêng */
   font-weight: 600;        /* đậm vừa */
-  color: #facc15;          /* màu vàng nổi bật, có thể đổi sang #ff4d4f hoặc màu khác */
+  color: #df9400;          /* màu vàng nổi bật, có thể đổi sang #ff4d4f hoặc màu khác */
 }
 
 

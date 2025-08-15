@@ -21,6 +21,7 @@ public class DialogRequest extends PagingRequest {
     private Integer orderIndex;
     private String voice;
     private String noNameCharacter;
+    private Long parentId;
 
     private int pageIndex = 0;
     private int pageSize = 30;

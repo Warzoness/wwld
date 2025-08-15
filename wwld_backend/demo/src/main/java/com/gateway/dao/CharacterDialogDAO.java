@@ -17,7 +17,7 @@ public interface CharacterDialogDAO extends JpaRepository<CharacterDialog,Long> 
 
     // Find Dialog
     @Query("SELECT new com.gateway.dto.CharacterDialogDTO(" +
-            "d.id, d.characterId,cha.name, d.storyId, d.content, d.image, d.type, d.orderIndex, d.voice,d.noNameCharacter) " +
+            "d.id, d.characterId,cha.name, d.storyId, d.content, d.image, d.type, d.orderIndex, d.voice,d.noNameCharacter,d.parentId) " +
             "FROM CharacterDialog d " +
             "LEFT JOIN GameCharacter cha ON cha.id = d.characterId " +
             "WHERE (:dialog_id IS NULL OR d.id = :dialog_id ) " +
@@ -27,7 +27,7 @@ public interface CharacterDialogDAO extends JpaRepository<CharacterDialog,Long> 
 
     // find Dialog and paginate
     @Query("SELECT new com.gateway.dto.CharacterDialogDTO(" +
-            "d.id, d.characterId,cha.name, d.storyId, d.content, d.image, d.type, d.orderIndex, d.voice,d.noNameCharacter) " +
+            "d.id, d.characterId,cha.name, d.storyId, d.content, d.image, d.type, d.orderIndex, d.voice,d.noNameCharacter,d.parentId) " +
             "FROM CharacterDialog d " +
             "LEFT JOIN GameCharacter cha ON cha.id = d.characterId " +
             "WHERE (:dialog_id IS NULL OR d.id = :dialog_id ) " +
@@ -39,7 +39,7 @@ public interface CharacterDialogDAO extends JpaRepository<CharacterDialog,Long> 
     // Find Dialog by ID
     @Query("SELECT new com.gateway.dto.CharacterDialogDTO(" +
             "d.id, d.characterId,cha.name, d.storyId, d.content," +
-            " d.image, d.type, d.orderIndex, d.voice,d.noNameCharacter) " +
+            " d.image, d.type, d.orderIndex, d.voice,d.noNameCharacter,d.parentId) " +
             "FROM CharacterDialog d " +
             "LEFT JOIN GameCharacter cha ON cha.id = d.characterId " +
             "WHERE d.id = :id")

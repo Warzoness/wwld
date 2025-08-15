@@ -1,380 +1,531 @@
 'use client';
 
 import MentionHighlighter from "@/components/modals/MentionTextArea/MentionHighlighter";
-import DialogModal from "@/components/modals/ModalDialog";
-import { backendUrl, getImageUrl, PASSCODE } from "@/lib/consts/const";
+import DialogModal from "@/components/modals/ModalDialog/ModalDialog";
+import NoteViewModal from "@/components/modals/NoteListModal/NoteViewModal";
+import { getImageUrl, PASSCODE } from "@/lib/consts/const";
 import { deleteDialog, fetchDialogPagesByStoryId, updateDialogOrder } from "@/lib/services/dialogService";
+import { fetchNoteDataById } from "@/lib/services/noteListService";
 import { Dialog, StoryData } from "@/lib/types/dialog";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import styles from "./StoryDetailPage.module.css"; // <-- CSS module mới
+
+interface NoteDataDTO {
+  id: number;
+  noteName: string;
+  noteContent: string;
+  storyId: number;
+  description: string;
+  image: string;
+}
+
+type DialogEx = Dialog & { parentId?: number | null };
+type DialogNode = DialogEx & { children: DialogNode[] };
 
 export default function StoryDetailPage() {
-    const params = useParams();
-    const [storyData, setStoryData] = useState<StoryData | null>(null);
-    const [loading, setLoading] = useState(true);
+  const params = useParams();
+  const [storyData, setStoryData] = useState<StoryData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [dialogDetail, setDialogDetail] = useState<DialogEx[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [editDialog, setEditDialog] = useState<Dialog | undefined>(undefined);
 
-    const [dialogDetail, setDialogDetail] = useState<Dialog[]>([]);
+  const [showPassModal, setShowPassModal] = useState(false);
+  type PendingAction = { type: "edit"; data: Dialog } | { type: "delete"; data: number };
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
 
-    const [showModal, setShowModal] = useState(false);
-    const [editDialog, setEditDialog] = useState<Dialog | undefined>(undefined);
+  const [passInput, setPassInput] = useState("");
+  const [passError, setPassError] = useState("");
 
-    const [showPassModal, setShowPassModal] = useState(false);
-    type PendingAction =
-        | { type: "edit"; data: Dialog }
-        | { type: "delete"; data: number };
+  const [pageNumber, setPageNumber] = useState(0);
+  const [pageSize] = useState(30);
+  const [totalItem, setTotalItem] = useState(0);
 
-    const [pendingAction, setPendingAction] = useState<PendingAction | null>(null); const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(null);
-    const [passInput, setPassInput] = useState("");
-    const [passError, setPassError] = useState("");
+  const safeTotalItems = Number(totalItem) || 0;
+  const safePageSize = Number(pageSize) || 1;
+  const totalPages = Math.ceil(safeTotalItems / safePageSize);
+  const pageNumbers = totalPages > 0 ? Array.from({ length: totalPages }, (_, i) => i) : [];
 
-    const [pageNumber, setPageNumber] = useState(0);
-    const [pageSize] = useState(30);
-    const [totalItem, setTotalItem] = useState(0);
+  // ===== Note modal =====
+  const [noteOpen, setNoteOpen] = useState(false);
+  const [noteData, setNoteData] = useState<NoteDataDTO | null>(null);
+  const [noteErr, setNoteErr] = useState<string | null>(null);
 
-    useEffect(() => {
-        const storyData = sessionStorage.getItem("storyData");
-        if (storyData) {
-            setStoryData(JSON.parse(storyData));
-        }
-        if (!params.storyId) return;
+  const handleOpenNote = async (id: number) => {
+    try {
+      setNoteErr(null);
+      const dto = await fetchNoteDataById(id);
+      setNoteData(dto as NoteDataDTO);
+      setNoteOpen(true);
+    } catch {
+      setNoteErr("Không tải được ghi chú.");
+    }
+  };
 
-        const load = async () => {
-            setLoading(true);
-            try {
-                const data = await fetchDialogPagesByStoryId(Number(params.storyId), pageNumber, pageSize);
-                setDialogDetail(data.dialogs);
-                setTotalItem(data.totalItem);
-            } catch (error) {
-                setDialogDetail([]);
-                setTotalItem(0);
-            } finally {
-                setLoading(false);
-            }
-        };
-        load();
-    }, [params.storyId, pageNumber, pageSize]);
+  // ===== Parent for new dialog =====
+  const [parentForNew, setParentForNew] = useState<number | null>(null);
+  const handleOpenAdd = () => {
+    setParentForNew(null);
+    setEditDialog(undefined);
+    setShowModal(true);
+  };
+  const handleAddChild = (parent: DialogEx) => {
+    setParentForNew(parent.id);
+    setEditDialog(undefined);
+    setShowModal(true);
+  };
 
-    const safeTotalItems = Number(totalItem) || 0;
-    const safePageSize = Number(pageSize) || 1; // tránh chia cho 0
-    const totalPages = Math.ceil(safeTotalItems / safePageSize);
-    const pageNumbers = totalPages > 0 ? Array.from({ length: totalPages }, (_, i) => i) : [];
+  // ===== Load data =====
+  useEffect(() => {
+    const storyData = sessionStorage.getItem("storyData");
+    if (storyData) setStoryData(JSON.parse(storyData));
+    if (!params.storyId) return;
 
-    const handlePageChange = (newPage: number) => {
-        if (newPage >= 0 && newPage < totalPages) {
-            setPageNumber(newPage);
-            window.scrollTo({ top: 0, behavior: "smooth" }); // Cuộn lên đầu trang
-        }
+    const load = async () => {
+      setLoading(true);
+      try {
+        const data = await fetchDialogPagesByStoryId(Number(params.storyId), pageNumber, pageSize);
+        setDialogDetail(data.dialogs as DialogEx[]);
+        setTotalItem(data.totalItem);
+      } catch {
+        setDialogDetail([]);
+        setTotalItem(0);
+      } finally {
+        setLoading(false);
+      }
     };
+    load();
+  }, [params.storyId, pageNumber, pageSize]);
 
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 0 && newPage < totalPages) {
+      setPageNumber(newPage);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
+  // ===== Pass modal & actions =====
+  const handleDelete = (dialogId: number) => {
+    setPendingAction({ type: "delete", data: dialogId });
+    setShowPassModal(true);
+  };
+  const handleEdit = (dialog: Dialog) => {
+    setPendingAction({ type: "edit", data: dialog });
+    setShowPassModal(true);
+  };
+  const handlePassSubmit = async () => {
+    if (passInput !== PASSCODE) {
+      setPassError("Sai passcode!");
+      return;
+    }
+    setShowPassModal(false);
+    setPassInput("");
+    setPassError("");
 
-    const handleOpenAdd = () => {
-        setEditDialog(undefined);
-        setShowModal(true);
+    if (pendingAction?.type === "edit") {
+      setEditDialog(pendingAction.data);
+      setShowModal(true);
+    } else if (pendingAction?.type === "delete") {
+      try {
+        await deleteDialog(pendingAction.data);
+        setDialogDetail(dialogDetail.filter(d => d.id !== pendingAction.data));
+      } catch {
+        alert("Xóa story thất bại!");
+      }
+    }
+    setPendingAction(null);
+  };
+
+  // ===== Build tree (giữ thứ tự theo orderIndex trong từng cấp) =====
+  const tree: DialogNode[] = useMemo(() => {
+    const items = dialogDetail;
+    const map = new Map<number, DialogNode>();
+    const roots: DialogNode[] = [];
+    items.forEach(d => map.set(d.id, { ...d, children: [] }));
+    items.forEach(d => {
+      const node = map.get(d.id)!;
+      if (d.parentId) {
+        const p = map.get(d.parentId);
+        if (p) p.children.push(node);
+        else roots.push(node);
+      } else {
+        roots.push(node);
+      }
+    });
+    const sortRec = (nodes: DialogNode[]) => {
+      nodes.sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0));
+      nodes.forEach(n => sortRec(n.children));
     };
+    sortRec(roots);
+    return roots;
+  }, [dialogDetail]);
 
-    const handleDelete = (dialogId: number) => {
-        setPendingAction({ type: "delete", data: dialogId });
-        setShowPassModal(true);
+  // ===== Collapse state để “dễ đọc” =====
+  const [collapsed, setCollapsed] = useState<Set<number>>(new Set());
+  const toggleCollapse = (id: number) => {
+    setCollapsed(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+  const collapseAll = () => {
+    const allIds = new Set<number>();
+    const walk = (nodes: DialogNode[]) => {
+      nodes.forEach(n => {
+        if (n.children.length) allIds.add(n.id);
+        walk(n.children);
+      });
     };
+    walk(tree);
+    setCollapsed(allIds);
+  };
+  const expandAll = () => setCollapsed(new Set());
 
-    const handleEdit = (dialog: Dialog) => {
-        setPendingAction({ type: "edit", data: dialog });
-        setShowPassModal(true);
-    };
+  // ===== Move up/down (giữ như cũ) =====
+  const handleOrderChange = (dialogId: number, direction: "up" | "down") => {
+    const currentIndex = dialogDetail.findIndex(d => d.id === dialogId);
+    if (currentIndex === -1) return;
+    const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    if (newIndex < 0 || newIndex >= dialogDetail.length) return;
 
-    const handleOrderChange = (dialogId: number, direction: "up" | "down") => {
-        const currentIndex = dialogDetail.findIndex(dialog => dialog.id === dialogId);
-        if (currentIndex === -1) return;
+    const updated = [...dialogDetail];
+    [updated[currentIndex], updated[newIndex]] = [updated[newIndex], updated[currentIndex]];
+    setDialogDetail(updated);
+    updateDialogOrder(dialogId, newIndex).catch(() => {
+      alert("Cập nhật thứ tự hội thoại thất bại!");
+    });
+  };
 
-        const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
-        if (newIndex < 0 || newIndex >= dialogDetail.length) return;
+  // ===== Helpers hiển thị =====
+  const chipColor = (n: DialogNode) =>
+    n.type === 1 ? styles.chipLine
+      : n.type === 2 ? styles.chipNarr
+        : n.type === 3 ? styles.chipSys
+          : styles.chipImg;
 
-        // Hoán đổi vị trí trong mảng hiển thị
-        const updatedDialogs = [...dialogDetail];
-        [updatedDialogs[currentIndex], updatedDialogs[newIndex]] =
-            [updatedDialogs[newIndex], updatedDialogs[currentIndex]];
+  const bubbleClass = (n: DialogNode) =>
+    n.type === 1 ? styles.bubbleLine
+      : n.type === 2 ? styles.bubbleNarr
+        : n.type === 3 ? styles.bubbleSys
+          : styles.bubbleImg;
 
-        setDialogDetail(updatedDialogs);
+  const displayName = (n: DialogNode) =>
+    n.type === 2
+      ? "Rover"
+      : n.characterId
+        ? n.characterName
+        : n.noNameCharacter || "????";
 
-        // Gọi API cập nhật orderIndex cho phần tử được di chuyển
-        updateDialogOrder(dialogId, newIndex).catch(error => {
-            console.error("Error updating dialog order:", error);
-            alert("Cập nhật thứ tự hội thoại thất bại!");
-        });
-    };
+  // ===== Node renderer (có gấp/mở) =====
+  const Node = ({ node, level }: { node: DialogNode; level: number }) => {
+    const hasChildren = node.children.length > 0;
+    const isCollapsed = collapsed.has(node.id);
+    const indentStyle = { marginLeft: `${level * 20}px` };
 
-    const handlePassSubmit = async () => {
-        if (passInput !== PASSCODE) {
-            setPassError("Sai passcode!");
-            return;
-        }
-        setShowPassModal(false);
-        setPassInput("");
-        setPassError("");
+    if (node.type === 0) {
+      // Media node
+      return (
+        <div className={`${styles.node} ${styles.mediaNode}`} style={indentStyle}>
+          <div className={styles.treeGuide} aria-hidden />
+          <div className={styles.mediaCard}>
+            <div className={styles.mediaHeader}>
+              {hasChildren && (
+                <button
+                  className={styles.toggle}
+                  onClick={() => toggleCollapse(node.id)}
+                  title={isCollapsed ? "Mở nhánh" : "Gấp nhánh"}
+                >
+                  {isCollapsed ? <i className="bi bi-caret-right-fill" /> : <i className="bi bi-caret-down-fill" />}
+                </button>
+              )}
+              <span className={`${styles.chip} ${chipColor(node)}`}>
+                <i className="bi bi-image" /> Hình ảnh
+              </span>
+              {hasChildren && <span className={styles.count}>{node.children.length}</span>}
+              <div className={styles.spacer} />
+              <div className={styles.tools}>
+                <button className="iris-btn iris-btn--warn" onClick={() => handleEdit(node)} title="Sửa">
+                  <i className="bi bi-pencil" />
+                </button>
+                <button className="iris-btn iris-btn--danger" onClick={() => handleDelete(node.id)} title="Xóa">
+                  <i className="bi bi-trash" />
+                </button>
+                <button className="iris-btn" onClick={() => handleOrderChange(node.id, "up")} title="Lên">
+                  <i className="bi bi-chevron-double-up" />
+                </button>
+                <button className="iris-btn" onClick={() => handleOrderChange(node.id, "down")} title="Xuống">
+                  <i className="bi bi-chevron-double-down" />
+                </button>
+                <button className="iris-btn" onClick={() => handleAddChild(node)} title="Thêm thoại con">
+                  <i className="bi bi-plus-circle" />
+                </button>
+              </div>
+            </div>
 
-        if (pendingAction?.type === "edit") {
-            setEditDialog(pendingAction.data);
-            setShowModal(true);
-        } else if (pendingAction?.type === "delete") {
-            try {
-                await deleteDialog(pendingAction.data);
-                setDialogDetail(dialogDetail.filter(dialog => dialog.id !== pendingAction.data));
-            } catch (error) {
-                alert("Xóa story thất bại!");
-            }
-        }
-        setPendingAction(null);
-    };
+            {!isCollapsed && (
+              <div className={styles.mediaBody}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={getImageUrl(node.image) || "/default-image.png"} alt="Dialog Image" />
+              </div>
+            )}
+          </div>
+
+          {/* children */}
+          {!isCollapsed && node.children.length > 0 && node.children.map(c => (
+            <Node key={c.id} node={c} level={level + 1} />
+          ))}
+        </div>
+      );
+    }
+
+    // Textual node
+    const isSys = node.type === 3;
 
     return (
-        <div className="container dialog-detail-page py-4 iris-page">
-            {/* Nút quay lại */}
-            <div className="mb-4">
-                <button
-                    className="iris-ghost d-flex align-items-center gap-2"
-                    onClick={() => window.history.back()}
-                >
-                    <i className="bi bi-arrow-left"></i> Quay lại
-                </button>
-            </div>
-
-            {/* Tiêu đề */}
-            <div className="text-center mb-4">
-                <div className="iris-hero mx-auto">
-                    <h1 className="fw-bold mb-1">{storyData?.chapterName || "Chưa có tên"}</h1>
-                    <h4 className="iris-muted">{storyData?.actName || "Chưa có tên"}</h4>
-                </div>
-            </div>
-
-            {/* Nội dung & mô tả */}
-            <div className="iris-panel p-4">
-                {/* Mô tả nhiệm vụ */}
-                <div className="mb-3">
-                    <div className="d-flex align-items-center gap-2 mb-2 iris-section-title">
-                        <i className="bi bi-list-task fs-5"></i>
-                        <h4 className="mb-0">Mô tả nhiệm vụ</h4>
-                    </div>
-                    <p className="mb-0 iris-muted">
-                        {storyData?.description || "Chưa có mô tả nhiệm vụ"}
-                    </p>
-                </div>
-
-                <div className="iris-sep" />
-
-                {/* Nút thêm hội thoại */}
-                <div className="d-flex justify-content-end mb-3">
-                    <button className="iris-btn iris-btn--primary" onClick={handleOpenAdd}>
-                        <i className="bi bi-plus-circle me-1"></i> Thêm hội thoại
-                    </button>
-                </div>
-
-                {/* Danh sách hội thoại */}
-                <div className="content-dialog">
-                    {dialogDetail.map((dialog) => {
-                        const isImage = dialog.type === 0;
-                        const isLine = dialog.type === 1;
-                        const isNarr = dialog.type === 2;
-                        const isSys = dialog.type === 3;
-
-                        const displayName = dialog.characterId
-                            ? dialog.characterName
-                            : (dialog.noNameCharacter || "????");
-
-                        const accent =
-                            isLine ? "#22d3ee" : isNarr ? "#ef4444" : isSys ? "#a78bfa" : "#38bdf8";
-
-                        return (
-                            <div key={dialog.id} className="iris-dialog" style={{ ["--iris-accent" as string]: accent }}>
-                                {isImage ? (
-                                    <div className="dlg-media">
-                                        <img src={getImageUrl(dialog.image) || "/default-image.png"} alt="Dialog Image" />
-
-                                        {/* nếu bạn đang dùng nút overlay */}
-                                        <div className="dlg-media-toolbar">
-                                            <button className="iris-btn iris-btn--warn" onClick={() => handleEdit(dialog)}>
-                                                <i className="bi bi-pencil"></i>
-                                            </button>
-                                            <button className="iris-btn iris-btn--danger" onClick={() => handleDelete(dialog.id)}>
-                                                <i className="bi bi-trash"></i>
-                                            </button>
-                                            <button className="iris-btn" onClick={() => handleOrderChange(dialog.id, "up")}>
-                                                <i className="bi bi-chevron-double-up"></i>
-                                            </button>
-                                            <button className="iris-btn" onClick={() => handleOrderChange(dialog.id, "down")}>
-                                                <i className="bi bi-chevron-double-down"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                ) : (
-                                    <div className="dlg-grid">
-                                        <div className="dlg-side">
-                                            <span
-                                                className={`dlg-chip ${dialog.characterId ? "dlg-chip--char" : "dlg-chip--anon"}`}
-                                                title={displayName}
-                                            >
-                                                <i className="bi bi-person"></i>
-                                                <span className="text-truncate" title={displayName}>
-                                                    {displayName}
-                                                </span>
-                                            </span>
-
-                                        </div>
-
-                                        <div className="dlg-main">
-
-                                            <div
-                                                className={
-                                                    "dlg-bubble " +
-                                                    (isNarr ? "dlg-bubble--narr" : isSys ? "dlg-bubble--sys" : "dlg-bubble--line")
-                                                }
-                                                title={isLine ? displayName : undefined}
-                                            >
-                                                {isSys ? (
-                                                    <MentionHighlighter text={dialog.content} className="dlg-sys-text" />
-                                                ) : (
-                                                    <MentionHighlighter text={dialog.content} />
-                                                )}
-                                            </div>
-
-
-                                            {/* Toolbar */}
-                                            <div className="dlg-toolbar">
-                                                <button className="iris-btn iris-btn--warn" onClick={() => handleEdit(dialog)}>
-                                                    <i className="bi bi-pencil"></i>
-                                                </button>
-                                                <button className="iris-btn iris-btn--danger" onClick={() => handleDelete(dialog.id)}>
-                                                    <i className="bi bi-trash"></i>
-                                                </button>
-                                                <button className="iris-btn" onClick={() => handleOrderChange(dialog.id, "up")}>
-                                                    <i className="bi bi-chevron-double-up"></i>
-                                                </button>
-                                                <button className="iris-btn" onClick={() => handleOrderChange(dialog.id, "down")}>
-                                                    <i className="bi bi-chevron-double-down"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
-            {/* Pagination */}
-            <nav aria-label="Dialog pagination" className="mt-4">
-                <ul className="pagination justify-content-center iris-pagination">
-                    <li className={`page-item ${pageNumber === 0 ? "disabled" : ""}`}>
-                        <button
-                            className="page-link"
-                            onClick={() => handlePageChange(pageNumber - 1)}
-                            disabled={pageNumber === 0}
-                        >
-                            <i className="bi bi-chevron-left d-inline d-sm-none"></i>
-                            <span className="d-none d-sm-inline">Trước</span>
-                        </button>
-                    </li>
-
-                    {pageNumbers.map((index) => (
-                        <li key={index} className={`page-item ${pageNumber === index ? "active" : ""}`}>
-                            <button className="page-link" onClick={() => handlePageChange(index)}>
-                                {index + 1}
-                            </button>
-                        </li>
-                    ))}
-
-                    <li className={`page-item ${pageNumber >= totalPages - 1 ? "disabled" : ""}`}>
-                        <button
-                            className="page-link"
-                            onClick={() => handlePageChange(pageNumber + 1)}
-                            disabled={pageNumber >= totalPages - 1}
-                        >
-                            <span className="d-none d-sm-inline">Sau</span>
-                            <i className="bi bi-chevron-right d-inline d-sm-none"></i>
-                        </button>
-                    </li>
-                </ul>
-            </nav>
-
-
-            {/* Nút lên đầu trang */}
-            <button
-                className="fixed-scroll-top iris-fab"
-                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                title="Lên đầu trang"
-                aria-label="Lên đầu trang"
-            >
-                <i className="bi bi-arrow-up-circle"></i>
-            </button>
-
-            {/* Modal thêm/sửa hội thoại */}
-            <DialogModal
-                show={showModal}
-                onClose={() => setShowModal(false)}
-                onSuccess={() => {
-                    setShowModal(false);
-                    setEditDialog(undefined);
-                    fetchDialogPagesByStoryId(Number(params.storyId), pageNumber, pageSize).then((data) => {
-                        setDialogDetail(data.dialogs);
-                        setTotalItem(data.totalItem);
-                    });
-                }}
-                initialData={
-                    editDialog
-                        ? {
-                            id: editDialog.id,
-                            content: editDialog.content,
-                            image: editDialog.image,
-                            type: editDialog.type,
-                            characterId: editDialog.characterId ?? undefined,
-                            orderIndex: editDialog.orderIndex,
-                            voice: editDialog.voice,
-                            storyId: Number(params.storyId),
-                        }
-                        : undefined
-                }
-            />
-
-            {/* Modal xác nhận passcode (giữ nguyên, sẽ auto tối nhờ CSS dưới) */}
-            {showPassModal && (
-                <div className="modal d-block" tabIndex={-1} style={{ background: "rgba(0,0,0,0.5)" }}>
-                    <div className="modal-dialog">
-                        <div className="modal-content iris-panel p-0">
-                            <div className="modal-header">
-                                <h5>Nhập passcode xác nhận</h5>
-                            </div>
-                            <div className="modal-body">
-                                <input
-                                    type="password"
-                                    className="form-control"
-                                    placeholder="Nhập passcode"
-                                    value={passInput}
-                                    onChange={(e) => setPassInput(e.target.value)}
-                                />
-                                {passError && <div className="text-danger mt-2">{passError}</div>}
-                            </div>
-                            <div className="modal-footer">
-                                <button
-                                    className="iris-btn"
-                                    onClick={() => {
-                                        setShowPassModal(false);
-                                        setPassInput("");
-                                        setPassError("");
-                                    }}
-                                >
-                                    Hủy
-                                </button>
-                                <button className="iris-btn iris-btn--primary" onClick={handlePassSubmit}>
-                                    Xác nhận
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+      <div className={styles.node} style={indentStyle}>
+        <div className={styles.treeGuide} aria-hidden />
+        <div className={`${styles.row} ${isSys ? styles.rowSys : ""}`}>
+          <div className={styles.rowHead}>
+            {hasChildren && (
+              <button
+                className={styles.toggle}
+                onClick={() => toggleCollapse(node.id)}
+                title={isCollapsed ? "Mở nhánh" : "Gấp nhánh"}
+              >
+                {isCollapsed ? <i className="bi bi-caret-right-fill" /> : <i className="bi bi-caret-down-fill" />}
+              </button>
             )}
+            {!isSys && (
+              <span className={`${styles.chip} ${chipColor(node)}`} title={displayName(node) || ""}>
+                <i className="bi bi-person" />
+                <span className={styles.chipText}>{displayName(node)}</span>
+              </span>
+            )}
+            {hasChildren && <span className={styles.count}>{node.children.length}</span>}
+            <div className={styles.spacer} />
+            <div className={styles.tools}>
+              <button className="iris-btn iris-btn--warn" onClick={() => handleEdit(node)} title="Sửa">
+                <i className="bi bi-pencil" />
+              </button>
+              <button className="iris-btn iris-btn--danger" onClick={() => handleDelete(node.id)} title="Xóa">
+                <i className="bi bi-trash" />
+              </button>
+              <button className="iris-btn" onClick={() => handleOrderChange(node.id, "up")} title="Lên">
+                <i className="bi bi-chevron-double-up" />
+              </button>
+              <button className="iris-btn" onClick={() => handleOrderChange(node.id, "down")} title="Xuống">
+                <i className="bi bi-chevron-double-down" />
+              </button>
+              <button className="iris-btn" onClick={() => handleAddChild(node)} title="Thêm thoại con">
+                <i className="bi bi-plus-circle" />
+              </button>
+            </div>
+          </div>
+
+          {!isCollapsed && (
+            <div className={`${styles.bubble} ${bubbleClass(node)} ${isSys ? styles.centerText : ""}`}>
+              <MentionHighlighter text={node.content} onNoteOpen={handleOpenNote} />
+            </div>
+          )}
         </div>
 
+        {/* children */}
+        {!isCollapsed && node.children.length > 0 && node.children.map(c => (
+          <Node key={c.id} node={c} level={level + 1} />
+        ))}
+      </div>
     );
+  };
 
+  return (
+    <div className={`container py-4 ${styles.page}`}>
+      {/* Top actions */}
+      <div className={styles.topbar}>
+        <button className="iris-ghost" onClick={() => window.history.back()}>
+          <i className="bi bi-arrow-left" /> Quay lại
+        </button>
+        <div className={styles.topbarRight}>
+          <button className="iris-btn" onClick={expandAll} title="Mở tất cả nhánh">
+            <i className="bi bi-arrows-expand" /> Expand all
+          </button>
+          <button className="iris-btn" onClick={collapseAll} title="Gấp tất cả nhánh">
+            <i className="bi bi-arrows-collapse" /> Collapse all
+          </button>
+          <button className="iris-btn iris-btn--primary" onClick={handleOpenAdd}>
+            <i className="bi bi-plus-circle me-1" /> Thêm hội thoại
+          </button>
+        </div>
+      </div>
+
+      {/* Title */}
+      <div className={styles.hero}>
+        <h1>{storyData?.chapterName || "Chưa có tên"}</h1>
+        <p className={styles.subtitle}>{storyData?.actName || "Chưa có tên"}</p>
+      </div>
+
+      {/* Panel */}
+      <div className={styles.panel}>
+        {/* Description */}
+        <div className={styles.section}>
+          <div className={styles.sectionTitle}>
+            <i className="bi bi-list-task" />
+            <h4>Mô tả nhiệm vụ</h4>
+          </div>
+          <p className={styles.muted}>{storyData?.description || "Chưa có mô tả nhiệm vụ"}</p>
+        </div>
+
+        <div className={styles.sep} />
+
+        {/* Content */}
+        <div className={styles.content}>
+          {loading ? (
+            <div className={styles.skeletonWrap}>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className={styles.skeletonRow} />
+              ))}
+            </div>
+          ) : (
+            <div className={styles.tree}>
+              {tree.map(node => <Node key={node.id} node={node} level={0} />)}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Pagination */}
+      <nav aria-label="Dialog pagination" className={styles.paginationWrap}>
+        <ul className={`pagination justify-content-center ${styles.pagination}`}>
+          <li className={`page-item ${pageNumber === 0 ? "disabled" : ""}`}>
+            <button className="page-link" onClick={() => handlePageChange(pageNumber - 1)} disabled={pageNumber === 0}>
+              <i className="bi bi-chevron-left d-inline d-sm-none" />
+              <span className="d-none d-sm-inline">Trước</span>
+            </button>
+          </li>
+
+          {pageNumbers.map((index) => (
+            <li key={index} className={`page-item ${pageNumber === index ? "active" : ""}`}>
+              <button className="page-link" onClick={() => handlePageChange(index)}>
+                {index + 1}
+              </button>
+            </li>
+          ))}
+
+          <li className={`page-item ${pageNumber >= totalPages - 1 ? "disabled" : ""}`}>
+            <button
+              className="page-link"
+              onClick={() => handlePageChange(pageNumber + 1)}
+              disabled={pageNumber >= totalPages - 1}
+            >
+              <span className="d-none d-sm-inline">Sau</span>
+              <i className="bi bi-chevron-right d-inline d-sm-none" />
+            </button>
+          </li>
+        </ul>
+        <div className={styles.pageInfo}>
+          Trang {pageNumber + 1}/{Math.max(totalPages, 1)} • Tổng {safeTotalItems} đoạn
+        </div>
+      </nav>
+
+      {/* Scroll to top */}
+      <button
+        className={`${styles.fab}`}
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        title="Lên đầu trang"
+        aria-label="Lên đầu trang"
+      >
+        <i className="bi bi-arrow-up-circle" />
+      </button>
+
+      {/* Modal add/edit */}
+      <DialogModal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        onSuccess={() => {
+          setShowModal(false);
+          setEditDialog(undefined);
+          setParentForNew(null);
+          fetchDialogPagesByStoryId(Number(params.storyId), pageNumber, pageSize).then((data) => {
+            setDialogDetail(data.dialogs as DialogEx[]);
+            setTotalItem(data.totalItem);
+          });
+        }}
+        parentId={parentForNew}
+        initialData={
+          editDialog
+            ? {
+              id: editDialog.id,
+              content: editDialog.content,
+              image: editDialog.image,
+              type: editDialog.type,
+              characterId: editDialog.characterId ?? undefined,
+              orderIndex: editDialog.orderIndex,
+              voice: editDialog.voice,
+              storyId: Number(params.storyId),
+              parentId: (editDialog as DialogEx).parentId ?? null,
+            }
+            : undefined
+        }
+      />
+
+      {/* Passcode modal */}
+      {showPassModal && (
+        <div className="modal d-block" tabIndex={-1} style={{ background: "rgba(0,0,0,0.5)" }}>
+          <div className="modal-dialog">
+            <div className={`modal-content ${styles.panel}`}>
+              <div className="modal-header">
+                <h5>Nhập passcode xác nhận</h5>
+              </div>
+              <div className="modal-body">
+                <input
+                  type="password"
+                  className="form-control"
+                  placeholder="Nhập passcode"
+                  value={passInput}
+                  onChange={(e) => setPassInput(e.target.value)}
+                />
+                {passError && <div className="text-danger mt-2">{passError}</div>}
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="iris-btn"
+                  onClick={() => {
+                    setShowPassModal(false);
+                    setPassInput("");
+                    setPassError("");
+                  }}
+                >
+                  Hủy
+                </button>
+                <button className="iris-btn iris-btn--primary" onClick={handlePassSubmit}>
+                  Xác nhận
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Note viewer */}
+      <NoteViewModal
+        open={noteOpen}
+        note={
+          noteData
+            ? {
+              id: noteData.id,
+              noteName: noteData.noteName,
+              noteContent: noteData.noteContent,
+              storyId: noteData.storyId,
+              description: noteData.description,
+              image: noteData.image,
+            }
+            : null
+        }
+        onClose={() => setNoteOpen(false)}
+      />
+
+      {noteErr && <div className="text-danger mt-2">{noteErr}</div>}
+    </div>
+  );
 }

@@ -1,0 +1,128 @@
+.wrapper {
+  padding-top: 24px;
+  padding-bottom: 32px;
+  color: #e5e7eb;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.mlAuto {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Controls */
+.input,
+.select {
+  background: #0b1224;
+  border: 1px solid #1f2937;
+  color: #e5e7eb;
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+.cta,
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ef4444;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn {
+  background: #374151;
+}
+
+.btnDanger {
+  background: #b91c1c;
+}
+
+/* Card + table */
+.card {
+  background: linear-gradient(180deg, #111827, #0b1224);
+  border: 1px solid #1f2937;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.th,
+.td {
+  padding: 12px;
+  border-bottom: 1px solid #1f2937;
+  text-align: left;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+.muted {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+/* Helpers */
+.overflowX {
+  overflow-x: auto;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Image cell */
+.thumb {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #374151;
+}
+
+/* Buttons row inside table cell */
+.rowActions {
+  display: flex;
+  gap: 8px;
+}

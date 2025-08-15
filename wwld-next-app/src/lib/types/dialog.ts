@@ -10,6 +10,7 @@ export interface DialogPayload {
     orderIndex: number;
     voice?: string;
     noNameCharacter?: string; // dùng khi không chọn nhân vật nào
+    parentId: number | null;
 }
 
 export interface Dialog {
@@ -24,6 +25,7 @@ export interface Dialog {
     orderIndex: number;
     voice?: string;
     noNameCharacter?: string; // dùng khi không chọn nhân vật nào
+    parentId: number;
 }
 
 export interface StoryData {
