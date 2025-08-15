@@ -1,18 +1,11 @@
-import axios from "axios";
+import { apiClient } from "../apiClient";
 import {
   UserDTO, UserResponse, SearchUsersPayload,
   RegisterUserPayload, UpdateUserPayload, DeleteUserPayload, LoginPayload
 } from "../types/user";
-import { backendUrl } from "../consts/const";
 
 const base = "/api/authentication";
 
-const apiClient = axios.create({
-  baseURL: backendUrl,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
 
 export async function login(payload: { username: string; hashpassword: string }): Promise<UserDTO> {
   const { data } = await apiClient.post<UserResponse>(`${base}/login`, payload);

@@ -1,4 +1,3 @@
-import axios from "axios";
 import { ConceptPayload } from "../types/concept";
 import { apiClient } from "../apiClient";
 
@@ -6,7 +5,7 @@ import { apiClient } from "../apiClient";
 // tạo mới
 export const addConcept = async (payload: ConceptPayload) => {
   try {
-    const response = await apiClient.post("/concept/insert", payload);
+    const response = await apiClient.post("/api/concept/insert", payload);
     
     return response.data;
   } catch (error) {
@@ -21,7 +20,7 @@ export const fetchConcepts = async () => {
     const request = {
       clientTime: new Date().toISOString()
     };
-    const response = await apiClient.post("/concept/findConcepts", request);
+    const response = await apiClient.post("/api/concept/findConcepts", request);
     console.log("response : ", response.data.listConcepts);
     
     return response.data.listConcepts;
@@ -34,7 +33,7 @@ export const fetchConcepts = async () => {
 // Sửa
 export const updateConcept = async (payload: ConceptPayload) => {
   try {
-    const response = await apiClient.post("/concept/update", payload);
+    const response = await apiClient.post("/api/concept/update", payload);
     console.log("payload :",payload);
     
     return response.data;
@@ -48,7 +47,7 @@ export const updateConcept = async (payload: ConceptPayload) => {
 export const deleteConcept = async (payload : ConceptPayload) => {
   try {
     
-    const response = await apiClient.post("/concept/delete", { payload });
+    const response = await apiClient.post("/api/concept/delete", { payload });
     return response.data;
   } catch (error) {
     console.error("Error deleting concept:", error);
@@ -62,7 +61,7 @@ export const fetchOneConceptById = async (payload: ConceptPayload) => {
   try {
     console.log("payload :",payload );
     
-    const response = await apiClient.post("/concept/getOneById", payload);
+    const response = await apiClient.post("/api/concept/getOneById", payload);
     console.log("response : ", response.data.conceptDTO);
     
     return response.data.conceptDTO;

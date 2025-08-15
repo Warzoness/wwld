@@ -1,12 +1,5 @@
-import axios from "axios";
-import { backendUrl } from "../consts/const";
+import { apiClient } from "../apiClient";
 
-const apiClient = axios.create({
-  baseURL: backendUrl,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
 
 // Interface payload
 export interface MainSectionPayload {

@@ -1,9 +1,12 @@
 // src/lib/apiClient.ts
 import axios from "axios";
+import { backendUrl } from "./consts/const";
+
+
 
 export const apiClient = axios.create({
-  baseURL: "/api", // ✅ luôn đi qua rewrite
-  headers: { "Content-Type": "application/json" },
-  withCredentials: false, // không cần gửi cookie sang backend
+  baseURL: backendUrl,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
-

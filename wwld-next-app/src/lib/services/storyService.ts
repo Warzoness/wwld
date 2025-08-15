@@ -1,14 +1,6 @@
-import axios from "axios";
 import { StoryPayload } from "../types/story";
-import { backendUrl } from "../consts/const";
+import { apiClient } from "../apiClient";
 
-
-const apiClient = axios.create({
-  baseURL: backendUrl,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
 
 // Tạo mới
 export const addStory = async (payload: StoryPayload) => {
