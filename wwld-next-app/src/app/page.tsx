@@ -88,7 +88,7 @@ export default function HomePage() {
                             href={{
                               pathname:
                                 mainSection.name === "Hồ sơ nhân vật"
-                                  ? "/user/characters-list"
+                                  ? "/user/character-list"
                                   : mainSection.name === "Khái niệm Thế giới"
                                     ? "/user/concept-list"
                                     : mainSection.name === "Các mảnh ghi chú"
