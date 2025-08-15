@@ -15,7 +15,7 @@ const apiClient = axios.create({
 });
 
 export async function login(payload: { username: string; hashpassword: string }): Promise<UserDTO> {
-  const { data } = await apiClient.post<UserResponse>(`/login`, payload);
+  const { data } = await apiClient.post<UserResponse>(`${base}/login`, payload);
   console.log("data :", data.userDTO);
 
   if (!data.userDTO) throw new Error("Login failed");
