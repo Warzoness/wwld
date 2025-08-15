@@ -5,7 +5,7 @@ import {
 } from "../types/user";
 import { backendUrl } from "../consts/const";
 
-const base = "/authentication";
+const base = "/api/authentication";
 
 const apiClient = axios.create({
   baseURL: backendUrl,
