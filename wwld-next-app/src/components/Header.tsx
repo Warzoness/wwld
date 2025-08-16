@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 type UserDTO = {
   id?: number;
@@ -12,53 +12,72 @@ type UserDTO = {
   avatar?: string;
 };
 
-function getCookie(name: string) {
-  if (typeof document === "undefined") return null;
-  const m = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
-  return m ? decodeURIComponent(m[2]) : null;
-}
-
-function deleteCookie(name: string) {
-  if (typeof document === "undefined") return;
-  document.cookie = `${name}=; Max-Age=0; path=/;`;
-}
-
 export default function Header() {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const [openUserMenu, setOpenUserMenu] = useState(false);
+  const [showSearch, setShowSearch] = useState(false); // <- mobile search
   const [user, setUser] = useState<UserDTO | null>(null);
+
   const menuRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // lấy user từ localStorage (bạn đã lưu sau khi login)
+    // lấy user từ localStorage (đã lưu sau login)
     try {
       const raw = typeof window !== "undefined" ? localStorage.getItem("userDTO") : null;
       setUser(raw ? JSON.parse(raw) : null);
     } catch {
       setUser(null);
     }
+  }, []);
 
-    // đóng menu khi click ra ngoài
+  // đóng menu/search khi click ra ngoài
+  useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
-      if (!menuRef.current) return;
-      if (!menuRef.current.contains(e.target as Node)) setOpen(false);
+      const target = e.target as Node;
+      if (menuRef.current && !menuRef.current.contains(target)) {
+        setOpenUserMenu(false);
+      }
     };
     document.addEventListener("click", onDocClick);
     return () => document.removeEventListener("click", onDocClick);
   }, []);
 
-  // ví dụ trong Header.tsx (client)
+  // đóng dropdown & search khi đổi route
+  useEffect(() => {
+    setOpenUserMenu(false);
+    setShowSearch(false);
+  }, [pathname]);
+
+  // ESC để đóng dropdown/search
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpenUserMenu(false);
+        setShowSearch(false);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+
+  // autofocus input khi mở search trên mobile
+  useEffect(() => {
+    if (showSearch) {
+      setTimeout(() => searchRef.current?.focus(), 10);
+    }
+  }, [showSearch]);
+
   async function onLogout() {
     try {
       await fetch("/api/auth/clear-session", { method: "POST" });
     } finally {
       localStorage.removeItem("userDTO");
       localStorage.removeItem("access_token");
-      // chuyển hướng về trang login
       router.push("/authenticate/login");
     }
   }
-
 
   const displayName = user?.fullname?.trim() || user?.username || "Người dùng";
   const isLoggedIn = !!user;
@@ -66,68 +85,62 @@ export default function Header() {
   return (
     <header className="iris-header sticky-top">
       <div className="container-fluid py-2">
-        <div className="row align-items-center g-2">
-          {/* Logo */}
-          <div className="col-6 col-md-3">
-            <Link href="/" className="logo-link d-inline-flex align-items-center text-decoration-none">
-              <span className="iris-logo">WWLD</span>
-            </Link>
-          </div>
+        {/* Hàng trên: logo, nút search (mobile), user */}
+        <div className="d-flex align-items-center justify-content-between">
+          {/* Logo trái */}
+          <Link href="/" className="logo-link d-inline-flex align-items-center text-decoration-none">
+            <span className="iris-logo">WWLD</span>
+          </Link>
 
-          {/* Search (giữ nguyên nếu bạn cần) */}
-          <div className="col-12 col-md-7 order-3 order-md-2">
-            <form className="w-100" role="search">
-              <div className="iris-search">
-                <i className="bi bi-search me-2"></i>
-                <input
-                  type="text"
-                  className="form-control iris-input"
-                  placeholder="Nhập từ khóa tìm kiếm hoặc hashtag"
-                />
-                <button type="button" className="iris-chip ms-2" aria-label="Bộ lọc">
-                  <i className="bi bi-funnel"></i>
-                </button>
-              </div>
-            </form>
-          </div>
+          {/* Dàn nút bên phải */}
+          <div className="d-flex align-items-center gap-2" ref={menuRef}>
+            {/* Nút toggle search (HIỆN trên mobile, ẨN desktop) */}
+            <button
+              className="iris-chip d-inline-flex d-md-none"
+              aria-label={showSearch ? "Đóng tìm kiếm" : "Mở tìm kiếm"}
+              aria-expanded={showSearch}
+              onClick={() => setShowSearch(v => !v)}
+            >
+              <i className="bi bi-search" />
+            </button>
 
-          {/* Auth / User */}
-          <div className="col-6 col-md-2 order-2 order-md-3 text-end" ref={menuRef}>
+            {/* User / Auth */}
             {isLoggedIn ? (
               <>
                 <button
                   className="iris-btn iris-btn--primary d-inline-flex align-items-center"
-                  aria-expanded={open}
+                  aria-expanded={openUserMenu}
                   aria-haspopup="menu"
-                  onClick={() => setOpen((v) => !v)}
+                  onClick={() => setOpenUserMenu(v => !v)}
                 >
-                  {/* avatar nhỏ nếu có */}
                   {user?.avatar ? (
                     <img
                       src={user.avatar}
                       alt="avatar"
                       className="rounded-circle me-2"
-                      style={{ width: 24, height: 24, objectFit: "cover" }}
+                      style={{ width: 28, height: 28, objectFit: "cover" }}
                     />
                   ) : (
                     <span
                       className="rounded-circle bg-light me-2 d-inline-flex justify-content-center align-items-center"
-                      style={{ width: 24, height: 24 }}
+                      style={{ width: 28, height: 28 }}
                     >
                       <i className="bi bi-person" />
                     </span>
                   )}
-                  <span className="text-truncate" style={{ maxWidth: 120 }}>{displayName}</span>
-                  <i className="bi bi-caret-down-fill ms-2" />
+                  <span className="text-truncate d-none d-sm-inline" style={{ maxWidth: 140 }}>
+                    {displayName}
+                  </span>
+                  <i className="bi bi-caret-down-fill ms-2 d-none d-sm-inline" />
                 </button>
 
                 <ul
                   role="menu"
-                  className={`dropdown-menu dropdown-menu-end iris-dropdown ${open ? "show" : ""}`}
+                  className={`dropdown-menu dropdown-menu-end iris-dropdown ${openUserMenu ? "show" : ""}`}
                   style={{ position: "absolute", right: 0, zIndex: 2000 }}
                 >
                   <li role="none">
-                    <Link className="dropdown-item" role="menuitem" href="/profile" onClick={() => setOpen(false)}>
+                    <Link className="dropdown-item" role="menuitem" href="/profile" onClick={() => setOpenUserMenu(false)}>
                       Trang cá nhân
                     </Link>
                   </li>
@@ -150,6 +163,44 @@ export default function Header() {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Hàng dưới: SEARCH */}
+        {/* Desktop: luôn hiện. Mobile: trượt xuống khi showSearch=true */}
+        <div
+          className={`mobile-search-wrapper ${showSearch ? "is-open" : ""} d-md-none`}
+          aria-hidden={!showSearch}
+        >
+          <form className="w-100 mt-2" role="search" onSubmit={(e) => e.preventDefault()}>
+            <div className="iris-search">
+              <i className="bi bi-search me-2"></i>
+              <input
+                ref={searchRef}
+                type="text"
+                className="form-control iris-input"
+                placeholder="Nhập từ khóa tìm kiếm hoặc hashtag"
+              />
+              <button type="button" className="iris-chip ms-2" aria-label="Bộ lọc">
+                <i className="bi bi-funnel"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div className="d-none d-md-block mt-2">
+          <form className="w-100" role="search" onSubmit={(e) => e.preventDefault()}>
+            <div className="iris-search">
+              <i className="bi bi-search me-2"></i>
+              <input
+                type="text"
+                className="form-control iris-input"
+                placeholder="Nhập từ khóa tìm kiếm hoặc hashtag"
+              />
+              <button type="button" className="iris-chip ms-2" aria-label="Bộ lọc">
+                <i className="bi bi-funnel"></i>
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </header>

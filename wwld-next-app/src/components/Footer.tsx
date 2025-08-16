@@ -1,32 +1,53 @@
 import Link from "next/link";
 
+type SocialLink = {
+  href: string;
+  iconClass: string; // ví dụ: "bi bi-facebook"
+  label: string;     // aria-label
+  extraClass?: string; // ví dụ: "iris-social--fb"
+};
+
+const SOCIALS: SocialLink[] = [
+  { href: "https://facebook.com/", iconClass: "bi bi-facebook", label: "Facebook", extraClass: "iris-social--fb" },
+  { href: "https://twitter.com/", iconClass: "bi bi-twitter", label: "Twitter/X", extraClass: "iris-social--tw" },
+  { href: "https://tiktok.com/", iconClass: "bi bi-tiktok", label: "TikTok", extraClass: "iris-social--tt" },
+  { href: "https://discord.com/", iconClass: "bi bi-discord", label: "Discord", extraClass: "iris-social--dc" },
+];
+
 export default function Footer() {
+  const year = new Date().getFullYear();
+
   return (
     <footer className="iris-footer">
-      <div className="container py-5 text-center">
+      <div className="container py-5 text-center iris-footer__inner">
         <h2 className="iris-footer__title">Liên hệ với chúng tôi</h2>
 
-        <div className="iris-social">
-          <a href="https://facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="iris-social__link iris-social--fb">
-            <i className="bi bi-facebook"></i>
-          </a>
-          <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" aria-label="Twitter/X" className="iris-social__link iris-social--tw">
-            <i className="bi bi-twitter"></i>
-          </a>
-          <a href="https://tiktok.com/" target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="iris-social__link iris-social--tt">
-            <i className="bi bi-tiktok"></i>
-          </a>
-          <a href="https://discord.com/" target="_blank" rel="noopener noreferrer" aria-label="Discord" className="iris-social__link iris-social--dc">
-            <i className="bi bi-discord"></i>
-          </a>
-        </div>
+        {/* Socials */}
+        <nav className="iris-social" aria-label="Kênh mạng xã hội">
+          {SOCIALS.map((s) => (
+            <a
+              key={s.label}
+              href={s.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={s.label}
+              className={`iris-social__link ${s.extraClass || ""}`}
+              title={s.label}
+            >
+              <i className={s.iconClass} aria-hidden="true" />
+              <span className="visually-hidden">{s.label}</span>
+            </a>
+          ))}
+        </nav>
 
+        {/* CTA */}
         <h3 className="iris-muted mt-4 mb-2">Hoặc</h3>
         <Link href="/feedback" className="iris-btn iris-btn--primary iris-btn--pill">
           Gửi phản hồi
         </Link>
 
-        <p className="iris-copy mt-4 mb-0">© {new Date().getFullYear()} WWLD</p>
+        {/* Copy */}
+        <p className="iris-copy mt-4 mb-0">© {year} WWLD</p>
       </div>
     </footer>
   );

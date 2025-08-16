@@ -1,11 +1,63 @@
-export default function Banner() {
+"use client";
+
+import Image from "next/image";
+import clsx from "clsx";
+
+type BannerProps = {
+    src?: string;
+    alt?: string;
+    title?: string;
+    subtitle?: string;
+    /** left | center | right */
+    align?: "left" | "center" | "right";
+    /** chiều cao banner (px), mặc định desktop 320 / mobile 220 */
+    heightDesktop?: number;
+    heightMobile?: number;
+    /** object-position cho ảnh: "center", "50% 30%", ... */
+    objectPosition?: string;
+};
+
+export default function Banner({
+    src = "/images/banner.png",
+    alt = "Banner",
+    title = "Wuthering Waves",
+    subtitle = "Data Lore Set",
+    align = "center",
+    heightDesktop = 320,
+    heightMobile = 220,
+    objectPosition = "center",
+}: BannerProps) {
     return (
-        <div className="banner position-relative">
-            <img src="/images/banner.png" />
-            <div className="gradient-overlay"></div>
+        <div
+            className={clsx("banner position-relative", {
+                "banner--left": align === "left",
+                "banner--center": align === "center",
+                "banner--right": align === "right",
+            })}
+            style={
+                {
+                    // chiều cao linh hoạt theo breakpoint (CSS cũng có fallback)
+                    "--banner-h-desktop": `${heightDesktop}px`,
+                    "--banner-h-mobile": `${heightMobile}px`,
+                } as React.CSSProperties
+            }
+        >
+            {/* Ảnh tối ưu bằng next/image */}
+            <Image
+                src={src}
+                alt={alt}
+                fill
+                priority
+                sizes="100vw"
+                style={{
+                    objectFit: "cover",
+                    objectPosition,
+                }}
+            />
+            <div className="gradient-overlay" aria-hidden="true" />
             <div className="banner-text">
-                <h1>Wuthering Waves</h1>
-                <h1>Data Lore Set</h1>
+                <h1 className="banner-title">{title}</h1>
+                {subtitle && <p className="banner-subtitle">{subtitle}</p>}
             </div>
         </div>
     );

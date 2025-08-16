@@ -27,7 +27,7 @@ export default function HomePage() {
 
 
   return (
-    <div className="container">
+    <div className="container" style={{padding : "0"}}>
       <Header />
       <Banner />
 
