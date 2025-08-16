@@ -18,10 +18,8 @@ type BannerProps = {
 };
 
 export default function Banner({
-    src = "/images/banner.png",
+    src = "/images/Wuthering-Waves-Lore-Data.png",
     alt = "Banner",
-    title = "Wuthering Waves",
-    subtitle = "Data Lore Set",
     align = "center",
     heightDesktop = 320,
     heightMobile = 220,
@@ -55,10 +53,6 @@ export default function Banner({
                 }}
             />
             <div className="gradient-overlay" aria-hidden="true" />
-            <div className="banner-text">
-                <h1 className="banner-title">{title}</h1>
-                {subtitle && <p className="banner-subtitle">{subtitle}</p>}
-            </div>
         </div>
     );
 }
