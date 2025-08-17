@@ -1,9 +1,8 @@
 // next.config.ts
+import { backendUrl } from "@/lib/consts/const";
 import type { NextConfig } from "next";
 
-const RAW = "https://wwld-production.up.railway.app";
-// const RAW = "http://localhost:8080";
-const BACKEND = RAW.replace(/\/$/, ""); // bỏ dấu / cuối
+const BACKEND = backendUrl.replace(/\/$/, ""); // bỏ dấu / cuối
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,

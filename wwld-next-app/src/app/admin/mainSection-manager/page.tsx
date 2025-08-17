@@ -156,6 +156,8 @@ export default function MainSectionManage() {
                                   ? "/admin/characters-list"
                                   : mainSection.name === "Khái niệm Thế giới"
                                     ? "/admin/concept-list"
+                                    : mainSection.name === "Vật phẩm game"
+                                    ? "/admin/items/items-list"
                                     : mainSection.name === "Các mảnh ghi chú"
                                       ? "/admin/note-list"
                                       : `/admin/story-list/${mainSection.id}`,

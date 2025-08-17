@@ -30,6 +30,7 @@ public class SecurityConfig {
                         // Bảo vệ các route backend (nếu có)
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/user/**").hasRole("USER")
+                        .requestMatchers("/ws/**").permitAll()
                         .anyRequest().permitAll()
                 )
                 .httpBasic(AbstractHttpConfigurer::disable);

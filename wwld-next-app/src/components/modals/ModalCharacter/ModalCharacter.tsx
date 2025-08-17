@@ -279,7 +279,7 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
 
   return (
     <div className="modal d-block" tabIndex={-1} style={{ background: "rgba(0,0,0,0.5)" }}>
-      <div className="modal-dialog modal-lg">
+      <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
         <div className="modal-content">
           <div className="modal-header">
             <h5>{initialData ? "Sửa nhân vật" : "Thêm nhân vật"}</h5>

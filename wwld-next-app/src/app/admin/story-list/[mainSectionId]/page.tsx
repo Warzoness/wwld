@@ -18,7 +18,7 @@ export default function StoryListPage() {
     const [stories, setStories] = useState<Story[]>([]);
     const [loading, setLoading] = useState(true);
     const [viewMode, setViewMode] = useState<"card" | "table">("card");
-    const [filterType, setFilterType] = useState<"all" | "chapter" | "screen">("all");
+    const [filterType, setFilterType] = useState<"all" | "chapter" | "screen">("chapter");
 
     const [showModal, setShowModal] = useState(false);
     const [editStory, setEditStory] = useState<Story | undefined>(undefined);
@@ -147,21 +147,6 @@ export default function StoryListPage() {
                     <option value="chapter">Chương</option>
                     <option value="screen">Màn</option>
                 </select>
-
-                <div>
-                    <button
-                        className={`btn btn-outline-primary me-2 ${viewMode === "card" ? "active" : ""}`}
-                        onClick={() => setViewMode("card")}
-                    >
-                        Dạng thẻ
-                    </button>
-                    <button
-                        className={`btn btn-outline-secondary ${viewMode === "table" ? "active" : ""}`}
-                        onClick={() => setViewMode("table")}
-                    >
-                        Dạng bảng
-                    </button>
-                </div>
             </div>
 
             {selectedChapterId !== null && (

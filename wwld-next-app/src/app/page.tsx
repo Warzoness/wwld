@@ -52,7 +52,7 @@ export default function HomePage() {
             }
 
             return (
-              <div className="col-md-4 col-sm-6" key={mainSection.id}>
+              <div className="col-md-3 col-sm-6" key={mainSection.id}>
                 {(() => {
                   // Đổi màu nhấn theo từng section (tuỳ bạn tinh chỉnh)
                   const accent =
@@ -91,6 +91,8 @@ export default function HomePage() {
                                   ? "/user/character-list"
                                   : mainSection.name === "Khái niệm Thế giới"
                                     ? "/user/concept-list"
+                                    : mainSection.name === "Vật phẩm game"
+                                    ? "/user/items/items-list"
                                     : mainSection.name === "Các mảnh ghi chú"
                                       ? "/user/note-list"
                                       : `/user/story-list/${mainSection.id}`,

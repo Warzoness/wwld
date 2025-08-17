@@ -15,8 +15,9 @@ export async function login(payload: { username: string; hashpassword: string })
   await fetch("/api/auth/set-session", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ role: data.userDTO.role }),
+    body: JSON.stringify({ user: data.userDTO }), // gửi full userDTO
   });
+
 
 
   return data.userDTO;

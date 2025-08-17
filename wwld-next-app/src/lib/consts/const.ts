@@ -1,4 +1,3 @@
-import { useParams } from "next/navigation";
 
 export const PASSCODE = "1";
 // export const backendUrl = "http://localhost:8080";

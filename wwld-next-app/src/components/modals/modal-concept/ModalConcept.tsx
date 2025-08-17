@@ -7,6 +7,7 @@ import {
   type ConceptPayload,
 } from "@/lib/services/conceptService";
 import { handleImageUpload } from "@/lib/services/uploadService";
+import { backendUrl } from "@/lib/consts/const";
 
 /** ===== Helper: slugify ===== */
 const slugify = (input: string) =>
@@ -43,7 +44,6 @@ const toUrlString = (input: unknown): string | null => {
 };
 
 // Chuẩn hoá về FULL URL dựa trên backendUrl
-const backendUrl = "https://wwld-production.up.railway.app";
 const toFullImageUrl = (input: unknown): string | null => {
   if (!input) return null;
   if (typeof input === "string") {
@@ -279,125 +279,125 @@ const ConceptModal: React.FC<ConceptModalProps> = ({
       tabIndex={-1}
       style={{ background: "rgba(0,0,0,0.5)" }}
     >
-      <div className="modal-dialog modal-lg">
-        <div className="modal-content">
-          <div className="modal-header bg-primary text-white">
-            <h5 className="modal-title fw-bold">
-              {initialData ? "✏️ Sửa concept" : "➕ Thêm concept"}
-            </h5>
-            <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
-          </div>
+        <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+          <div className="modal-content">
+            <div className="modal-header bg-primary text-white">
+              <h5 className="modal-title fw-bold">
+                {initialData ? "✏️ Sửa concept" : "➕ Thêm concept"}
+              </h5>
+              <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
+            </div>
 
-          <div className="modal-body">
-            {error && <div className="alert alert-danger py-2">{error}</div>}
+            <div className="modal-body">
+              {error && <div className="alert alert-danger py-2">{error}</div>}
 
-            <div className="row g-3">
-              <div className="col-md-6">
-                <label className="form-label">Tiêu đề *</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="col-md-6">
-                <label className="form-label">Slug *</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  name="slug"
-                  value={formData.slug}
-                  onChange={handleChange}
-                  placeholder="slug-tu-dong-theo-tieu-de"
-                />
-              </div>
-
-              <div className="col-md-12">
-                <label className="form-label">Mô tả ngắn</label>
-                <textarea
-                  className="form-control"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  rows={3}
-                />
-              </div>
-
-              <div className="col-md-12">
-                <label className="form-label">Nội dung (Markdown)</label>
-                <textarea
-                  className="form-control"
-                  name="contentMd"
-                  value={formData.contentMd}
-                  onChange={handleChange}
-                  rows={6}
-                />
-              </div>
-
-              {/* IMAGE */}
-              <div className="col-md-12">
-                <label className="form-label fw-semibold">🖼 Ảnh minh họa</label>
-                <div
-                  className="border border-2 rounded-3 p-3 text-center position-relative"
-                  style={{ minHeight: 150, cursor: "pointer", backgroundColor: "#f9f9f9" }}
-                  onClick={() => document.getElementById("concept-image-input")?.click()}
-                  onDragOver={e => { e.preventDefault(); e.stopPropagation(); }}
-                  onDrop={handleDrop}
-                >
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <label className="form-label">Tiêu đề *</label>
                   <input
-                    id="concept-image-input"
-                    type="file"
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    onChange={handleFileChange}
+                    type="text"
+                    className="form-control"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleChange}
                   />
-                  {preview ? (
-                    <div>
-                      <img
-                        src={preview}
-                        alt="Preview"
-                        className="img-fluid rounded shadow-sm"
-                        style={{ maxHeight: 160 }}
-                      />
-                      <div className="mt-2">
-                        <small className="text-muted">
-                          {uploading ? "Đang tải ảnh..." : "Nhấn để thay ảnh"}
-                        </small>
-                      </div>
-                    </div>
-                  ) : (
-                    <span className="text-muted">📤 Chọn hoặc kéo-thả ảnh vào đây</span>
-                  )}
                 </div>
 
-                {/* Cho phép nhập URL tay (full URL) nếu muốn */}
-                <input
-                  type="text"
-                  className="form-control mt-2"
-                  name="conceptImage"
-                  placeholder="https://domain.com/uploads/abc.jpg"
-                  value={formData.conceptImage}
-                  onChange={handleChange}
-                />
+                <div className="col-md-6">
+                  <label className="form-label">Slug *</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="slug"
+                    value={formData.slug}
+                    onChange={handleChange}
+                    placeholder="slug-tu-dong-theo-tieu-de"
+                  />
+                </div>
+
+                <div className="col-md-12">
+                  <label className="form-label">Mô tả ngắn</label>
+                  <textarea
+                    className="form-control"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    rows={3}
+                  />
+                </div>
+
+                <div className="col-md-12">
+                  <label className="form-label">Nội dung (Markdown)</label>
+                  <textarea
+                    className="form-control"
+                    name="contentMd"
+                    value={formData.contentMd}
+                    onChange={handleChange}
+                    rows={6}
+                  />
+                </div>
+
+                {/* IMAGE */}
+                <div className="col-md-12">
+                  <label className="form-label fw-semibold">🖼 Ảnh minh họa</label>
+                  <div
+                    className="border border-2 rounded-3 p-3 text-center position-relative"
+                    style={{ minHeight: 150, cursor: "pointer", backgroundColor: "#f9f9f9" }}
+                    onClick={() => document.getElementById("concept-image-input")?.click()}
+                    onDragOver={e => { e.preventDefault(); e.stopPropagation(); }}
+                    onDrop={handleDrop}
+                  >
+                    <input
+                      id="concept-image-input"
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={handleFileChange}
+                    />
+                    {preview ? (
+                      <div>
+                        <img
+                          src={preview}
+                          alt="Preview"
+                          className="img-fluid rounded shadow-sm"
+                          style={{ maxHeight: 160 }}
+                        />
+                        <div className="mt-2">
+                          <small className="text-muted">
+                            {uploading ? "Đang tải ảnh..." : "Nhấn để thay ảnh"}
+                          </small>
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-muted">📤 Chọn hoặc kéo-thả ảnh vào đây</span>
+                    )}
+                  </div>
+
+                  {/* Cho phép nhập URL tay (full URL) nếu muốn */}
+                  <input
+                    type="text"
+                    className="form-control mt-2"
+                    name="conceptImage"
+                    placeholder="https://domain.com/uploads/abc.jpg"
+                    value={formData.conceptImage}
+                    onChange={handleChange}
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="modal-footer">
-            <button className="btn btn-secondary" onClick={onClose}>Hủy</button>
-            <button
-              className="btn btn-primary"
-              onClick={handleSubmit}
-              disabled={loading || uploading}
-              title={uploading ? "Vui lòng đợi ảnh tải xong" : undefined}
-            >
-              {loading ? "Đang lưu..." : "Lưu"}
-            </button>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={onClose}>Hủy</button>
+              <button
+                className="btn btn-primary"
+                onClick={handleSubmit}
+                disabled={loading || uploading}
+                title={uploading ? "Vui lòng đợi ảnh tải xong" : undefined}
+              >
+                {loading ? "Đang lưu..." : "Lưu"}
+              </button>
+            </div>
           </div>
-        </div>
       </div>
     </div>
   );

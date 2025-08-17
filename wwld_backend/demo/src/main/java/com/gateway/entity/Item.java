@@ -2,7 +2,11 @@ package com.gateway.entity;
 
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 @Table(name="items")
 public class Item {
@@ -28,4 +32,7 @@ public class Item {
 
     @Column(name="type")
     private String type;
+
+    @Column(name="slug")
+    private String slug;
 }

@@ -9,7 +9,9 @@ import { fetchNoteDataById } from "@/lib/services/noteListService";
 import { Dialog, StoryData } from "@/lib/types/dialog";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import styles from "@/app/admin/story-detail/[storyId]/StoryDetailPage.module.css"; // <-- CSS module mới
+import styles from "@/app/admin/story-detail/[storyId]/StoryDetailPage.module.css";
+import { fetchOneCharacterById } from "@/lib/services/characterService";
+import BackButton from "@/components/buttons/back-button/page";
 
 interface NoteDataDTO {
   id: number;
@@ -20,7 +22,17 @@ interface NoteDataDTO {
   image: string;
 }
 
-type DialogEx = Dialog & { parentId?: number | null };
+/** Mở rộng để chứa đủ dữ liệu dùng cho chat + avatar */
+type DialogEx = Dialog & {
+  parentId?: number | null;
+  avatar?: string | null;           // 👈 nếu BE trả trực tiếp kèm dialog
+  characterName?: string | null;
+  noNameCharacter?: string | null;
+};
+
+
+
+
 type DialogNode = DialogEx & { children: DialogNode[] };
 
 export default function StoryDetailPage() {
@@ -31,6 +43,12 @@ export default function StoryDetailPage() {
   const [showModal, setShowModal] = useState(false);
   const [editDialog, setEditDialog] = useState<Dialog | undefined>(undefined);
 
+  const [showPassModal, setShowPassModal] = useState(false);
+  type PendingAction = { type: "edit"; data: Dialog } | { type: "delete"; data: number };
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
+
+  const [passInput, setPassInput] = useState("");
+  const [passError, setPassError] = useState("");
 
   const [pageNumber, setPageNumber] = useState(0);
   const [pageSize] = useState(30);
@@ -46,6 +64,8 @@ export default function StoryDetailPage() {
   const [noteData, setNoteData] = useState<NoteDataDTO | null>(null);
   const [noteErr, setNoteErr] = useState<string | null>(null);
 
+  const [charAvatarMap, setCharAvatarMap] = useState<Map<number, string>>(new Map());
+
   const handleOpenNote = async (id: number) => {
     try {
       setNoteErr(null);
@@ -59,27 +79,6 @@ export default function StoryDetailPage() {
 
   // ===== Parent for new dialog =====
   const [parentForNew, setParentForNew] = useState<number | null>(null);
-  // ===== Load data =====
-  useEffect(() => {
-    const storyData = sessionStorage.getItem("storyData");
-    if (storyData) setStoryData(JSON.parse(storyData));
-    if (!params.storyId) return;
-
-    const load = async () => {
-      setLoading(true);
-      try {
-        const data = await fetchDialogPagesByStoryId(Number(params.storyId), pageNumber, pageSize);
-        setDialogDetail(data.dialogs as DialogEx[]);
-        setTotalItem(data.totalItem);
-      } catch {
-        setDialogDetail([]);
-        setTotalItem(0);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, [params.storyId, pageNumber, pageSize]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 0 && newPage < totalPages) {
@@ -87,6 +86,8 @@ export default function StoryDetailPage() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
+
+
 
   // ===== Build tree (giữ thứ tự theo orderIndex trong từng cấp) =====
   const tree: DialogNode[] = useMemo(() => {
@@ -112,152 +113,210 @@ export default function StoryDetailPage() {
     return roots;
   }, [dialogDetail]);
 
-  // ===== Collapse state để “dễ đọc” =====
-  const [collapsed, setCollapsed] = useState<Set<number>>(new Set());
-  const toggleCollapse = (id: number) => {
-    setCollapsed(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  };
-  const collapseAll = () => {
-    const allIds = new Set<number>();
-    const walk = (nodes: DialogNode[]) => {
-      nodes.forEach(n => {
-        if (n.children.length) allIds.add(n.id);
-        walk(n.children);
-      });
-    };
-    walk(tree);
-    setCollapsed(allIds);
-  };
-  const expandAll = () => setCollapsed(new Set());
+  // ===== Helpers =====
+  const isMainChar = (n: DialogNode) => n.type === 2; // type=2 là lời của Rover (nhân vật chính)
+  const isSystem = (n: DialogNode) => n.type === 3; // system / thuyết minh hệ thống
+  const isImage = (n: DialogNode) => n.type === 0; // node hình ảnh
 
-
-  // ===== Helpers hiển thị =====
-  const chipColor = (n: DialogNode) =>
-    n.type === 1 ? styles.chipLine
-      : n.type === 2 ? styles.chipNarr
-        : n.type === 3 ? styles.chipSys
-          : styles.chipImg;
-
-  const bubbleClass = (n: DialogNode) =>
-    n.type === 1 ? styles.bubbleLine
-      : n.type === 2 ? styles.bubbleNarr
-        : n.type === 3 ? styles.bubbleSys
-          : styles.bubbleImg;
 
   const displayName = (n: DialogNode) =>
     n.type === 2
       ? "Rover"
-      : n.characterId
-        ? n.characterName
-        : n.noNameCharacter || "????";
+      : (n.characterName || n.noNameCharacter || "????");
 
-  // ===== Node renderer (có gấp/mở) =====
+  const getAvatarUrl = (n: DialogEx) => {
+    // Nếu là Rover (type = 2 hoặc tên hiển thị = Rover)
+    if (n.type === 2 || (n.characterName && n.characterName === "Rover")) {
+      return "/images/rover.jpg";
+    }
+
+    // Nếu NPC không có tên
+    if (!n.characterName && !n.noNameCharacter) {
+      return "/images/npc.jpg";
+    }
+
+    // Ưu tiên avatar trực tiếp từ node
+    if (n.avatar) {
+      const u = getImageUrl(n.avatar);
+      if (u) return u;
+    }
+
+    // Ưu tiên avatar từ cache
+    if (n.characterId && charAvatarMap.has(Number(n.characterId))) {
+      const raw = charAvatarMap.get(Number(n.characterId))!;
+      const u = getImageUrl(raw);
+      if (u) return u;
+    }
+
+    // Fallback chung
+    return "/images/npc.jpg";
+  };
+
+
+
+
+
+  // ===== Node renderer (chat Zalo) =====
   const Node = ({ node, level }: { node: DialogNode; level: number }) => {
     const hasChildren = node.children.length > 0;
-    const isCollapsed = collapsed.has(node.id);
-    const indentStyle = { marginLeft: `${level * 20}px` };
 
-    if (node.type === 0) {
-      // Media node
+
+    // 1) Hình ảnh: canh giữa, vẫn giữ tool + có thể có con
+    if (isImage(node)) {
       return (
-        <div className={`${styles.node} ${styles.mediaNode}`} style={indentStyle}>
-          <div className={styles.treeGuide} aria-hidden />
-          <div className={styles.mediaCard}>
-            <div className={styles.mediaHeader}>
-              {hasChildren && (
-                <button
-                  className={styles.toggle}
-                  onClick={() => toggleCollapse(node.id)}
-                  title={isCollapsed ? "Mở nhánh" : "Gấp nhánh"}
-                >
-                  {isCollapsed ? <i className="bi bi-caret-right-fill" /> : <i className="bi bi-caret-down-fill" />}
-                </button>
-              )}
-              <span className={`${styles.chip} ${chipColor(node)}`}>
-                <i className="bi bi-image" /> Hình ảnh
-              </span>
-              {hasChildren && <span className={styles.count}>{node.children.length}</span>}
-              <div className={styles.spacer} />
-            </div>
-
-            {!isCollapsed && (
-              <div className={styles.mediaBody}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={getImageUrl(node.image) || "/default-image.png"} alt="Dialog Image" />
-              </div>
-            )}
+        <div className={styles.node}>
+          <div className={styles.mediaBubble}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={getImageUrl(node.image) || "/default-image.png"} alt="Dialog Image" />
           </div>
 
-          {/* children */}
-          {!isCollapsed && node.children.length > 0 && node.children.map(c => (
-            <Node key={c.id} node={c} level={level + 1} />
-          ))}
+          {hasChildren && (
+            <div className={styles.dialogDivider}>
+              {node.children.map(c => (
+                <Node key={c.id} node={c} level={level + 1} />
+              ))}
+            </div>
+          )}
         </div>
       );
     }
 
-    // Textual node
-    const isSys = node.type === 3;
-
-    return (
-      <div className={styles.node} style={indentStyle}>
-        <div className={styles.treeGuide} aria-hidden />
-        <div className={`${styles.row} ${isSys ? styles.rowSys : ""}`}>
-          <div className={styles.rowHead}>
-            {hasChildren && (
-              <button
-                className={styles.toggle}
-                onClick={() => toggleCollapse(node.id)}
-                title={isCollapsed ? "Mở nhánh" : "Gấp nhánh"}
-              >
-                {isCollapsed ? <i className="bi bi-caret-right-fill" /> : <i className="bi bi-caret-down-fill" />}
-              </button>
-            )}
-            {!isSys && (
-              <span className={`${styles.chip} ${chipColor(node)}`} title={displayName(node) || ""}>
-                <i className="bi bi-person" />
-                <span className={styles.chipText}>{displayName(node)}</span>
-              </span>
-            )}
-            {hasChildren && <span className={styles.count}>{node.children.length}</span>}
-            <div className={styles.spacer} />
+    // 2) System line: canh giữa, chữ nghiêng
+    if (isSystem(node)) {
+      return (
+        <div className={styles.node}>
+          <div className={`${styles.chatRow} ${styles.center}`}>
+            <div className={`${styles.bubbleSysChat}`}>
+              <MentionHighlighter text={node.content} onNoteOpen={handleOpenNote} />
+            </div>
           </div>
 
-          {!isCollapsed && (
-            <div className={`${styles.bubble} ${bubbleClass(node)} ${isSys ? styles.centerText : ""}`}>
-              <MentionHighlighter text={node.content} onNoteOpen={handleOpenNote} />
+          {hasChildren && (
+            <div className={styles.dialogDivider}>
+              {node.children.map(c => (
+                <Node key={c.id} node={c} level={level + 1} />
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // 3) Tin nhắn trái/phải kiểu Zalo
+    // 3) Tin nhắn trái/phải kiểu Zalo
+    const rightSide = isMainChar(node); // Rover => true
+    const avatarUrl = getAvatarUrl(node);
+
+    return (
+      <div className={styles.node}>
+        {/* // ✅ Bubble + Avatar: giữ như lần trước (tên chỉ ở trên avatar) */}
+        <div className={`${styles.chatRow} ${rightSide ? styles.right : styles.left}`}>
+          {!rightSide && (
+            <div className={styles.avatarBlock}>
+              <div className={styles.avatarName}>{displayName(node)}</div>
+              <img src={avatarUrl} alt="avatar" className={styles.avatar} />
+            </div>
+          )}
+
+          <div className={`${styles.bubbleChat} ${rightSide ? styles.bubbleRight : styles.bubbleLeft}`}>
+            <MentionHighlighter text={node.content} onNoteOpen={handleOpenNote} />
+          </div>
+
+          {rightSide && (
+            <div className={styles.avatarBlock}>
+              <div className={styles.avatarName}>{displayName(node)}</div>
+              <img src={avatarUrl} alt="avatar" className={styles.avatar} />
             </div>
           )}
         </div>
 
-        {/* children */}
-        {!isCollapsed && node.children.length > 0 && node.children.map(c => (
-          <Node key={c.id} node={c} level={level + 1} />
-        ))}
+
+
+
+        {hasChildren && (
+          <div className={styles.dialogDivider}>
+            {node.children.map(c => (
+              <Node key={c.id} node={c} level={level + 1} />
+            ))}
+          </div>
+        )}
       </div>
     );
   };
 
+  // ===== Move up/down (giữ như cũ) =====
+  const handleOrderChange = (dialogId: number, direction: "up" | "down") => {
+    const currentIndex = dialogDetail.findIndex(d => d.id === dialogId);
+    if (currentIndex === -1) return;
+    const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    if (newIndex < 0 || newIndex >= dialogDetail.length) return;
+
+    const updated = [...dialogDetail];
+    [updated[currentIndex], updated[newIndex]] = [updated[newIndex], updated[currentIndex]];
+    setDialogDetail(updated);
+    updateDialogOrder(dialogId, newIndex).catch(() => {
+      alert("Cập nhật thứ tự hội thoại thất bại!");
+    });
+  };
+
+  // ===== Load data =====
+  // useEffect giữ nguyên để load storyData + dialog
+  useEffect(() => {
+    const cached = sessionStorage.getItem("storyData");
+    if (cached) setStoryData(JSON.parse(cached));
+    if (!params.storyId) return;
+
+    const load = async () => {
+      setLoading(true);
+      try {
+        const data = await fetchDialogPagesByStoryId(Number(params.storyId), pageNumber, pageSize);
+        setDialogDetail(data.dialogs as DialogEx[]);
+        setTotalItem(data.totalItem);
+      } catch {
+        setDialogDetail([]);
+        setTotalItem(0);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [params.storyId, pageNumber, pageSize]);
+
+  // 👇 useEffect riêng để fetch avatar theo characterId
+  useEffect(() => {
+    const neededIds = Array.from(
+      new Set(
+        dialogDetail
+          .filter(d => !!d.characterId && !d.avatar && !charAvatarMap.has(Number(d.characterId)))
+          .map(d => Number(d.characterId))
+      )
+    );
+    if (neededIds.length === 0) return;
+
+    let mounted = true;
+    (async () => {
+      try {
+        const results = await Promise.allSettled(neededIds.map(id => fetchOneCharacterById(id)));
+        const next = new Map(charAvatarMap);
+        results.forEach((res, idx) => {
+          if (res.status === "fulfilled" && res.value) {
+            const id = neededIds[idx];
+            const url = res.value.avatar || "";
+            if (url) next.set(id, url);
+          }
+        });
+        if (mounted) setCharAvatarMap(next);
+      } catch { }
+    })();
+
+    return () => { mounted = false; };
+  }, [dialogDetail, charAvatarMap]);
+
+
+
   return (
     <div className={`container py-4 ${styles.page}`}>
-      {/* Top actions */}
-      <div className={styles.topbar}>
-        <button className="iris-ghost" onClick={() => window.history.back()}>
-          <i className="bi bi-arrow-left" /> Quay lại
-        </button>
-        <div className={styles.topbarRight}>
-          <button className="iris-btn" onClick={expandAll} title="Mở tất cả nhánh">
-            <i className="bi bi-arrows-expand" /> Expand all
-          </button>
-          <button className="iris-btn" onClick={collapseAll} title="Gấp tất cả nhánh">
-            <i className="bi bi-arrows-collapse" /> Collapse all
-          </button>
-        </div>
-      </div>
+      <BackButton label="Quay lại" />
 
       {/* Title */}
       <div className={styles.hero}>
@@ -287,7 +346,7 @@ export default function StoryDetailPage() {
               ))}
             </div>
           ) : (
-            <div className={styles.tree}>
+            <div className={styles.chatStream}>
               {tree.map(node => <Node key={node.id} node={node} level={0} />)}
             </div>
           )}
@@ -330,13 +389,32 @@ export default function StoryDetailPage() {
 
       {/* Scroll to top */}
       <button
-        className={`${styles.fab}`}
+        className={styles.fab}
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         title="Lên đầu trang"
         aria-label="Lên đầu trang"
       >
         <i className="bi bi-arrow-up-circle" />
       </button>
+
+
+      {/* Note viewer */}
+      <NoteViewModal
+        open={noteOpen}
+        note={
+          noteData
+            ? {
+              id: noteData.id,
+              noteName: noteData.noteName,
+              noteContent: noteData.noteContent,
+              storyId: noteData.storyId,
+              description: noteData.description,
+              image: noteData.image,
+            }
+            : null
+        }
+        onClose={() => setNoteOpen(false)}
+      />
 
       {noteErr && <div className="text-danger mt-2">{noteErr}</div>}
     </div>

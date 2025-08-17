@@ -6,6 +6,7 @@ import { MainSectionPayload } from "@/lib/services/mainSectionService";
 import { addStory, fetchChapters, StoryPayload, updateStory } from "@/lib/services/storyService";
 import { fetchMainSection } from "@/lib/services/mainSectionService";
 import { handleImageUpload } from "@/lib/services/uploadService";
+import { backendUrl } from "@/lib/consts/const";
 
 interface StoryModalProps {
   show: boolean;
@@ -42,7 +43,6 @@ const StoryModal: React.FC<StoryModalProps> = ({ show, onClose, onSuccess, initi
       setType(initialData.type ?? 0);
       setParentId(initialData.parentId || 0);
 
-      const backendUrl = "https://wwld-production.up.railway.app";
       let img = "";
 
       if (initialData.image) {

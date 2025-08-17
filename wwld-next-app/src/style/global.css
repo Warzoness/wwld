@@ -758,6 +758,7 @@ body {
 .modal-footer {
   border-color: var(--iris-border);
 }
+
 /* Tôn trọng safe-area trên máy có tai thỏ */
 .iris-footer__inner {
   padding-bottom: max(2rem, env(safe-area-inset-bottom));
@@ -766,10 +767,14 @@ body {
 /* Ẩn văn bản dành cho screen reader */
 .visually-hidden {
   position: absolute !important;
-  width: 1px; height: 1px;
-  padding: 0; margin: -1px;
-  overflow: hidden; clip: rect(0,0,0,0);
-  white-space: nowrap; border: 0;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .form-control {
@@ -1002,4 +1007,42 @@ body {
 .iris-chip {
   min-width: 36px;
   min-height: 36px;
+}
+
+/* Css thanh trượt  */
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  /* auto | thin | none */
+  scrollbar-color: #334155 transparent;
+  /* thumb | track */
+}
+
+/* Chromium/WebKit (Chrome, Edge, Safari, Opera) */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  /* cho thanh ngang */
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #475569, #334155);
+  border: 2px solid transparent;
+  /* tạo “rãnh” */
+  background-clip: padding-box;
+  /* viền trong suốt */
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #64748b, #475569);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+  /* góc ô cuộn */
 }

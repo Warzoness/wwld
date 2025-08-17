@@ -107,50 +107,59 @@ export default function Header() {
             {/* User / Auth */}
             {isLoggedIn ? (
               <>
-                <button
-                  className="iris-btn iris-btn--primary d-inline-flex align-items-center"
-                  aria-expanded={openUserMenu}
-                  aria-haspopup="menu"
-                  onClick={() => setOpenUserMenu(v => !v)}
-                >
-                  {user?.avatar ? (
-                    <img
-                      src={user.avatar}
-                      alt="avatar"
-                      className="rounded-circle me-2"
-                      style={{ width: 28, height: 28, objectFit: "cover" }}
-                    />
-                  ) : (
-                    <span
-                      className="rounded-circle bg-light me-2 d-inline-flex justify-content-center align-items-center"
-                      style={{ width: 28, height: 28 }}
-                    >
-                      <i className="bi bi-person" />
+                <div className="dropdown" ref={menuRef}>
+                  <button
+                    className="iris-btn iris-btn--primary d-inline-flex align-items-center dropdown-toggle"
+                    aria-expanded={openUserMenu}
+                    onClick={() => setOpenUserMenu(v => !v)}
+                  >
+                    {user?.avatar ? (
+                      <img
+                        src={user.avatar}
+                        alt="avatar"
+                        className="rounded-circle me-2"
+                        style={{ width: 28, height: 28, objectFit: "cover" }}
+                      />
+                    ) : (
+                      <span
+                        className="rounded-circle bg-light me-2 d-inline-flex justify-content-center align-items-center"
+                        style={{ width: 28, height: 28 }}
+                      >
+                        <i className="bi bi-person" />
+                      </span>
+                    )}
+                    <span className="text-truncate d-none d-sm-inline" style={{ maxWidth: 140 }}>
+                      {displayName}
                     </span>
-                  )}
-                  <span className="text-truncate d-none d-sm-inline" style={{ maxWidth: 140 }}>
-                    {displayName}
-                  </span>
-                  <i className="bi bi-caret-down-fill ms-2 d-none d-sm-inline" />
-                </button>
+                  </button>
 
-                <ul
-                  role="menu"
-                  className={`dropdown-menu dropdown-menu-end iris-dropdown ${openUserMenu ? "show" : ""}`}
-                  style={{ position: "absolute", right: 0, zIndex: 2000 }}
-                >
-                  <li role="none">
-                    <Link className="dropdown-item" role="menuitem" href="/profile" onClick={() => setOpenUserMenu(false)}>
-                      Trang cá nhân
-                    </Link>
-                  </li>
-                  <li><hr className="dropdown-divider" /></li>
-                  <li role="none">
-                    <button className="dropdown-item text-danger" role="menuitem" onClick={onLogout}>
-                      Đăng xuất
-                    </button>
-                  </li>
-                </ul>
+                  <ul
+                    role="menu"
+                    className={`dropdown-menu dropdown-menu-end ${openUserMenu ? "show" : ""}`}
+                  >
+                    <li>
+                      <Link className="dropdown-item" href="/profile" onClick={() => setOpenUserMenu(false)}>
+                        Trang cá nhân
+                      </Link>
+                    </li>
+
+                    {user?.role === "ADMIN" && (
+                      <li>
+                        <Link className="dropdown-item" href="/admin/dashboard" onClick={() => setOpenUserMenu(false)}>
+                          Quản lý nội dung
+                        </Link>
+                      </li>
+                    )}
+
+                    <li><hr className="dropdown-divider" /></li>
+                    <li>
+                      <button className="dropdown-item text-danger" onClick={onLogout}>
+                        Đăng xuất
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+
               </>
             ) : (
               <div className="d-inline-flex gap-2">

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { MainSectionPayload, addMainSection, updateMainSection } from "@/lib/services/mainSectionService";
 import { handleImageUpload } from "@/lib/services/uploadService";
+import { backendUrl } from "@/lib/consts/const";
 
 interface MainSectionModalProps {
   show: boolean;
@@ -24,8 +25,6 @@ const MainSectionModal: React.FC<MainSectionModalProps> = ({ show, onClose, onSu
       setName(initialData.name);
       setDescription(initialData.description || "");
       let img = "";
-      // const backendUrl = "http://localhost:8080";
-  const backendUrl = "https://wwld-production.up.railway.app"; // Đổi thành domain backend của bạn
       if (initialData.image) {
         if (initialData.image.startsWith("http")) {
           img = initialData.image;

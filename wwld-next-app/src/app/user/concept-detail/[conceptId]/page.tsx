@@ -5,6 +5,7 @@ import styles from "@/app/admin/concept-detail/[conceptId]/ConceptDetail.module.
 import { useParams } from "next/navigation";
 import { fetchOneConceptById } from "@/lib/services/conceptService";
 import { Concept, ConceptPayload } from "@/lib/types/concept";
+import BackButton from "@/components/buttons/back-button/page";
 
 
 export default function ConceptDetailPage() {
@@ -75,7 +76,7 @@ export default function ConceptDetailPage() {
     <div className={styles.wapper}>
       <div className={styles.page}>
         <div className="container py-4">
-
+        <BackButton label="Quay lại" />
           {/* Hàng trên: ảnh chính + mô tả */}
           <div className="row g-4 align-items-start">
             {/* Ảnh chính (trái) */}
