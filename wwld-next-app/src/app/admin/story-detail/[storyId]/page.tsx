@@ -169,7 +169,7 @@ export default function StoryDetailPage() {
   const getAvatarUrl = (n: DialogEx) => {
     // Nếu là Rover (type = 2 hoặc tên hiển thị = Rover)
     if (n.type === 2 || (n.characterName && n.characterName === "Rover")) {
-      return "/images/rover.jpg";
+      return getImageUrl("/images/Rover.jpg");
     }
 
     // Nếu NPC không có tên
