@@ -22,12 +22,17 @@ public class CharacterBusinessImpl implements CharacterBusiness {
     }
 
     @Override
+    public List<CharacterDTO> findCharactersByRankAndisLimited(GetCharacterRequest request) {
+        return characterDAO.findCharactersByRankAndisLimited(request.getId(), request.getName(), request.getCharacterRank(), request.getIsLimited());
+    }
+
+    @Override
     public GameCharacter createCharacter(GetCharacterRequest request) throws Exception {
-        try{
+        try {
             GameCharacter character = new GameCharacter();
             setCharacter(request, character);
             return characterDAO.save(character);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -60,7 +65,7 @@ public class CharacterBusinessImpl implements CharacterBusiness {
         CharacterDTO characterDTO = characterDAO.findOneById(id);
         if (characterDTO != null) {
             return characterDTO;
-        }else {
+        } else {
             throw new Exception("Character not found");
         }
     }
@@ -79,11 +84,8 @@ public class CharacterBusinessImpl implements CharacterBusiness {
         character.setOtherInformation(request.getOtherInformation());
         character.setHeight(request.getHeight());
         character.setCombatStyle(request.getCombatStyle());
-        character.setMainQuestId(request.getMainQuestId());
-        character.setSideQuestId(request.getSideQuestId());
-        character.setEventQuestId(request.getEventQuestId());
-        character.setAreaId(request.getAreaId());
-        character.setMemeId(request.getMemeId());
-        character.setType(request.getType());
+        character.setCharacterType(request.getCharacterType());
+        character.setCharacterRank(request.getCharacterRank());
+        character.setIsLimited(request.getIsLimited());
     }
 }

@@ -1,6 +1,5 @@
 package com.gateway.dao;
 
-import com.gateway.dto.AreaDTO;
 import com.gateway.dto.UserDTO;
 import com.gateway.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;

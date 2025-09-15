@@ -1,0 +1,46 @@
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.6);
+  display: grid; place-items: center;
+  z-index: 60;
+}
+.modal {
+  width: min(720px, 94vw);
+  background: #0b1020;
+  border: 1px solid #1f2937;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.45);
+}
+.head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px; border-bottom: 1px solid #1f2937;
+}
+.iconbtn {
+  background: transparent; border: 0; color: #e5e7eb; cursor: pointer; font-size: 18px;
+}
+.body { padding: 14px; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > span { color: #94a3b8; font-size: 13px; }
+.field input, .field select {
+  background: #111827; color: #e5e7eb;
+  border: 1px solid #1f2937; border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.actions {
+  display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px;
+}
+.btn { background:#1f2937; border:1px solid #334155; color:#e5e7eb; padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600; }
+.btn:hover { background:#243041; }
+.btnPrimary { background:#334155; border-color:#475569; }
+.btnDanger { background: #3b0d0d; border-color: #6b1111; }
+
+@media (max-width: 680px) {
+  .grid { grid-template-columns: 1fr; }
+}

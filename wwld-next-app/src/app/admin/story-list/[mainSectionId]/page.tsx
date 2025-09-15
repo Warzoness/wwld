@@ -33,58 +33,10 @@ export default function StoryListPage() {
     const [passInput, setPassInput] = useState("");
     const [passError, setPassError] = useState("");
 
-    useEffect(() => {
-        const load = async () => {
-            try {
-                const data = await fetchStoriesByMainSectionId(mainSectionId);
-                setStories(data);
-            } catch {
-                setStories([]);
-            }
-            setLoading(false);
-        };
-        if (mainSectionId) load();
-    }, [mainSectionId]);
+    const ITEMS_PER_PAGE = 6;
+    const [currentPage, setCurrentPage] = useState(1);
 
-    const handleOpenAdd = () => {
-        setEditStory(undefined);
-        setShowModal(true);
-    };
-
-    const handleDelete = (storyId: number) => {
-        setPendingAction({ type: "delete", data: storyId });
-        setShowPassModal(true);
-    };
-
-    const handleEdit = (story: Story) => {
-        setPendingAction({ type: "edit", data: story });
-        setShowPassModal(true);
-    };
-
-    const handlePassSubmit = async () => {
-        if (passInput !== PASSCODE) {
-            setPassError("Sai passcode!");
-            return;
-        }
-        setShowPassModal(false);
-        setPassInput("");
-        setPassError("");
-
-        if (pendingAction?.type === "edit") {
-            setEditStory(pendingAction.data);
-            setShowModal(true);
-        } else if (pendingAction?.type === "delete") {
-            try {
-                await deleteStory(pendingAction.data);
-                setStories(stories.filter(story => story.id !== pendingAction.data));
-            } catch (error) {
-                console.error("error :" + error)
-                alert("Xóa story thất bại!");
-            }
-        }
-
-        setPendingAction(null);
-    };
+    // (Duplicate declaration removed)
 
     const filteredStories = useMemo(() => {
         if (selectedChapterId !== null) {
@@ -102,6 +54,80 @@ export default function StoryListPage() {
 
         return stories;
     }, [stories, filterType, selectedChapterId]);
+
+    const pagedStories = useMemo(() => {
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        return filteredStories.slice(start, start + ITEMS_PER_PAGE);
+    }, [filteredStories, currentPage]);
+
+    const totalPages = Math.ceil(filteredStories.length / ITEMS_PER_PAGE);
+
+    const loadStories = async () => {
+        setLoading(true);
+        try {
+            const data = await fetchStoriesByMainSectionId(mainSectionId);
+            setStories(data);
+        } catch {
+            setStories([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        // const load = async () => {
+        //     try {
+        //         const data = await fetchStoriesByMainSectionId(mainSectionId);
+        //         setStories(data);
+        //     } catch {
+        //         setStories([]);
+        //     }
+        //     setLoading(false);
+        // };
+        // if (mainSectionId) load();
+
+        if (mainSectionId) loadStories();
+    }, [mainSectionId]);
+
+    const handleOpenAdd = () => {
+        setEditStory(undefined);
+        setShowModal(true);
+    };
+
+    const handleDelete = (storyId: number) => {
+        setPendingAction({ type: "delete", data: storyId });
+        setShowPassModal(true);
+    };
+
+    const handleEdit = (story: Story) => {
+        setPendingAction({ type: "edit", data: story });
+        setShowPassModal(true);
+    };
+
+    // ✅ 3) XOÁ: thay vì filter tại chỗ → gọi API rồi reload
+    const handlePassSubmit = async () => {
+        if (passInput !== PASSCODE) {
+            setPassError("Sai passcode!");
+            return;
+        }
+        setShowPassModal(false);
+        setPassInput("");
+        setPassError("");
+
+        if (pendingAction?.type === "edit") {
+            setEditStory(pendingAction.data);
+            setShowModal(true);
+        } else if (pendingAction?.type === "delete") {
+            try {
+                await deleteStory(pendingAction.data);
+                await loadStories(); // 🔁 reload sau khi xoá
+            } catch (error) {
+                console.error("error :" + error);
+                alert("Xóa story thất bại!");
+            }
+        }
+        setPendingAction(null);
+    };
 
 
     const getImageUrl = (image: string) => {
@@ -165,7 +191,7 @@ export default function StoryListPage() {
                 <p>Đang tải...</p>
             ) : viewMode === "card" ? (
                 <div className="row g-4">
-                    {filteredStories.map((story) => {
+                    {pagedStories.map((story) => {
                         const accent = story.type === 0 ? "#ef4444" : "#22d3ee"; // chapter vs màn (tuỳ bạn đổi)
                         const img = story.image ? getImageUrl(story.image) : "/images/banner.png";
 
@@ -211,7 +237,7 @@ export default function StoryListPage() {
 
                                             {story.type === 0 ? (
                                                 <button
-                                                    className="iris-cta" style={{backgroundColor: "transparent"}}
+                                                    className="iris-cta" style={{ backgroundColor: "transparent" }}
                                                     onClick={() => {
                                                         setSelectedChapterId(story.id);
                                                         setFilterType("screen");
@@ -221,7 +247,7 @@ export default function StoryListPage() {
                                                 </button>
                                             ) : (
                                                 <button
-                                                    className="iris-cta" style={{backgroundColor: "transparent"}}
+                                                    className="iris-cta" style={{ backgroundColor: "transparent" }}
                                                     onClick={() => handleViewDetail(story)}
                                                 >
                                                     Đọc cốt truyện <i className="bi bi-arrow-right-short"></i>
@@ -247,7 +273,7 @@ export default function StoryListPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredStories.map(story => (
+                        {pagedStories.map(story => (
                             <tr key={story.id}>
                                 <td>
                                     {story.image && (
@@ -271,26 +297,44 @@ export default function StoryListPage() {
                 </table>
             )}
 
+            {/* Phân trang */}
+            <div className="d-flex justify-content-end mb-2">
+                {totalPages > 1 && (
+                    <nav>
+                        <ul className="pagination mb-0">
+                            <li className={`page-item${currentPage === 1 ? " disabled" : ""}`}>
+                                <button className="page-link" onClick={() => setCurrentPage(p => Math.max(1, p - 1))}>Trước</button>
+                            </li>
+                            {Array.from({ length: totalPages }).map((_, idx) => (
+                                <li key={idx} className={`page-item${currentPage === idx + 1 ? " active" : ""}`}>
+                                    <button className="page-link" onClick={() => setCurrentPage(idx + 1)}>{idx + 1}</button>
+                                </li>
+                            ))}
+                            <li className={`page-item${currentPage === totalPages ? " disabled" : ""}`}>
+                                <button className="page-link" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}>Sau</button>
+                            </li>
+                        </ul>
+                    </nav>
+                )}
+            </div>
+
             {/* Modal thêm/sửa */}
             <StoryModal
                 show={showModal}
                 onClose={() => setShowModal(false)}
-                onSuccess={() => {
+                onSuccess={async () => {
+                    await loadStories();   // 🔁 reload sau khi thêm/sửa
                     setShowModal(false);
                     setEditStory(undefined);
-                    fetchStoriesByMainSectionId(mainSectionId).then(setStories);
                 }}
-                initialData={editStory ? {
-                    id: editStory.id,
-                    title: editStory.title,
-                    mainSectionId: editStory.mainSectionId, // ✅ sửa lại từ area_id
-                    description: editStory.description,
-                    image: editStory.image,
-                    type: editStory.type, // Chuyển đổi sang số
-                    parentId: editStory.parentId ? editStory.parentId : 0 // Nếu không có parentId thì truyền undefined
+                initialData={editStory}
 
-                } : undefined}
-                mainSectionId={mainSectionId} // ✅ truyền ID section bạn đang xem
+                // ⬇️ NGỮ CẢNH MỚI
+                fixedMainSectionId={mainSectionId}                               // luôn khoá mainSection theo trang
+                fixedType={
+                    selectedChapterId !== null ? 1 : (filterType === "chapter" ? 0 : undefined)
+                }                                                                // chapter-list -> 0; vào trong 1 chương -> 1
+                fixedParentId={selectedChapterId !== null ? selectedChapterId : undefined}
             />
 
 

@@ -24,11 +24,12 @@ const emptyItem: ItemData = {
     id: 0,
     itemName: '',
     itemdescription: '',
-    type: '',
+    itemType: 'OTHER',
     slug: '',
     itemImage: '',
     itemIcon: '',
-    itemFullInfor: ''
+    itemFullInfor: '',
+    itemRank: 3
 };
 
 export default function ModalItem({
@@ -152,20 +153,23 @@ export default function ModalItem({
                 await createItemData({
                     itemName: form.itemName?.trim(),
                     itemdescription: form.itemdescription ?? '',
-                    type: form.type ?? '',
+                    itemType: form.itemType ?? '',
                     slug: form.slug ?? '',
                     itemImage: form.itemImage ?? '',
                     itemIcon: form.itemIcon ?? '',
+                    itemFullInfor: form.itemFullInfor ?? '',
+                    itemRank: form.itemRank ?? 3
                 });
             } else if (mode === 'edit') {
                 await updateItemData({
                     id: form.id,
                     itemName: form.itemName?.trim(),
                     itemdescription: form.itemdescription ?? '',
-                    type: form.type ?? '',
+                    itemType: form.itemType ?? '',
                     slug: form.slug ?? '',
                     itemImage: form.itemImage ?? '',
                     itemIcon: form.itemIcon ?? '',
+                    itemRank: form.itemRank ?? 3
                 });
             }
             onSuccess();
@@ -192,7 +196,7 @@ export default function ModalItem({
             await deleteItemData({
                 id: form.id,
                 itemName: form.itemName,
-                type: form.type,
+                itemType: form.itemType,
                 slug: form.slug,
             });
             onSuccess();
@@ -228,7 +232,7 @@ export default function ModalItem({
                             <p>Bạn có chắc chắn muốn xóa vật phẩm sau?</p>
                             <ul className={styles.infoList}>
                                 <li><b>Tên:</b> {initial?.itemName}</li>
-                                <li><b>Loại:</b> {initial?.type || '—'}</li>
+                                <li><b>Loại:</b> {initial?.itemType || '—'}</li>
                                 <li><b>Slug:</b> {initial?.slug || '—'}</li>
                             </ul>
                         </div>
@@ -248,12 +252,23 @@ export default function ModalItem({
 
                                 <div className={styles.formGroup}>
                                     <label className={styles.label}>Loại</label>
-                                    <input
+                                    <select
                                         className={styles.input}
-                                        value={form.type ?? ''}
-                                        onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
-                                        placeholder="weapon / armor / material / …"
-                                    />
+                                        value={form.itemType ?? ''}
+                                        onChange={(e) =>
+                                            setForm((f) => ({
+                                                ...f,
+                                                itemType: e.target.value as ItemData['itemType'],
+                                            }))
+                                        }
+                                    >
+                                        <option value="">Chọn loại vật phẩm</option>
+                                        <option value="WEAPON">Vũ khí</option>
+                                        <option value="KEY">Vật phẩm nhiệm vụ</option>
+                                        <option value="MATERIAL">Nguyên liệu</option>
+                                        <option value="UPGRADE_MATERIAL">Vật liệu nâng cấp</option>
+                                        <option value="OTHER">Khác</option>
+                                    </select>
                                 </div>
 
                                 <div className={styles.formGroup}>
@@ -374,7 +389,7 @@ export default function ModalItem({
 
                             <div className={styles.footer}>
                                 <button type="button" className={styles.btnGhost} onClick={onClose}>Hủy</button>
-                                <button type="submit" className={styles.btnPrimary} disabled={submitting} style={{color : "white"}}>
+                                <button type="submit" className={styles.btnPrimary} disabled={submitting} style={{ color: "white" }}>
                                     {submitting ? 'Đang lưu…' : mode === 'create' ? 'Thêm' : 'Lưu thay đổi'}
                                 </button>
                             </div>

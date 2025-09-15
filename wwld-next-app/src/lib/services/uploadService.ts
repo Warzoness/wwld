@@ -8,8 +8,9 @@ export const handleImageUpload = async (file: File): Promise<string | null> => {
 
   try {
     // 1) Lấy chữ ký từ backend Spring
+    // Ưu tiên env, fallback về cùng giá trị dùng trong app (http)
     const backend =
-      process.env.NEXT_PUBLIC_BACKEND_URL ?? "https://localhost:8080";
+      (typeof process !== "undefined" && process.env.NEXT_PUBLIC_BACKEND_URL) || "http://localhost:8081";
 
     const signRes = await fetch(`${backend}/cloudinary/sign`, {
       method: "POST",

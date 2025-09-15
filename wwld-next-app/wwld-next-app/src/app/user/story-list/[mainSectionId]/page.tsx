@@ -1,0 +1,175 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { useParams } from "next/navigation";
+import { fetchStoriesByMainSectionId } from "@/lib/services/storyService";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import BackButton from "@/components/buttons/back-button/page";
+import { getImageUrl } from "@/lib/consts/const";
+
+
+interface Story {
+    id: number;
+    title: string;
+    description: string;
+    image: string;
+    type: 0 | 1; // 0: chapter, 1: screen
+    mainSectionId: number;
+    parentId: number;
+    parentTitle: string;
+}
+
+
+export default function StoryListPage() {
+    const router = useRouter();
+    const params = useParams();
+    const mainSectionId = Number(params.mainSectionId);
+    const mainSectionName = useSearchParams().get("mainSectionName") || "Chưa đặt tên";
+
+    const [stories, setStories] = useState<Story[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [filterType, setFilterType] = useState<"all" | "chapter" | "screen">("chapter");
+
+    const [selectedChapterId, setSelectedChapterId] = useState<number | null>(null);
+
+
+
+
+    useEffect(() => {
+        const load = async () => {
+            try {
+                const data = await fetchStoriesByMainSectionId(mainSectionId);
+                setStories(data);
+            } catch {
+                setStories([]);
+            }
+            setLoading(false);
+        };
+        if (mainSectionId) load();
+    }, [mainSectionId]);
+
+    const filteredStories = useMemo(() => {
+        if (selectedChapterId !== null) {
+            // Nếu đang chọn 1 chương, chỉ hiển thị các màn con
+            return stories.filter(story => story.parentId === selectedChapterId);
+        }
+
+        if (filterType === "chapter") {
+            return stories.filter(story => story.type === 0);
+        }
+
+        if (filterType === "screen") {
+            return stories.filter(story => story.type === 1);
+        }
+
+        return stories;
+    }, [stories, filterType, selectedChapterId]);
+
+
+    // Xem chi tiết story
+    const handleViewDetail = (story: Story) => {
+        router.push(`/user/story-detail/${story.id}`);
+        sessionStorage.setItem(
+            "storyData",
+            JSON.stringify({
+                actName: story.title,
+                chapterName: story.parentTitle,
+                description: story.description || "Chưa có mô tả nhiệm vụ"
+            })
+        );
+    };
+
+    return (
+        <div className="container mt-4">
+            <BackButton label="Quay lại" />
+            <h2><span className="text-primary">{mainSectionName}</span></h2>
+
+            <div className="d-flex justify-content-between align-items-center mb-3">
+                <select
+                    className="form-select w-auto"
+                    value={filterType}
+                    onChange={e => {
+                        const value = e.target.value;
+                        if (value === "all" || value === "chapter" || value === "screen") {
+                            setFilterType(value);
+                        }
+                    }}
+                >
+                    <option value="all">Tất cả</option>
+                    <option value="chapter">Chương</option>
+                    <option value="screen">Màn</option>
+                </select>
+
+
+            </div>
+
+            {selectedChapterId !== null && (
+                <div className="mb-3">
+                    <button className="btn btn-secondary" onClick={() => {
+                        setSelectedChapterId(null);
+                        setFilterType("chapter");
+                    }}>
+                        Quay lại danh sách chương
+                    </button>
+                </div>
+            )}
+            <div className="row g-4">
+                {filteredStories.map((story) => {
+                    const accent = story.type === 0 ? "#ef4444" : "#22d3ee"; // chapter vs màn (tuỳ bạn đổi)
+                    const img = story.image ? getImageUrl(story.image) : "/images/banner.png";
+
+                    return (
+                        <div className="col-md-4" key={story.id}>
+                            <div
+                                className="iris-card h-100"
+                                style={{ ["--iris-accent" as string]: accent }}
+                            >
+                                <div className="iris-card__media" style={{ height: 180 }}>
+                                    <img src={img} alt={story.title} className="iris-card__img" />
+                                </div>
+
+                                <div className="iris-card__body">
+                                    <div className="iris-card__title">
+                                        <span className="iris-glyph">
+                                            <i className="bi bi-journal-text"></i>
+                                        </span>
+                                        <h5 className="iris-card__heading" title={story.title}>
+                                            {story.title}
+                                        </h5>
+                                    </div>
+
+                                    <p className="iris-card__text line-clamp-3">
+                                        {story.description}
+                                    </p>
+
+                                    <div className="d-flex align-items-center justify-content-between mt-2">
+
+                                        {story.type === 0 ? (
+                                            <button
+                                                className="iris-cta  iris-cta--solid" style={{ backgroundColor: "transparent" }}
+                                                onClick={() => {
+                                                    setSelectedChapterId(story.id);
+                                                    setFilterType("screen");
+                                                }}
+                                            >
+                                                Xem danh sách màn <i className="bi bi-arrow-right-short"></i>
+                                            </button>
+                                        ) : (
+                                            <button
+                                                className="iris-cta" style={{ backgroundColor: "transparent" }}
+                                                onClick={() => handleViewDetail(story)}
+                                            >
+                                                Đọc cốt truyện <i className="bi bi-arrow-right-short"></i>
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}

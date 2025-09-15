@@ -3,6 +3,9 @@ import axios from "axios";
 import { ApiCharacterPayload, CharacterPayload,Sex } from "../types/character";
 import { backendUrl } from "../consts/const";
 
+
+
+
 // ===== Helpers =====
 function toIsoDate(v?: string | Date): string | undefined {
   if (!v) return undefined;
@@ -48,15 +51,12 @@ export function toApiPayload(p: CharacterPayload): ApiCharacterPayload {
     otherInformation: p.otherInformation,
     height: isNumber(p.height) ? p.height : undefined,
     combatStyle: p.combatStyle,
-    mainQuestId: isNumber(p.mainQuestId) ? p.mainQuestId : undefined,
-    sideQuestId: isNumber(p.sideQuestId) ? p.sideQuestId : undefined,
-    eventQuestId: isNumber(p.eventQuestId) ? p.eventQuestId : undefined,
-    areaId: isNumber(p.areaId) ? p.areaId : undefined,
-    memeId: isNumber(p.memeId) ? p.memeId : undefined,
-    type: p.type,
+    characterType: p.characterType,
+    isLimited : p.isLimited
   };
   return stripEmpty(api); // OK, không cần cast
 }
+
 
 
 // ===== API Client =====
@@ -111,6 +111,8 @@ export const fetchOneCharacterById = async (id : number) => {
     const request = { clientTime: new Date().toISOString(),id };
     
     const response = await apiClient.post("/api/characters/getCharacterById", request);
+    console.log("response : ", response.data.characterDTO);
+    
     return response.data.characterDTO;
   } catch (error) {
     console.error("Error fetching characters:", error);

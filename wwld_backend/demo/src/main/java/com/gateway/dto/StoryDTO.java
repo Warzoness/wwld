@@ -20,10 +20,11 @@ public class StoryDTO {
     private Date timeStarted;
     private Date timeEnded;
     private String description;
+    private String image;
 
     public StoryDTO(Long id, String title, Integer type, Integer active,
                     Long mainSectionId, Long areaId,
-                    Long parentId,String parentTitle, Date timeStarted, Date timeEnded,String description) {
+                    Long parentId,String parentTitle, Date timeStarted, Date timeEnded,String description,String image) {
         this.id = id;
         this.title = title;
         this.type = type;
@@ -35,5 +36,6 @@ public class StoryDTO {
         this.timeStarted = timeStarted;
         this.timeEnded = timeEnded;
         this.description = description;
+        this.image = image;
     }
 }

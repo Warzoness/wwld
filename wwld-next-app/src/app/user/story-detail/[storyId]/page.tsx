@@ -57,7 +57,26 @@ export default function StoryDetailPage() {
   const safeTotalItems = Number(totalItem) || 0;
   const safePageSize = Number(pageSize) || 1;
   const totalPages = Math.ceil(safeTotalItems / safePageSize);
-  const pageNumbers = totalPages > 0 ? Array.from({ length: totalPages }, (_, i) => i) : [];
+  // Tạo mảng số trang hiển thị tối đa 
+  const getPageNumbers = (current: number, total: number, max: number = 4) => {
+    if (total <= max) return Array.from({ length: total }, (_, i) => i);
+    const pages: (number | string)[] = [];
+    const left = Math.max(0, Math.min(current - 2, total - max));
+    const right = Math.min(total, left + max);
+
+    if (left > 0) {
+      pages.push(0);
+      if (left > 1) pages.push('...');
+    }
+    for (let i = left; i < right; i++) pages.push(i);
+    if (right < total) {
+      if (right < total - 1) pages.push('...');
+      pages.push(total - 1);
+    }
+    return pages;
+  };
+
+  const pageNumbers = getPageNumbers(pageNumber, totalPages, 4);
 
   // ===== Note modal =====
   const [noteOpen, setNoteOpen] = useState(false);
@@ -363,13 +382,19 @@ export default function StoryDetailPage() {
             </button>
           </li>
 
-          {pageNumbers.map((index) => (
-            <li key={index} className={`page-item ${pageNumber === index ? "active" : ""}`}>
-              <button className="page-link" onClick={() => handlePageChange(index)}>
-                {index + 1}
-              </button>
-            </li>
-          ))}
+          {pageNumbers.map((index, idx) =>
+            typeof index === "number" ? (
+              <li key={index} className={`page-item ${pageNumber === index ? "active" : ""}`}>
+                <button className="page-link" onClick={() => handlePageChange(index)}>
+                  {index + 1}
+                </button>
+              </li>
+            ) : (
+              <li key={`ellipsis-${idx}`} className="page-item disabled">
+                <span className="page-link">…</span>
+              </li>
+            )
+          )}
 
           <li className={`page-item ${pageNumber >= totalPages - 1 ? "disabled" : ""}`}>
             <button

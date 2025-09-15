@@ -1,0 +1,209 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  display: grid;
+  place-items: center;
+  z-index: 60;
+}
+
+/* Modal container: flex column + giới hạn theo viewport */
+.modal {
+  width: min(1200px, 92vw);
+  max-height: 90vh;
+  background: linear-gradient(180deg, #111827, #0b1224);
+  border: 1px solid #1f2937;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.4);
+  animation: pop .15s ease-out;
+
+  display: flex;             /* <<< quan trọng */
+  flex-direction: column;    /* <<< quan trọng */
+  overflow: hidden;          /* bo góc đẹp khi sticky */
+}
+
+@keyframes pop {
+  from { transform: translateY(6px) scale(.98); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* Header sticky top */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #1f2937;
+  color: #e5e7eb;
+  background: inherit;       /* cùng nền với modal */
+}
+
+/* Nút đóng */
+.iconBtn {
+  background: transparent;
+  border: 0;
+  color: #9ca3af;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* Body chiếm phần còn lại và cuộn */
+.body {
+  flex: 1 1 auto;            /* <<< cho phép co giãn */
+  min-height: 0;             /* <<< cần để phần con cuộn được */
+  overflow: auto;            /* <<< chỉ body cuộn */
+  -webkit-overflow-scrolling: touch;
+  padding: 16px;
+  color: #e5e7eb;
+}
+
+/* Footer sticky bottom */
+.footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid #1f2937;
+  background: inherit;        /* cùng nền với modal */
+}
+
+/* Hiệu ứng mờ nhẹ ở mép khi cuộn */
+.header::after,
+.footer::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  height: 12px;
+  pointer-events: none;
+}
+.header::after {
+  bottom: -12px;
+  background: linear-gradient(to bottom, rgba(17,24,39,1), rgba(17,24,39,0));
+}
+.footer::before {
+  top: -12px;
+  background: linear-gradient(to top, rgba(11,18,36,1), rgba(11,18,36,0));
+}
+
+/* Form controls */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.field > label {
+  font-size: .9rem;
+  color: #cbd5e1;
+}
+.input,
+.textarea {
+  background: #0b1224;
+  border: 1px solid #1f2937;
+  color: #e5e7eb;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+.textarea { resize: vertical; }
+
+/* Layout 2 cột (mô tả + storyId) */
+.cols {
+  display: grid;
+  grid-template-columns: 1fr 200px;
+  gap: 12px;
+}
+
+/* Buttons & state */
+.btn {
+  background: #374151;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.btnDanger { background: #b91c1c; }
+.btnGhost {
+  background: transparent;
+  color: #e5e7eb;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.error {
+  background: #7f1d1d;
+  color: #fecaca;
+  margin: 12px 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+.confirmRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  justify-content: flex-end;
+}
+
+/* Upload */
+.dropzone {
+  background: rgba(11,18,36,.6);
+  border: 1px dashed #334155;
+  border-radius: 12px;
+  padding: 16px;
+  display: grid;
+  place-items: center;
+  min-height: 140px;
+  cursor: pointer;
+}
+.dropzone:hover {
+  border-color: #475569;
+  background: rgba(11,18,36,.75);
+}
+.dropContent {
+  display: grid;
+  gap: 6px;
+  text-align: center;
+  color: #cbd5e1;
+}
+.fileInput { display: none; }
+
+.previewWrap {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+}
+.previewImg {
+  max-width: min(560px, 100%);
+  max-height: 280px;
+  border-radius: 12px;
+  border: 1px solid #334155;
+  object-fit: contain;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+}
+.previewActions { display: flex; gap: 8px; }
+
+.hint { color: #94a3b8; font-size: .875rem; margin-top: 6px; }
+.hintError {
+  color: #fecaca;
+  background: #7f1d1d;
+  border-radius: 8px;
+  padding: 6px 8px;
+  margin-top: 8px;
+}
+
+/* Responsive: cột thu về 1 trên màn hẹp */
+@media (max-width: 600px) {
+  .cols {
+    grid-template-columns: 1fr;
+  }
+}

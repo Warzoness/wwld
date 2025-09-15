@@ -56,21 +56,12 @@ public class GameCharacter {
     @Column(name="combat_style")
     private String combatStyle;
 
-    @Column(name="mainQuestId")
-    private Long mainQuestId;
+    @Column(name="character_type")
+    private String characterType;
 
-    @Column(name="sideQuestId")
-    private Long sideQuestId;
+    @Column(name="character_rank")
+    private Long characterRank;
 
-    @Column(name="eventQuestId")
-    private Long eventQuestId;
-
-    @Column(name="areaId")
-    private Long areaId;
-
-    @Column(name="memeId")
-    private Long memeId;
-
-    @Column(name="type")
-    private String type;
+    @Column(name="is_limited")
+    private Boolean isLimited;
 }

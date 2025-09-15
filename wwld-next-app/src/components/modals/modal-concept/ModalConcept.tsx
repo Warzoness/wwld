@@ -372,16 +372,6 @@ const ConceptModal: React.FC<ConceptModalProps> = ({
                       <span className="text-muted">📤 Chọn hoặc kéo-thả ảnh vào đây</span>
                     )}
                   </div>
-
-                  {/* Cho phép nhập URL tay (full URL) nếu muốn */}
-                  <input
-                    type="text"
-                    className="form-control mt-2"
-                    name="conceptImage"
-                    placeholder="https://domain.com/uploads/abc.jpg"
-                    value={formData.conceptImage}
-                    onChange={handleChange}
-                  />
                 </div>
               </div>
             </div>

@@ -1,0 +1,103 @@
+import { DialogPayload } from "../types/dialog";
+import { apiClient } from "../apiClient";
+
+
+// Tạo mới 
+export const addDialog = async (payload: DialogPayload) => {
+    try {
+        const response = await apiClient.post("/api/dialog/insert", payload);
+        return response.data;
+    } catch (error) {
+        console.error("Error adding dialog :", error);
+        throw error;
+    }
+};
+
+// Lấy danh sách
+export const fetchDialogs = async () => {
+    try {
+        const request = {
+            clientTime: new Date().toISOString()
+        };
+        const response = await apiClient.post("/api/dialog/getDialogs", request);
+        return response.data.listDialogs;
+    } catch (error) {
+        console.error("Error fetching main sections:", error);
+        throw error;
+    }
+};
+
+// Lấy danh sách theo storyId
+export const fetchDialogsByStoryId = async (storyId: number) => {
+    try {
+        const request = {
+            storyId,
+            clientTime: new Date().toISOString()
+        };
+        const response = await apiClient.post("/api/dialog/getDialogs", request);
+        return response.data.listDialogs;
+    } catch (error) {
+        console.error("Error fetching dialogs by story id:", error);
+        throw error;
+    }
+};
+
+// Lấy danh sách theo storyId và phân trang
+export const fetchDialogPagesByStoryId = async (storyId: number,pageIndex = 0,pageSize = 30) => {
+    try {
+        const request = {
+            storyId,
+            pageIndex,
+            pageSize,
+            clientTime: new Date().toISOString()
+        };
+        const response = await apiClient.post("/api/dialog/getPageDialogs", request);
+        
+        return {
+            dialogs : response.data.listDialogs,
+            totalItem : response.data.totalItem,
+            pageNumber : response.data.pageNumber,
+            pageSize : response.data.pageSize
+        };
+    } catch (error) {
+        console.error("Error fetching dialogs by story id:", error);
+        throw error;
+    }
+};
+
+// Sửa 
+export const updateDialog = async (payload: DialogPayload) => {
+  try {
+    const response = await apiClient.post("/api/dialog/update", payload);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating dialog:", error);
+    throw error;
+  }
+};
+
+// Xóa
+export const deleteDialog = async (id: number) => {
+    try {
+        const response = await apiClient.post("/api/dialog/delete", { id });
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting dialog:", error);
+        throw error;
+    }
+};
+
+// update order index
+// API call
+export const updateDialogOrder = async (dialogId: number, orderIndex: number) => {
+    try {
+        const response = await apiClient.post("/api/dialog/updateOrderIndex", {
+            id: dialogId,
+            orderIndex: orderIndex
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error updating dialog order:", error);
+        throw error;
+    }
+};

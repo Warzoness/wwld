@@ -6,6 +6,7 @@ import com.gateway.request.CharacterRequest.GetCharacterRequest;
 
 import java.util.List;
 
+
 public interface CharacterBusiness {
     /**
      * Retrieves a list of characters based on the provided parameters.
@@ -13,6 +14,8 @@ public interface CharacterBusiness {
      * @return A list of CharacterDTO objects matching the search criteria.
      */
     List<CharacterDTO> getCharacters(GetCharacterRequest request);
+
+    List<CharacterDTO> findCharactersByRankAndisLimited(GetCharacterRequest request);
 
     GameCharacter createCharacter(GetCharacterRequest request) throws Exception;
 

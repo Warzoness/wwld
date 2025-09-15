@@ -5,6 +5,7 @@ import com.gateway.bussiness.ItemBusiness;
 import com.gateway.dao.ItemDAO;
 import com.gateway.dto.ItemDTO;
 import com.gateway.entity.Item;
+import com.gateway.entity.ItemType;
 import com.gateway.request.ItemRequest.ItemRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,11 @@ public class ItemBusinessImpl implements ItemBusiness {
     @Override
     public List<ItemDTO> findItems(ItemRequest request) {
         return itemDAO.findItems(request.getId(), request.getItemName());
+    }
+
+    @Override
+    public List<ItemDTO> findWeapons(ItemRequest request) {
+        return itemDAO.findWeapons(ItemType.WEAPON,request.getItemRank());
     }
 
     @Override
@@ -80,7 +86,8 @@ public class ItemBusinessImpl implements ItemBusiness {
         item.setItemIcon(request.getItemIcon());
         item.setItemImage(request.getItemImage());
         item.setItemFullInfor(request.getItemFullInfor());
-        item.setType(request.getType());
+        item.setItemType(request.getItemType());
         item.setSlug(request.getSlug());
+        item.setItemRank(request.getItemRank());
     }
 }

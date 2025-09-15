@@ -15,15 +15,8 @@ export interface Character {
     otherInformation?: string;
     height?: number;
     combatStyle?: string;
-
-    // chỉ gửi khi có giá trị hợp lệ
-    mainQuestId?: number;
-    sideQuestId?: number;
-    eventQuestId?: number;
-    areaId?: number;
-    memeId?: number;
-
-    type?: CharacterType;
+    characterType?: CharacterType;
+    isLimited?: boolean;
 }
 
 const KEY = "selectedCharacter";

@@ -28,12 +28,8 @@ interface CharacterFormData {
   otherInformation: string;
   height?: number;   // number trong state
   combatStyle: string;
-  type: CharacterTypeUI;
-  mainQuestId?: number | null;
-  sideQuestId?: number | null;
-  eventQuestId?: number | null;
-  areaId?: number | null;
-  memeId?: number | null;
+  characterType: CharacterTypeUI;
+  isLimited?: boolean;
 }
 
 const uiFromApiType = (apiType: unknown): CharacterTypeUI =>
@@ -82,12 +78,8 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
     otherInformation: "",
     height: undefined,
     combatStyle: "",
-    type: "playable",
-    mainQuestId: undefined,
-    sideQuestId: undefined,
-    eventQuestId: undefined,
-    areaId: undefined,
-    memeId: undefined,
+    characterType: "playable",
+    isLimited: false
   });
 
   const [loading, setLoading] = useState(false);
@@ -116,19 +108,20 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
         otherInformation: "",
         height: undefined,
         combatStyle: "",
-        type: "playable",
-        mainQuestId: undefined,
-        sideQuestId: undefined,
-        eventQuestId: undefined,
-        areaId: undefined,
-        memeId: undefined,
+        characterType: "playable",
+        isLimited : false
       });
       setAvatarPreview("");
       setImgFullPreview("");
       return;
     }
 
+    
+
     const data: Partial<CharacterPayload> = initialData;
+
+    console.log("initaila : ", initialData);
+
 
     setFormData({
       id: data.id ?? 0,
@@ -145,12 +138,8 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
       otherInformation: data.otherInformation ?? "",
       height: data.height ?? undefined,
       combatStyle: data.combatStyle ?? "",
-      type: uiFromApiType(data.type),
-      mainQuestId: undefined,
-      sideQuestId: undefined,
-      eventQuestId: undefined,
-      areaId: undefined,
-      memeId: undefined,
+      characterType: uiFromApiType(data.characterType),
+      isLimited: data.isLimited ?? undefined
     });
 
     setAvatarPreview(data.avatar ?? "");
@@ -170,6 +159,12 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
       setFormData((prev) => ({ ...prev, height: value === "" ? undefined : Number(value) }));
       return;
     }
+
+    if (name === "isLimited") {
+      setFormData((prev) => ({ ...prev, isLimited: value === "1" }));
+      return;
+    }
+
 
     setFormData((prev) => ({ ...prev, [name]: value }));
 
@@ -247,7 +242,8 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
         otherInformation: formData.otherInformation || undefined,
         height: heightNum,
         combatStyle: formData.combatStyle || undefined,
-        type: formData.type as CharacterPayload["type"],
+        characterType: formData.characterType as CharacterPayload["characterType"],
+        isLimited: formData.isLimited
       };
 
       const cleaned = cleanPayload(payload);
@@ -380,7 +376,7 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
                   type="number"
                   className="form-control"
                   name="age"
-                  value={formData.age}
+                  value={formData.age ?? ""}
                   onChange={handleChange}
                   min={0}
                 />
@@ -393,7 +389,7 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
                   step="0.01"
                   className="form-control"
                   name="height"
-                  value={formData.height}
+                  value={formData.height ?? ""}
                   onChange={handleChange}
                   min={0}
                 />
@@ -458,12 +454,24 @@ const CharacterModal: React.FC<CharacterModalProps> = ({ show, onClose, onSucces
                 <label className="form-label">Loại nhân vật</label>
                 <select
                   className="form-select"
-                  name="type"
-                  value={formData.type}
+                  name="characterType"
+                  value={formData.characterType}
                   onChange={handleChange}
                 >
                   <option value="playable">Playable</option>
                   <option value="npc">NPC</option>
+                </select>
+              </div>
+              <div className="col-md-6">
+                <label className="form-label">Nhân vật giới hạn ? </label>
+                <select
+                  className="form-select"
+                  name="isLimited"
+                  value={formData.isLimited === true ? "1" : "0"}
+                  onChange={handleChange}
+                >
+                  <option value="1">Đúng </option>
+                  <option value="0">Sai</option>
                 </select>
               </div>
             </div>

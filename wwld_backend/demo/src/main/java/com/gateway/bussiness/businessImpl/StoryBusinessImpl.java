@@ -71,6 +71,7 @@ public class StoryBusinessImpl implements StoryBusiness {
         story.setTimeStarted(request.getTimeStarted());
         story.setTimeEnded(request.getTimeEnded());
         story.setDescription(request.getDescription());
+        story.setImage(request.getImage());
     }
 
     // delete a story (mark as inactive)

@@ -1,5 +1,6 @@
 package com.gateway.request.ItemRequest;
 
+import com.gateway.entity.ItemType;
 import com.gateway.request.BaseRequest;
 import lombok.*;
 
@@ -16,7 +17,7 @@ public class ItemRequest extends BaseRequest {
     private String itemImage;
     private String itemIcon;
     private String itemFullInfor;
-    private String type;
+    private ItemType itemType;
     private String slug;
-
+    private Long itemRank;
 }

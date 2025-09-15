@@ -24,14 +24,11 @@ public class CharacterDTO {
     private String otherInformation;
     private Float height;
     private String combatStyle;
-    private Long mainQuestId;
-    private Long sideQuestId;
-    private Long eventQuestId;
-    private Long areaId;
-    private Long memeId;
-    private String type;
+    private String characterType;
+    private Long characterRank;
+    private Boolean isLimited;
 
-    public CharacterDTO(Long id, String name, String avatar, String imgFull, String birthday, String sex, String overview,String history,String organization,Integer age,String nation,String otherInformation,Float height, String combatStyle, Long mainQuestId, Long sideQuestId, Long eventQuestId, Long areaId, Long memeId, String type) {
+    public CharacterDTO(Long id, String name, String avatar, String imgFull, String birthday, String sex, String overview,String history,String organization,Integer age,String nation,String otherInformation,Float height, String combatStyle,  String characterType,Long characterRank,Boolean isLimited) {
         this.id = id;
         this.name = name;
         this.avatar = avatar;
@@ -39,12 +36,8 @@ public class CharacterDTO {
         this.birthday = birthday;
         this.sex = sex;
         this.overview = overview;
-        this.mainQuestId = mainQuestId;
-        this.sideQuestId = sideQuestId;
-        this.eventQuestId = eventQuestId;
-        this.areaId = areaId;
-        this.memeId = memeId;
-        this.type = type;
+        this.characterType = characterType;
+        this.characterRank = characterRank;
         this.history = history;
         this.organization = organization;
         this.age = age;
@@ -52,6 +45,7 @@ public class CharacterDTO {
         this.otherInformation = otherInformation;
         this.height = height;
         this.combatStyle = combatStyle;
+        this.isLimited = isLimited;
     }
 
 

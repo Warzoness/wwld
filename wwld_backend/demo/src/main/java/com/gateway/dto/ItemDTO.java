@@ -1,5 +1,6 @@
 package com.gateway.dto;
 
+import com.gateway.entity.ItemType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,17 +14,19 @@ public class ItemDTO {
     private String itemImage;
     private String itemIcon;
     private String itemFullInfor;
-    private String type;
+    private ItemType itemType;
     private String slug;
+    private Long itemRank;
 
-    public ItemDTO(Long id, String itemName, String itemDescription, String itemImage, String itemIcon, String itemFullInfor, String type,String slug) {
+    public ItemDTO(Long id, String itemName, String itemDescription, String itemImage, String itemIcon, String itemFullInfor, ItemType itemType,String slug,Long itemRank) {
         this.id = id;
         this.itemName = itemName;
         this.itemDescription = itemDescription;
         this.itemImage = itemImage;
         this.itemIcon = itemIcon;
         this.itemFullInfor = itemFullInfor;
-        this.type = type;
+        this.itemType = itemType;
         this.slug = slug;
+        this.itemRank = itemRank;
     }
 }

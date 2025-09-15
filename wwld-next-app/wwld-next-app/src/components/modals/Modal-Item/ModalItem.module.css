@@ -1,0 +1,271 @@
+.wapper {
+    --iris-bg: #0f172a;
+    --iris-card: #111827;
+    --iris-border: #1f2937;
+    --iris-text: #e5e7eb;
+    --iris-muted: #94a3b8;
+    --iris-primary: #22d3ee;
+    --iris-warn: #f59e0b;
+    --iris-danger: #ef4444;
+    --shadow-lg: 0 20px 60px rgba(0, 0, 0, .45);
+}
+
+.backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 1000;
+}
+
+.modal {
+    width: min(860px, 96vw);
+    background: var(--iris-card);
+    color: var(--iris-text);
+    border: 1px solid var(--iris-border);
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+
+    /* QUAN TRỌNG: không vượt quá màn hình */
+    max-height: 92vh;
+    /* luôn thấp hơn viewport */
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--iris-border);
+}
+
+.title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.iconBtn {
+    background: transparent;
+    border: none;
+    color: var(--iris-muted);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+}
+
+.iconBtn:hover {
+    color: var(--iris-text);
+    background: #0b1224;
+}
+
+.body {
+    padding: 16px 20px;
+    overflow: auto;
+    /* nội dung cuộn bên trong */
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 16px;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.formGroupFull {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.label {
+    font-size: 13px;
+    color: var(--iris-muted);
+}
+
+.req {
+    color: var(--iris-danger);
+    margin-left: 4px;
+}
+
+.input,
+.textarea {
+    background: #0b1224;
+    color: var(--iris-text);
+    border: 1px solid var(--iris-border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    outline: none;
+}
+
+.input:focus,
+.textarea:focus {
+    border-color: #334155;
+}
+
+.textarea {
+    resize: vertical;
+}
+
+.previewWrap {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 4px;
+}
+
+.preview {
+    max-width: 100%;
+    max-height: 240px;
+    border-radius: 12px;
+    border: 1px solid var(--iris-border);
+}
+
+.previewSmall {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid var(--iris-border);
+}
+
+.infoList {
+    margin: 8px 0 0;
+    padding-left: 18px;
+}
+
+.infoList li {
+    color: var(--iris-muted);
+    margin: 6px 0;
+}
+
+.footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding: 12px 20px;
+    border-top: 1px solid var(--iris-border);
+}
+
+.btnPrimary,
+.btnDanger,
+.btnGhost {
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btnPrimary {
+    background: var(--iris-primary);
+    color: #001018;
+}
+
+.btnPrimary:disabled {
+    opacity: .65;
+    cursor: not-allowed;
+}
+
+.btnDanger {
+    background: var(--iris-danger);
+    color: white;
+}
+
+.btnGhost {
+    background: transparent;
+    color: var(--iris-text);
+    border-color: var(--iris-border);
+}
+
+@media (max-width: 640px) {
+    .modal {
+        width: 96vw;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.dropzone {
+    border: 1px dashed var(--iris-border);
+    border-radius: 12px;
+    background: #0b1224;
+    padding: 14px;
+    min-height: 88px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dropInner {
+    text-align: center;
+}
+
+.dropInnerInline {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.fileBtn {
+    display: inline-block;
+    padding: 8px 12px;
+    border: 1px solid var(--iris-border);
+    border-radius: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.muted {
+    color: var(--iris-muted);
+    font-size: 12px;
+}
+
+.previewRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+}
+
+.previewActions {
+    display: flex;
+    gap: 8px;
+}
+
+.error {
+    margin-top: 8px;
+    color: #fecaca;
+    font-size: 13px;
+}
+
+.formGroupRow {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    /* Ảnh lớn chiếm rộng hơn */
+    gap: 16px;
+    grid-column: 1 / -1;
+    /* full width trong grid cha */
+}
+
+@media (max-width: 640px) {
+    .formGroupRow {
+        grid-template-columns: 1fr;
+    }
+}

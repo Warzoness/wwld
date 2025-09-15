@@ -1,5 +1,5 @@
 
-import Banner from "@/components/Banner";
+import Banner from "@/components/layers/Banner";
 import Link from "next/link";
 
 export default function DashboardPage() {

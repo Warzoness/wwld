@@ -21,13 +21,8 @@ export interface CharacterPayload {
   otherInformation?: string;
   height?: number;          // Float
   combatStyle?: string;
-  // Các ID: để trống/không nhập theo yêu cầu
-  mainQuestId?: number | null;
-  sideQuestId?: number | null;
-  eventQuestId?: number | null;
-  areaId?: number | null;
-  memeId?: number | null;
-  type?: CharacterType;     // String: "playable" | "npc"
+  characterType?: CharacterType;     // String: "playable" | "npc"
+  isLimited? : boolean;
 }
 
 /** Payload thực gửi backend */
@@ -46,37 +41,8 @@ export interface ApiCharacterPayload {
   otherInformation?: string;
   height?: number;
   combatStyle?: string;
-
-  // chỉ gửi khi có giá trị hợp lệ
-  mainQuestId?: number;
-  sideQuestId?: number;
-  eventQuestId?: number;
-  areaId?: number;
-  memeId?: number;
-
-  type?: CharacterType;
+  characterType?: CharacterType;
+  isLimited? : boolean;
 }
 
-type Character = {
-  id: number;
-  name: string;
-  avatar?: string;
-  imgFull?: string;
-  birthday?: string; // ISO date string
-  sex?: "Nam" | "Nữ" | "Khác";
-  overview?: string;
-  history?: string;
-  organization?: string;
-  age?: number;
-  nation?: string;
-  otherInformation?: string;
-  height?: number;
-  combatStyle?: string;
-  // các ID có thể có hoặc không, nhưng không cần nhập ở modal
-  mainQuestId?: number;
-  sideQuestId?: number;
-  eventQuestId?: number;
-  areaId?: number;
-  memeId?: number;
-  type?: "playable" | "npc";
-};
+

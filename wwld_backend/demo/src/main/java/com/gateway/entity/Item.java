@@ -30,9 +30,12 @@ public class Item {
     @Column(name="item_full_infor")
     private String itemFullInfor;
 
-    @Column(name="type")
-    private String type;
+    @Column(name="item_type")
+    private ItemType itemType;
 
     @Column(name="slug")
     private String slug;
+
+    @Column(name="item_rank")
+    private Long itemRank;
 }

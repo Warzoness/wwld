@@ -1,0 +1,21 @@
+/* có thể để ở global.css */
+.modal .modal-content {
+  max-height: 90vh;          /* giới hạn tổng */
+  display: flex;
+  flex-direction: column;
+}
+
+.modal .modal-body {
+  overflow: auto;            /* chỉ phần body cuộn */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* optional: hiệu ứng mờ mép khi cuộn */
+.modal .modal-header,
+.modal .modal-footer {
+  position: sticky;
+  background: inherit;
+  z-index: 1;
+}
+.modal .modal-header { top: 0; }
+.modal .modal-footer { bottom: 0; }

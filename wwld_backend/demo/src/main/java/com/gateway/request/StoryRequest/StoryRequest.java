@@ -20,5 +20,6 @@ public class StoryRequest extends BaseRequest {
     private Date timeStarted;
     private Date timeEnded;
     private String description;
+    private String image;
 
 }

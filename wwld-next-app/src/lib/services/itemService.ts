@@ -1,5 +1,17 @@
 import { apiClient } from "../apiClient";
 
+// item-types.ts
+export const ITEM_TYPES = [
+  "WEAPON",
+  "KEY",
+  "MATERIAL",
+  "UPGRADE_MATERIAL",
+  "OTHER",
+] as const;
+
+export type ItemType = typeof ITEM_TYPES[number]; // "WEAPON" | "KEY" | ...
+
+
 export interface ItemData {
   id: number;
   itemName: string;
@@ -7,8 +19,9 @@ export interface ItemData {
   itemImage: string;
   itemIcon: string;
   itemFullInfor: string;
-  type: string;
+  itemType: ItemType;
   slug: string;
+  itemRank: number;
 }
 
 export interface ItemPayLoad {
@@ -18,8 +31,9 @@ export interface ItemPayLoad {
   itemImage?: string;
   itemIcon?: string;
   itemFullInfor?: string;
-  type: string;
+  itemType: ItemType;
   slug?: string;
+  itemRank?: number;
 }
 
 
@@ -76,10 +90,21 @@ export const fetchItems = async () => {
     const request = {
       clientTime: new Date().toISOString()
     };
-    const response = await apiClient.post("/api/items/listItems", request);
+    const response = await apiClient.post("/api/items/getItems", request);
     return response.data.listItemData;
   } catch (error) {
-    console.error("Error fetching list note:", error);
+    console.error("Error fetching list items:", error);
+    throw error;
+  }
+};
+
+// Lấy danh sách
+export const fetchWeapons = async (payload : ItemPayLoad) => {
+  try {
+    const response = await apiClient.post("/api/items/getWeapons", payload);
+    return response.data.listItemData;
+  } catch (error) {
+    console.error("Error fetching list weapon:", error);
     throw error;
   }
 };
@@ -101,8 +126,9 @@ export const fetchItemDataById = async (id: number): Promise<ItemData | undefine
       itemImage: String(raw.itemImage ?? ""),
       itemIcon: String(raw.itemIcon ?? ""),
       itemFullInfor: String(raw.itemFullInfor ?? ""),
-      type: String(raw.type ?? ""),
+      itemType: raw.itemType as ItemType,
       slug: String(raw.slug ?? ""),
+      itemRank: Number(raw.itemRank)
     };
 
     return item;
@@ -135,3 +161,5 @@ export const deleteItemData = async (payload: ItemPayLoad) => {
     throw error;
   }
 };
+
+

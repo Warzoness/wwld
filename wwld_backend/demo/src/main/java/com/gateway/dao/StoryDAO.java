@@ -11,13 +11,13 @@ import java.util.List;
 public interface StoryDAO extends JpaRepository<Story, Long> {
     // findAll
     @Query("SELECT distinct new com.gateway.dto.StoryDTO(s.id, s.title,s.type,s.active,s.mainSectionId," +
-            " s.areaId,s.parentId,sp.title,s.timeStarted,s.timeEnded,s.description)" +
+            " s.areaId,s.parentId,sp.title,s.timeStarted,s.timeEnded,s.description,s.image)" +
             " FROM Story s   LEFT JOIN Story sp ON sp.id = s.parentId ")
     List<StoryDTO> getAllStories();
 
     //find
     @Query("SELECT distinct new com.gateway.dto.StoryDTO(s.id, s.title, s.type, s.active," +
-            " s.mainSectionId, s.areaId, s.parentId,sp.title, s.timeStarted, s.timeEnded,s.description) " +
+            " s.mainSectionId, s.areaId, s.parentId,sp.title, s.timeStarted, s.timeEnded,s.description,s.image) " +
             "FROM Story s " +
             "LEFT JOIN Story sp ON sp.id = s.parentId " +
             " WHERE (s.id = :id OR :id IS NULL) " +
@@ -36,7 +36,7 @@ public interface StoryDAO extends JpaRepository<Story, Long> {
     );
 
     @Query("SELECT new com.gateway.dto.StoryDTO(s.id, s.title, s.type, s.active, " +
-            "s.mainSectionId, s.areaId, s.parentId, sp.title, s.timeStarted, s.timeEnded, s.description) " +
+            "s.mainSectionId, s.areaId, s.parentId, sp.title, s.timeStarted, s.timeEnded, s.description,s.image) " +
             "FROM Story s " +
             "LEFT JOIN Story sp ON sp.id = s.parentId " +
             "WHERE s.id = :id")

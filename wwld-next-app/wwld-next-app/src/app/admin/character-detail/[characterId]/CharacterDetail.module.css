@@ -1,0 +1,186 @@
+.wapper{
+  --iris-bg:#0f172a; --iris-card:#111827; --iris-card-2:#0b1224;
+  --iris-border:#1f2937; --iris-text:#e5e7eb; --iris-muted:#94a3b8;
+  --iris-accent:#ef4444; --iris-shadow:0 10px 30px rgba(0,0,0,.35);
+}
+
+/* page bg */
+.page{
+  min-height:100vh; color:var(--iris-text);
+  background:
+    radial-gradient(80% 60% at 20% 0%, rgba(239,68,68,.12), transparent 60%),
+    radial-gradient(80% 60% at 80% 100%, rgba(99,102,241,.12), transparent 60%),
+    linear-gradient(180deg, #0b1020, #070b16 50%, #0b1020);
+}
+.containerPad{ padding-top:24px; padding-bottom:32px; }
+.mainRow{ align-items:flex-start; }
+
+/* left panel */
+.panel{
+  background:linear-gradient(180deg, var(--iris-card) 0%, var(--iris-card-2) 100%);
+  border:1px solid var(--iris-border);
+  border-radius:18px; padding:20px; box-shadow:var(--iris-shadow);
+}
+.kicker{ font-size:12px; letter-spacing:.25em; color:var(--iris-muted); margin-bottom:6px; }
+.titleRow{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.title{ margin:0; font-size:clamp(28px,4vw,52px); font-weight:800; }
+.editBtn{
+  border:1px solid var(--iris-border)!important;
+  background:transparent!important; color:var(--iris-text)!important;
+  border-radius:12px!important; padding:8px 12px!important;
+}
+.editBtn:hover{
+  color:var(--iris-accent)!important;
+  border-color:color-mix(in srgb, var(--iris-accent) 50%, var(--iris-border))!important;
+}
+
+/* overview */
+.overview p{ line-height:1.7; color:#dbe3f0; margin:10px 0 14px; }
+.metaGrid{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; }
+.metaItem{
+  display:flex; justify-content:space-between; padding:8px 12px;
+  border-radius:12px; background:rgba(2,6,23,.55); border:1px solid var(--iris-border);
+}
+.metaItem span{ color:var(--iris-muted); }
+.metaItem strong{ font-weight:700; }
+
+/* tab content */
+.tabContent{
+  margin-top:16px; padding:14px; border-radius:14px;
+  background:rgba(2,6,23,.55); border:1px solid var(--iris-border);
+}
+.sectionTitle{ margin:0 0 8px; font-size:18px; font-weight:700; }
+.text{ color:#dbe3f0; line-height:1.7; }
+.list{ margin:0; padding-left:18px; color:#dbe3f0; }
+.list li{ margin:4px 0; }
+
+/* skills */
+.skillGrid{ display:grid; gap:10px; grid-template-columns:repeat(3, minmax(0,1fr)); }
+@media (max-width:991.98px){ .skillGrid{ grid-template-columns:1fr; } }
+.skillCard{
+  background:rgba(2,6,23,.55); border:1px solid var(--iris-border);
+  border-radius:12px; padding:10px;
+}
+.skillName{ font-weight:600; }
+.skillNote{ color:var(--iris-muted); font-size:12px; }
+
+/* right col: portrait + vertical tabs */
+.portraitPanel{
+  background:linear-gradient(180deg, var(--iris-card) 0%, var(--iris-card-2) 100%);
+  border:1px solid var(--iris-border); border-radius:18px;
+  padding:12px; box-shadow:var(--iris-shadow); margin-bottom:12px;
+}
+.portraitImg{
+  width:100%; height:auto; max-height:70vh; object-fit:contain; display:block;
+  filter: drop-shadow(0 16px 32px rgba(0,0,0,.5));
+}
+
+/* vertical tabs (desktop) */
+.tabsVertical{ position:sticky; top:80px; }
+.tabsLabel{ font-size:12px; letter-spacing:.25em; color:var(--iris-muted); margin:6px 0 10px; }
+.tabIcons{ display:flex; flex-direction:column; gap:10px; }
+.tabBtn{
+  width:44px; height:44px; border-radius:12px; display:grid; place-items:center;
+  background:rgba(2,6,23,.55); color:var(--iris-text); border:1px solid var(--iris-border);
+  transition:transform .2s, border-color .2s, color .2s, background .2s;
+}
+.tabBtn:hover{
+  transform:translateY(-1px);
+  color:var(--iris-accent);
+  border-color:color-mix(in srgb, var(--iris-accent) 45%, var(--iris-border));
+}
+.tabBtnActive{
+  color:var(--iris-accent);
+  border-color:color-mix(in srgb, var(--iris-accent) 60%, var(--iris-border));
+  background:color-mix(in srgb, var(--iris-accent) 14%, transparent);
+}
+
+/* mobile tabs */
+.tabsMobile{
+  display:grid; grid-template-columns:repeat(3, minmax(0,1fr));
+  gap:10px; margin-top:12px;
+}
+.tabPill{
+  padding:8px 10px; border-radius:999px;
+  border:1px solid var(--iris-border); background:rgba(2,6,23,.55);
+  color:var(--iris-text); transition:.2s;
+}
+.tabPillActive{
+  color:var(--iris-accent);
+  border-color:color-mix(in srgb, var(--iris-accent) 60%, var(--iris-border));
+  background:color-mix(in srgb, var(--iris-accent) 14%, transparent);
+}
+
+/* back link */
+.backLink{
+  color:var(--iris-muted); text-decoration:none; border-bottom:1px dashed var(--iris-border);
+}
+.backLink:hover{ color:var(--iris-accent); border-color:var(--iris-accent); }
+
+
+/* Tăng chiều rộng panel nhưng vẫn gọn */
+.panel{ max-width: 860px; }
+
+/* Ảnh: cân đối hơn trên desktop */
+.portraitImg{
+  max-height: 64vh;           /* trước là 70vh → đỡ dài */
+}
+
+/* Khoảng cách ảnh với tabs dọc */
+.portraitPanel{ margin-bottom: 16px; }
+
+/* Tabs dọc: nhỏ gọn, sticky thấp hơn để tránh header */
+.tabsVertical{ position: sticky; top: 96px; }
+.tabBtn{ width: 40px; height: 40px; }
+
+/* Nút Sửa: nổi bật nhẹ, vẫn hợp dark */
+.editBtn{
+  color: var(--iris-accent) !important;
+  border-color: color-mix(in srgb, var(--iris-accent) 55%, var(--iris-border)) !important;
+  background: color-mix(in srgb, var(--iris-accent) 10%, transparent) !important;
+}
+.editBtn:hover{
+  background: color-mix(in srgb, var(--iris-accent) 16%, transparent) !important;
+}
+
+/* Mobile: panel full-width; ảnh xuống dưới và cao vừa đủ */
+@media (max-width: 991.98px){
+  .panel{ padding: 16px; }
+  .portraitImg{ max-height: 36vh; }
+  .tabsMobile{ position: sticky; bottom: 8px; z-index: 5; }
+}
+
+/* đảm bảo ảnh và tabs dọc cân đối khối 5/1 */
+.portraitPanel{ margin-bottom: 8px; }
+.portraitImg{ width:100%; height:auto; max-height:64vh; object-fit:contain; }
+
+/* tabs dọc ở col-1: nhỏ gọn & sticky */
+.tabsVertical{ position: sticky; top: 96px; }
+.tabBtn{ width: 40px; height: 40px; }
+
+/* mobile: tab ngang đã có, không cần col-1 */
+@media (max-width: 991.98px){
+  .portraitImg{ max-height: 36vh; }
+}
+
+/* span full width của grid */
+.colSpanAll { grid-column: 1 / -1; }
+
+/* Biến thể cho item có nội dung dài */
+.metaItemFull{
+  flex-direction: column;        /* đổi từ hàng -> cột */
+  align-items: stretch;          /* kéo full chiều ngang */
+  gap: 8px;                      /* cách label với nội dung */
+}
+
+.metaItemFull > span{
+  display: block;
+  margin: 0;                     /* tránh margin đè */
+  line-height: 1.2;
+}
+
+.metaItemFull .text{
+  margin: 0;                     /* bỏ margin mặc định của <p> */
+  line-height: 1.7;
+  white-space: pre-line;         /* giữ xuống dòng trong text */
+}

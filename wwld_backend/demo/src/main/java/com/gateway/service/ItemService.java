@@ -59,6 +59,23 @@ public class ItemService extends BaseFuntion {
         return ResponseEntity.ok(response);
     }
 
+    @RequestMapping(value = "/getWeapons", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<ItemResponse> getWeapons(@RequestBody ItemRequest request) {
+        ItemResponse response = new ItemResponse();
+        response.setBaseResponse(getBase(request));
+        try {
+            if (response.getResult().isOk()) {
+                List<ItemDTO> listItems = itemBusiness.findWeapons(request);
+                response.setListItems(listItems);
+            }
+        } catch (Exception e) {
+            logger.error("Error while getting list items", e);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+
     @RequestMapping(value = "/getItemById", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<ItemResponse> getItemById(@RequestBody ItemRequest request) {

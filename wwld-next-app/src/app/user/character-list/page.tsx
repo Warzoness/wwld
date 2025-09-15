@@ -40,7 +40,7 @@ export default function CharacterProfileGrid() {
     const q = normalize(query.trim());
     return characters
       .filter(c =>
-        filter === "all" ? true : filter === "playable" ? c.type === "playable" : c.type === "npc"
+        filter === "all" ? true : filter === "playable" ? c.characterType === "playable" : c.characterType === "npc"
       )
       .filter(c => (q ? normalize(c.name || "").includes(q) : true));
   }, [characters, filter, query]);
@@ -130,7 +130,7 @@ export default function CharacterProfileGrid() {
             <>
               <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
                 {paged.map((character) => {
-                  const accent = character.type === "playable" ? "#22c55e" : "#f59e0b";
+                  const accent = character.characterType === "playable" ? "#22c55e" : "#f59e0b";
                   const avatar = getImageUrl(character.avatar) || "/images/banner.png";
 
                   return (

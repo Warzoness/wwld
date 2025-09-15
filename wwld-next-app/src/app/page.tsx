@@ -1,7 +1,7 @@
 "use client";
 
-import Banner from "@/components/Banner";
-import Header from "@/components/Header";
+import Banner from "@/components/layers/Banner";
+import Header from "@/components/layers/Header";
 import { backendUrl } from "@/lib/consts/const";
 import { fetchMainSection } from "@/lib/services/mainSectionService";
 import { MainSection } from "@/lib/types/mainSection";
@@ -93,6 +93,8 @@ export default function HomePage() {
                                     ? "/user/concept-list"
                                     : mainSection.name === "Vật phẩm game"
                                     ? "/user/items/items-list"
+                                    : mainSection.name === "Giả lập Gacha"
+                                    ? "/user/gacha-simulator"
                                     : mainSection.name === "Các mảnh ghi chú"
                                       ? "/user/note-list"
                                       : `/user/story-list/${mainSection.id}`,

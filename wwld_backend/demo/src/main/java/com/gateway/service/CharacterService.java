@@ -42,6 +42,27 @@ public class CharacterService extends BaseFuntion{
         return new ResponseEntity<>(response, HttpStatus.OK);
     };
 
+
+    @RequestMapping(value = "/findCharactersByRankAndisLimited", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<CharacterResponse> findCharactersByRankAndisLimited(@RequestBody GetCharacterRequest request) {
+        CharacterResponse response = new CharacterResponse();
+        response.setBaseResponse(getBase(request));
+        try {
+            if (response.getResult().isOk()) {
+                response.setListCharacters(characterBusiness.findCharactersByRankAndisLimited(request));
+            }else{
+                response.setResult(ApiResult.Result.FAILD);
+            }
+        } catch (Exception e) {
+            response.setResult(ApiResult.Result.FAILD);
+            LOGGER.error("Error while getting characters", e);
+        };
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    };
+
+
     @RequestMapping(value = "/insert", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<CharacterResponse> insert(@RequestBody GetCharacterRequest request) {

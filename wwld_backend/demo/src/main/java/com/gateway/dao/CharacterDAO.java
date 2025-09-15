@@ -14,9 +14,8 @@ public interface CharacterDAO extends JpaRepository<GameCharacter, Long> {
     // Find character
     @Query("SELECT new com.gateway.dto.CharacterDTO(" +
             "c.id, c.name, c.avatar, c.imgFull, c.birthday," +
-            "c.sex, c.overview,c.history,c.organization,c.age,c.nation,c.otherInformation,c.height,c.combatStyle" +
-            ", c.mainQuestId, c.sideQuestId, c.eventQuestId," +
-            "c.areaId, c.memeId, c.type" +
+            "c.sex, c.overview,c.history,c.organization,c.age,c.nation,c.otherInformation,c.height,c.combatStyle ," +
+            "c.characterType,c.characterRank,c.isLimited" +
             ") FROM GameCharacter c " +
             "WHERE ( c.id = :id OR :id IS NULL ) " +
             "AND (c.name LIKE concat('%',:name,'%') OR :name = '' OR :name IS NULL )" +
@@ -28,14 +27,29 @@ public interface CharacterDAO extends JpaRepository<GameCharacter, Long> {
 
     @Query("SELECT new com.gateway.dto.CharacterDTO(" +
             "c.id, c.name, c.avatar, c.imgFull, c.birthday," +
-            "c.sex, c.overview,c.history,c.organization,c.age,c.nation,c.otherInformation,c.height,c.combatStyle" +
-            ", c.mainQuestId, c.sideQuestId, c.eventQuestId," +
-            "c.areaId, c.memeId, c.type" +
-            ") FROM GameCharacter c "  +
+            "c.sex, c.overview,c.history,c.organization,c.age,c.nation,c.otherInformation,c.height,c.combatStyle," +
+            " c.characterType,c.characterRank,c.isLimited" +
+            ") FROM GameCharacter c " +
             "WHERE ( c.id = :id OR :id IS NULL ) " +
-                " ")
+            " ")
     CharacterDTO findOneById(
             @Param("id") Long id
+    );
+
+    @Query("SELECT new com.gateway.dto.CharacterDTO(" +
+            "c.id, c.name, c.avatar, c.imgFull, c.birthday," +
+            "c.sex, c.overview,c.history,c.organization,c.age,c.nation,c.otherInformation,c.height,c.combatStyle" +
+            ", c.characterType,c.characterRank,c.isLimited" +
+            ") FROM GameCharacter c " +
+            "WHERE ( c.id = :id OR :id IS NULL ) " +
+            "AND (c.name LIKE concat('%',:name,'%') OR :name = '' OR :name IS NULL )" +
+            "AND (c.characterRank =:rank OR :rank IS NULL)" +
+            "AND (c.isLimited =:isLimited OR :isLimited IS NULL) ")
+    List<CharacterDTO> findCharactersByRankAndisLimited(
+            @Param("id") Long id,
+            @Param("name") String name,
+            @Param("rank") Long rank,
+            @Param("isLimited") Boolean isLimited
     );
 
 }

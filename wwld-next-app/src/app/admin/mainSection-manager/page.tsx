@@ -3,7 +3,7 @@
 
 import BackButton from "@/components/buttons/back-button/page";
 import StoryModal from "@/components/modals/ModalMainSection";
-import { backendUrl, PASSCODE } from "@/lib/consts/const";
+import { backendUrl, getImageUrl, PASSCODE } from "@/lib/consts/const";
 import { deleteMainSection, fetchMainSection } from "@/lib/services/mainSectionService";
 import { MainSection } from "@/lib/types/mainSection";
 import Link from "next/link";
@@ -105,17 +105,8 @@ export default function MainSectionManage() {
       ) : (
         <div className="row g-4">
           {mainSection.map(mainSection => {
-            let imageUrl = "";
-            if (mainSection.image) {
-              if (mainSection.image.startsWith("http")) {
-                imageUrl = mainSection.image;
-              } else if (mainSection.image.startsWith("/uploads/")) {
-                imageUrl = backendUrl + mainSection.image;
-              } else {
-                imageUrl = backendUrl + `/uploads/${mainSection.image.replace(/^\/?uploads\//, "")}`;
-              }
-            }
 
+            const imageUrl = getImageUrl(mainSection.image) || "/images/banner.png";
             return (
               <div className="col-md-3 col-sm-6" key={mainSection.id}>
                 {(() => {
@@ -156,6 +147,8 @@ export default function MainSectionManage() {
                                   ? "/admin/characters-list"
                                   : mainSection.name === "Khái niệm Thế giới"
                                     ? "/admin/concept-list"
+                                    : mainSection.name === "Giả lập Gacha"
+                                    ? "/admin/gacha-simulator"
                                     : mainSection.name === "Vật phẩm game"
                                     ? "/admin/items/items-list"
                                     : mainSection.name === "Các mảnh ghi chú"

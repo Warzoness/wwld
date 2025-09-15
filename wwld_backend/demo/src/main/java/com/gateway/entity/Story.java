@@ -41,6 +41,9 @@ public class Story {
     @Column(name="time_ended")
     private Date timeEnded;
 
-    @Column(name="description")
+    @Column(name="description",columnDefinition = "TEXT",length = 1000)
     private String description;
+
+    @Column(name="image")
+    private String image;
 }

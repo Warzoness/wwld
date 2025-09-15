@@ -26,10 +26,7 @@ public class GetCharacterRequest extends BaseRequest {
     private String otherInformation;
     private Float height;
     private String combatStyle;
-    private Long mainQuestId;
-    private Long sideQuestId;
-    private Long eventQuestId;
-    private Long areaId;
-    private Long memeId;
-    private String type;
+    private String characterType;
+    private Long characterRank;
+    private Boolean isLimited;
 }

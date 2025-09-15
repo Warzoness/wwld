@@ -1,11 +1,12 @@
+server:
+  port: ${PORT:8081}
+
 spring:
-  server:
-    port: ${PORT:8080}
 
   datasource:
-    url: jdbc:mysql://metro.proxy.rlwy.net:38376/wwld
-    username: root
-    password: qOHKzTJnDYrpanHPgBZlzcOpDWqxRmnP
+      url: jdbc:mysql://localhost:3306/wwld
+      username: root
+      password: 1234
 
   jpa:
     hibernate:

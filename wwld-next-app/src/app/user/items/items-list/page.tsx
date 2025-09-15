@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import styles from './ItemsList.module.css';
-import { deleteItemData, fetchPageItem, ItemData } from '@/lib/services/itemService';
+import { deleteItemData, fetchPageItem, ITEM_TYPES, ItemData } from '@/lib/services/itemService';
 
 // Utils nhỏ
 const cls = (...a: Array<string | false | undefined>) => a.filter(Boolean).join(' ');
@@ -64,7 +64,7 @@ export default function ItemsListPage() {
     // client-side filter theo type (service chưa hỗ trợ)
     const filtered = useMemo(() => {
         if (type === 'all') return list;
-        return list.filter((it) => (it.type || '').toLowerCase() === type.toLowerCase());
+        return list.filter((it) => (it.itemType || '').toLowerCase() === type.toLowerCase());
     }, [list, type]);
 
 
@@ -88,7 +88,7 @@ export default function ItemsListPage() {
                 {/* Header */}
                 <div className={styles.header}>
                     <h1 className={styles.title}>Danh sách vật phẩm</h1>
-                    
+
                 </div>
 
                 {/* Toolbar */}
@@ -108,12 +108,24 @@ export default function ItemsListPage() {
                         aria-label="Lọc loại"
                     >
                         <option value="all">Tất cả loại</option>
-                        <option value="weapon">Vũ khí</option>
-                        <option value="armor">Nguyên liệu nâng cấp</option>
-                        <option value="potion">Vật phẩm nhiệm vụ</option>
-                        <option value="material">Vật phẩm cường hóa</option>
-                        <option value="other">Khác</option>
+                        {ITEM_TYPES.map((itemType) => (
+                            <option key={itemType} value={itemType}>
+                                {itemType == "WEAPON" ? (
+                                    "Vũ khí"
+                                ) : itemType == "KEY" ? (
+                                    "Vật phẩm nhiệm vụ"
+                                ) : itemType == "MATERIAL" ? (
+                                    "Nguyên liệu"
+                                ) : itemType == "UPGRADE_MATERIAL" ? (
+                                    "Nguyên liệu nâng cấp"
+                                ) : (
+                                    "Khác"
+                                )
+                                }
+                            </option>
+                        ))}
                     </select>
+
 
                     <select
                         className={styles.select}
@@ -166,7 +178,7 @@ export default function ItemsListPage() {
                                             <h3 className={styles.name} title={it.itemName}>
                                                 {it.itemName}
                                             </h3>
-                                            <span className={cls(styles.badge)}>{it.type || '—'}</span>
+                                            <span className={cls(styles.badge)}>{it.itemType || '—'}</span>
                                         </div>
 
                                         <p className={styles.desc}>
